@@ -19,7 +19,6 @@ type Address struct {
 }
 
 func (address *Address) Update(s string) *Address {
-	o := orm.NewOrm()
 	qs := o.QueryTable(address)
 	p := orm.Params{"nonce": address.Nonce,
 		"amount": address.Amount,
@@ -30,7 +29,6 @@ func (address *Address) Update(s string) *Address {
 }
 
 func (Self *Address) InsertOneRaw(data *Address) *Address {
-	o := orm.NewOrm()
 	data.Id = 0
 	data.Created = time.Now()
 	id, err := o.Insert(data)
@@ -39,4 +37,13 @@ func (Self *Address) InsertOneRaw(data *Address) *Address {
 	}
 	log.Debugf("Address insert id %startscript", id)
 	return Self
+}
+
+func (address *Address) SelectAddr() (*Address, error) {
+	qs := o.QueryTable(address)
+	err := qs.Filter("wallet_id", address.WalletId).One(address)
+	if err != nil{
+		log.Errorf("select addr error %s", err)
+	}
+	return address, err
 }

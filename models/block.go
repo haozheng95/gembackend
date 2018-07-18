@@ -5,8 +5,6 @@ import (
 	"github.com/astaxie/beego/orm"
 )
 
-
-
 type Block struct {
 	Id          int64
 	BlockHeight string    `orm:"index"`

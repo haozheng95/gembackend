@@ -250,7 +250,7 @@ func HttpPost(song map[string]interface{}) string {
 		panic(err)
 	}
 	reader := bytes.NewReader(bytesData)
-	url := "http://" + conf.EthRpcHost + conf.EthRpcPort
+	url := "http://" + conf.EthRpcHost +":"+ conf.EthRpcPort
 
 	resp, err := http.Post(url, "application/json", reader)
 

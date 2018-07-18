@@ -19,7 +19,7 @@ var (
 	//mysql config
 	MysqlHost   string
 	MysqlPasswd string
-	MysqlPost   string
+	MysqlPort   string
 	MysqlUser   string
 	//eth rpc config
 	EthRpcHost    string
@@ -36,7 +36,7 @@ func init() {
 	// init mysql config
 	MysqlHost = iniconf.String("mysql::host")
 	MysqlPasswd = iniconf.String("mysql::passwd")
-	MysqlPost = iniconf.String("mysql::post")
+	MysqlPort = iniconf.String("mysql::port")
 	MysqlUser = iniconf.String("mysql::user")
 	// init eth rpc config
 	EthRpcHost = iniconf.String("eth_rpc::host")

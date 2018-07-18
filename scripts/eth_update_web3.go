@@ -8,18 +8,9 @@ import (
 	"fmt"
 	"github.com/gembackend/rpc"
 	"strings"
-	"github.com/shopspring/decimal"
-	"math"
 	"github.com/regcostajr/go-web3/dto"
 	"strconv"
 	"github.com/gembackend/conf"
-)
-
-const (
-	_tokenName     = "0x06fdde03"
-	_tokenSymbol   = "0x95d89b41"
-	_tokenDecimals = "0x313ce567"
-	_tokenBalance  = "0x70a08231000000000000000000000000"
 )
 
 type EthUpdaterWeb3 struct {
@@ -46,6 +37,8 @@ func (updaterWeb3 *EthUpdaterWeb3) Forever() {
 			return
 		}
 
+		log.Infof("db height %d ==== rpc height %s", height, rpcHeight.String())
+
 		//rpc高度大于数据库高度 就更新
 		if rpcHeight.Uint64() > height {
 
@@ -63,9 +56,12 @@ func (updaterWeb3 *EthUpdaterWeb3) Forever() {
 			updaterWeb3.disposeBlockInfo()
 			//todo 处理块内的交易信息
 			updaterWeb3.disposeTransactions()
+
+			log.Infof("block update success %d", height)
 			height++
 		} else {
 			//Have a rest
+			log.Info("block pending")
 			time.Sleep(time.Second * 5)
 		}
 
@@ -180,71 +176,6 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 	updaterWeb3.TableTx.InsertOneRaw(updaterWeb3.TableTx)
 }
 
-func FormatAddress(addr string) string {
-	k := false
-	s1 := "0x"
-	for _, v := range addr[2:] {
-		if v != 48 {
-			k = true
-		}
-		if k {
-			s1 += string(v)
-		}
-	}
-
-	l := len(s1)
-	if l < 42 {
-		t := ""
-		for i := 0; i < 42-l; i++ {
-			t += "0"
-		}
-		s1 = s1[:2] + t + s1[2:]
-	}
-
-	if len(s1) > 42 {
-		log.Errorf("format addr error %s", addr)
-		panic("format addr error %s")
-	}
-	return s1
-}
-
-func AnalysisTokenLog(logs dto.TransactionLogs) (from, to, amount, logindex string) {
-	if len(logs.Topics) > 2 && strings.Compare(logs.Topics[0], _TRANSACTION_TOPIC) == 0 {
-		to = FormatAddress(logs.Topics[2])
-		from = FormatAddress(logs.Topics[1])
-
-		amount = logs.Data
-		logindex = logs.LogIndex.String()
-	}
-	return
-}
-
-func formatAmount(s string, d int) string {
-	var str string
-	if len(s) > 2 && strings.HasPrefix(strings.ToLower(s[:2]), "0x") {
-		str = s[2:]
-	} else {
-		str = s
-	}
-	amount := HexDec(str)
-	return format10Decimals(amount, d)
-}
-
-func format10Decimals(amount string, i int) string {
-	tempFloat, _ := decimal.NewFromString(amount)
-	t := decimal.NewFromFloat(1.0 * math.Pow(10, float64(i)))
-	tempFloat = tempFloat.Div(t)
-	return tempFloat.String()
-}
-
-func makeFee(gasprice, gasused string) string {
-	a, _ := decimal.NewFromString(gasprice)
-	b, _ := decimal.NewFromString(gasused)
-	a = a.Div(decimal.NewFromFloat(1.0 * math.Pow(10, 18)))
-	c := a.Mul(b)
-	return c.String()
-}
-
 func NewEthUpdaterWeb3(startHeight uint64) *EthUpdaterWeb3 {
 	u := new(EthUpdaterWeb3)
 	u.StartHeight = startHeight
@@ -255,7 +186,7 @@ func NewEthUpdaterWeb3(startHeight uint64) *EthUpdaterWeb3 {
 	u.TableTokenAddress = new(models.TokenAddress)
 	timeOut := conf.EthRpcTimeOut
 	source := conf.EthRpcSecure
-	url := conf.EthRpcHost + conf.EthRpcPort
+	url := conf.EthRpcHost +":"+ conf.EthRpcPort
 	u.connection = web3.NewWeb3(providers.NewHTTPProvider(url, int32(timeOut), source))
 	u.parityParam = map[string]interface{}{
 		"id":      1,

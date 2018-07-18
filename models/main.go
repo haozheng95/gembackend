@@ -6,6 +6,10 @@ import (
 	"github.com/gembackend/conf"
 )
 
+var (
+	o orm.Ormer
+)
+
 func init() {
 	orm.RegisterModel(new(Address), new(Block),
 		new(TokenAddress), new(TokenTx), new(Tx),
@@ -13,8 +17,11 @@ func init() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	maxIdle := 30
 	maxConn := 30
+
 	orm.RegisterDataBase("default",
 		"mysql", conf.MysqlUser + ":" + conf.MysqlPasswd+
-			"@tcp("+ conf.MysqlHost+ ":"+ conf.EthRpcPort+ ")/eth_query?charset=utf8", maxIdle, maxConn)
-	orm.RunSyncdb("default", true, true)
+			"@tcp("+ conf.MysqlHost+ ":"+ conf.MysqlPort+ ")/eth_query?charset=utf8", maxIdle, maxConn)
+	orm.RunSyncdb("default", false, true)
+
+	o = orm.NewOrm()
 }

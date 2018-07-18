@@ -50,6 +50,7 @@ func init() {
 	beego.Router("/api/balance", &controllers.BalanceController{})
 	beego.Router("/api/address", &controllers.RegisterController{})
 	beego.Router("/api/auth", &controllers.AuthController{})
+	beego.Router("/api/txs/?:coin_type", &controllers.TxrecordController{})
 	// 错误信息返回
 	beego.Router("/error/?:error_id", &controllers.ErrorsController{})
 }

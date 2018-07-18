@@ -23,7 +23,7 @@ type TokenTx struct {
 	BlockHash    string    `orm:"index"`
 	BlockHeight  string    `orm:"index"`
 	ConfirmTime  string    `orm:"index"`
-	Created      time.Time `orm:"auto_now_add;type(datetime)"`
+	Created      time.Time `orm:"auto_now_add;type(datetime);index"`
 	BlockState   int
 	TxState      int
 	IsToken      int       `orm:"default(1)"`

@@ -2,26 +2,13 @@ package scripts
 
 import (
 	"github.com/gembackend/rpc"
-	"github.com/gembackend/gembackendlog"
 	"github.com/gembackend/models"
 	"strconv"
 	"strings"
 	"math"
 	"github.com/shopspring/decimal"
-	"fmt"
 )
 
-type Updater interface {
-	Forever()
-}
-
-var log = gembackendlog.Log
-
-const (
-	_TRANSFER          = "0xa9059cbb"
-	_TRANSFER_FROM     = "0x23b872dd"
-	_TRANSACTION_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
-)
 
 type EthUpdater struct {
 	StartHeight       uint64
@@ -35,8 +22,7 @@ type EthUpdater struct {
 
 func (updater *EthUpdater) Forever() {
 	// todo 准备开始的块高度
-	//height := MaxInt(updater.StartHeight, updater.TableBlock.BlockHeight)
-	height := updater.StartHeight
+	height := MaxIntByString(updater.StartHeight, updater.TableBlock.BlockHeight)
 	for {
 		// todo 获取块信息
 		blockInfo := updater.getBlockInfo(height)
@@ -201,9 +187,7 @@ func (updater *EthUpdater) MakeFee() string {
 	b, _ := decimal.NewFromString(updater.TableTx.GasUsed)
 	a = a.Div(decimal.NewFromFloat(1.0 * math.Pow(10, 18)))
 	c := a.Mul(b)
-	//t := decimal.NewFromFloat(1.0 * math.Pow(10, 18))
-	//startscript := c.Div(t)
-	//return startscript.String()
+
 	return c.String()
 }
 func (updater *EthUpdater) formatTokenTransaction() {
@@ -248,9 +232,7 @@ func (updater *EthUpdater) AnalysisTokenLog() {
 }
 
 func (updater *EthUpdater) disposeUpdateEthInfo(addr string) {
-	//更新用户信息
-	//updater.TableAddress.Update(updater.TableTx.From)
-	//updater.TableAddress.Update(updater.TableTx.To)
+
 
 	r1, _ := rpc.Eth_getTransactionCount(addr)
 	f1, err := rpc.FormatTokenResponse(r1)
@@ -291,20 +273,6 @@ func (updater *EthUpdater) disposeUpdateEthTokenInfo(addr string, contractAddr s
 	updater.TableTokenAddress.Update(updater.TableTokenAddress.Addr)
 }
 
-func MaxInt(a, b uint64) uint64 {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func MaxIntByString(a uint64, b string) uint64 {
-	c , _ := strconv.ParseUint(b, 10, 64)
-	if a > c {
-		return a
-	}
-	return c
-}
 
 func NewEthUpdater(startHeight uint64) *EthUpdater {
 	u := new(EthUpdater)
@@ -317,31 +285,4 @@ func NewEthUpdater(startHeight uint64) *EthUpdater {
 	return u
 }
 
-func HexDec(h string) (n string) {
-	//log.Debugf("------- %s", h)
-	if len(h) > 2 && strings.HasPrefix(strings.ToLower(h[:2]), "0x") {
-		h = h[2:]
-	} else if strings.Compare(h, "0x") == 0 {
-		h = "0"
-	}
 
-	s := strings.Split(strings.ToUpper(h), "")
-	l := len(s)
-	i := 0
-	d := decimal.NewFromFloat(0)
-	hex := map[string]string{"A": "10", "B": "11", "C": "12", "D": "13", "E": "14", "F": "15"}
-	for i = 0; i < l; i++ {
-		c := s[i]
-		if v, ok := hex[c]; ok {
-			c = v
-		}
-		f, err := strconv.ParseFloat(c, 10)
-		if err != nil {
-			fmt.Println(h)
-			log.Error(err)
-			return decimal.NewFromFloat(-1).String()
-		}
-		d = d.Add(decimal.NewFromFloat(f * math.Pow(16, float64(l-i-1))))
-	}
-	return d.String()
-}
