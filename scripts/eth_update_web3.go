@@ -27,7 +27,6 @@ type EthUpdaterWeb3 struct {
 }
 
 func (updaterWeb3 *EthUpdaterWeb3) Forever() {
-	// todo 对比最新块的高度和数据库中的高度，小于最新高度就更新，否则就等待
 	// 获取数据库高度
 	updaterWeb3.TableBlock = updaterWeb3.TableBlock.SelectMaxHeight()
 	dbHehght := updaterWeb3.TableBlock.BlockHeight
@@ -139,7 +138,6 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 			if logindex == "" {
 				continue
 			}
-			// todo 获取token精度 from 数据库 or 节点
 			contractAddr := v.Address
 			transactionParameters.From = contractAddr
 			transactionParameters.To = contractAddr

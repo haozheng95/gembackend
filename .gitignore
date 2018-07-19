@@ -5,7 +5,9 @@
 *.so
 *.dylib
 *.idea
-
+*.ini
+.DS_Store
+.idea/
 # Test binary, build with `go test -c`
 *.test
 
