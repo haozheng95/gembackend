@@ -21,7 +21,7 @@ type TokenAddress struct {
 
 func (u *TokenAddress) TableUnique() [][]string {
 	return [][]string{
-		[]string{"Addr", "ContractAddr"},
+		{"Addr", "ContractAddr"},
 	}
 }
 
@@ -49,3 +49,6 @@ func (Self *TokenAddress) InsertOneRaw(data *TokenAddress) *TokenAddress {
 	log.Debugf("TokenAddress insert id %startscript", id)
 	return Self
 }
+//func (u *TokenAddress) TableEngine() string {
+//	return "MYISAM"
+//}

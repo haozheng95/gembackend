@@ -34,7 +34,7 @@ type TokenTx struct {
 
 func (u *TokenTx) TableUnique() [][]string {
 	return [][]string{
-		[]string{"TxHash", "LogIndex"},
+		{"TxHash", "LogIndex"},
 	}
 }
 
@@ -59,3 +59,7 @@ func (Self *TokenTx) InsertOneRaw(data *TokenTx) *TokenTx {
 	//log.Debugf("Tx insert id %startscript", id)
 	return Self
 }
+
+//func (u *TokenTx) TableEngine() string {
+//	return "MYISAM"
+//}

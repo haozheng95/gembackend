@@ -57,3 +57,8 @@ func (block *Block) InsertOneRaw(data *Block) *Block {
 	log.Debugf("block insert id %d startscript", id)
 	return block
 }
+
+func (u *Block) TableEngine() string {
+	return "MYISAM"
+}
+

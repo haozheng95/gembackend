@@ -14,6 +14,7 @@ const (
 	_tokenSymbol       = "0x95d89b41"
 	_tokenDecimals     = "0x313ce567"
 	_tokenBalance      = "0x70a08231000000000000000000000000"
+	_tag               = "latest"
 )
 
 var log = gembackendlog.Log

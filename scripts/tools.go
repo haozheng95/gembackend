@@ -102,6 +102,8 @@ func formatAmount(s string, d int) string {
 	return format10Decimals(amount, d)
 }
 
+
+
 func format10Decimals(amount string, i int) string {
 	tempFloat, _ := decimal.NewFromString(amount)
 	t := decimal.NewFromFloat(1.0 * math.Pow(10, float64(i)))
@@ -115,4 +117,24 @@ func makeFee(gasprice, gasused string) string {
 	a = a.Div(decimal.NewFromFloat(1.0 * math.Pow(10, 18)))
 	c := a.Mul(b)
 	return c.String()
+}
+
+func formatAmountString(s string, d string) string {
+	var str string
+	if len(s) > 2 && strings.HasPrefix(strings.ToLower(s[:2]), "0x") {
+		str = s[2:]
+	} else {
+		str = s
+	}
+	amount := HexDec(str)
+	return format10DecimalsString(amount, d)
+}
+
+func format10DecimalsString(amount string, i string) string {
+	tempFloat, _ := decimal.NewFromString(amount)
+	d,_ := decimal.NewFromString(i)
+	p ,_ := d.Float64()
+	t := decimal.NewFromFloat(1.0 * math.Pow(10, p))
+	tempFloat = tempFloat.Div(t)
+	return tempFloat.String()
 }

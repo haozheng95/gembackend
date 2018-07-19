@@ -11,3 +11,7 @@ type Erc20Token struct {
 	Created       time.Time `orm:"auto_now_add;type(datetime)"`
 	ContractAbi   string    `orm:"type(text)"`
 }
+
+func (u *Erc20Token) TableEngine() string {
+	return "MYISAM"
+}

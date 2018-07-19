@@ -21,7 +21,9 @@ func init() {
 	orm.RegisterDataBase("default",
 		"mysql", conf.MysqlUser + ":" + conf.MysqlPasswd+
 			"@tcp("+ conf.MysqlHost+ ":"+ conf.MysqlPort+ ")/eth_query?charset=utf8", maxIdle, maxConn)
-	orm.RunSyncdb("default", false, true)
-
+	err := orm.RunSyncdb("default", false, true)
+	if err != nil{
+		log.Errorf("db create error !!! %s", err)
+	}
 	o = orm.NewOrm()
 }

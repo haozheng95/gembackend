@@ -11,6 +11,7 @@ import (
 	"github.com/regcostajr/go-web3/dto"
 	"strconv"
 	"github.com/gembackend/conf"
+	"github.com/regcostajr/go-web3/complex/types"
 )
 
 type EthUpdaterWeb3 struct {
@@ -84,6 +85,7 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeBlockInfo() {
 	//插入block库
 	updaterWeb3.TableBlock.InsertOneRaw(updaterWeb3.TableBlock)
 }
+
 func (updaterWeb3 *EthUpdaterWeb3) disposeTransactions() {
 	result, ok := updaterWeb3.rpcRes.Result["transactions"]
 	if !ok {
@@ -96,6 +98,7 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransactions() {
 		updaterWeb3.disposeTransaction(transaction)
 	}
 }
+
 func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]interface{}) {
 	transactionReceiptInfo, _ := updaterWeb3.connection.Eth.GetTransactionReceipt(transaction["hash"].(string))
 
@@ -167,13 +170,77 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 			updaterWeb3.TableTokenTx.GasLimit = updaterWeb3.TableTx.GasLimit
 			intDecimal, _ := strconv.Atoi(tokenDecimal)
 			updaterWeb3.TableTokenTx.Amount = formatAmount(amount, intDecimal)
-			// 数据库操作
-			updaterWeb3.TableTokenTx.InsertOneRaw(updaterWeb3.TableTokenTx)
+			// 判断是否是相关eth地址
+			booltokenfrom := models.GetEthAddrExist(updaterWeb3.TableTokenTx.From)
+			booltokento := models.GetEthAddrExist(updaterWeb3.TableTokenTx.To)
+			if booltokenfrom || booltokento {
+				// 更新用户token信息
+				if booltokenfrom {
+					updaterWeb3.disposeusertoken(updaterWeb3.TableTokenTx.From, tokenDecimal, transactionParameters)
+				}
+
+				if booltokento {
+					updaterWeb3.disposeusertoken(updaterWeb3.TableTokenTx.To, tokenDecimal, transactionParameters)
+				}
+				// 数据库操作
+				updaterWeb3.TableTokenTx.InsertOneRaw(updaterWeb3.TableTokenTx)
+			}
+
 		}
 	} else {
 		updaterWeb3.TableTx.IsToken = 0
 	}
-	updaterWeb3.TableTx.InsertOneRaw(updaterWeb3.TableTx)
+	// 判断是否是相关eth地址
+	boolfrom := models.GetEthAddrExist(updaterWeb3.TableTx.From)
+	boolto := models.GetEthAddrExist(updaterWeb3.TableTx.To)
+
+	if boolfrom || boolto {
+		if boolfrom {
+			updaterWeb3.disposeuserbalance(updaterWeb3.TableTx.From)
+		}
+		if boolto {
+			updaterWeb3.disposeuserbalance(updaterWeb3.TableTx.To)
+		}
+
+		updaterWeb3.TableTx.InsertOneRaw(updaterWeb3.TableTx)
+	}
+}
+
+func (updaterWeb3 *EthUpdaterWeb3) disposeusertoken(useraddr string, tokenDecimal string, parameters *dto.TransactionParameters) {
+	parameters.Data = types.ComplexString(_tokenBalance + useraddr[2:])
+	tokenBalanceRes, _ := updaterWeb3.connection.Eth.Call(parameters)
+	tokenBalance := formatAmountString(tokenBalanceRes.Result.(string), tokenDecimal)
+
+	updaterWeb3.TableTokenAddress.Amount = tokenBalance
+	updaterWeb3.TableTokenAddress.Addr = useraddr
+	updaterWeb3.TableTokenAddress.UnconfirmAmount = "0"
+	updaterWeb3.TableTokenAddress.ContractAddr = parameters.To
+	// 数据库更新
+	updaterWeb3.TableTokenAddress.Update(useraddr)
+}
+func (updaterWeb3 *EthUpdaterWeb3) disposeuserbalance(addr string) {
+	userbalance, err := updaterWeb3.connection.Eth.GetBalance(addr, _tag)
+	if err != nil {
+		log.Errorf("address balance format error %s", err)
+		return
+	}
+
+	balance := format10Decimals(userbalance.String(), 18)
+
+	usernonce, err := updaterWeb3.connection.Eth.GetTransactionCount(addr, _tag)
+
+	if err != nil {
+		log.Errorf("address nonce format error %s", err)
+		return
+	}
+
+	nonce := usernonce.String()
+	updaterWeb3.TableAddress.Nonce = nonce
+	updaterWeb3.TableAddress.Amount = balance
+	updaterWeb3.TableAddress.UnconfirmAmount = "0"
+
+	// db 操作
+	updaterWeb3.TableAddress.Update(addr)
 }
 
 func NewEthUpdaterWeb3(startHeight uint64) *EthUpdaterWeb3 {
@@ -186,7 +253,7 @@ func NewEthUpdaterWeb3(startHeight uint64) *EthUpdaterWeb3 {
 	u.TableTokenAddress = new(models.TokenAddress)
 	timeOut := conf.EthRpcTimeOut
 	source := conf.EthRpcSecure
-	url := conf.EthRpcHost +":"+ conf.EthRpcPort
+	url := conf.EthRpcHost + ":" + conf.EthRpcPort
 	u.connection = web3.NewWeb3(providers.NewHTTPProvider(url, int32(timeOut), source))
 	u.parityParam = map[string]interface{}{
 		"id":      1,

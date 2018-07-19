@@ -48,3 +48,7 @@ func (Self *Tx) InsertOneRaw(data *Tx) *Tx {
 	//log.Debugf("Tx insert id %startscript", id)
 	return Self
 }
+
+func (u *Tx) TableEngine() string {
+	return "MYISAM"
+}
