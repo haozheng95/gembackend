@@ -8,7 +8,7 @@ import (
 type Block struct {
 	Id          int64
 	BlockHeight string    `orm:"index"`
-	BlockHash   string    `orm:"index"`
+	BlockHash   string    `orm:"unique"`
 	TimeStamp   string    `orm:"index"`
 	ParentHash  string    `orm:"index"`
 	Miner       string    `orm:"index"`

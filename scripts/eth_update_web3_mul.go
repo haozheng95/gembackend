@@ -12,24 +12,23 @@ import (
 
 type EthupdaterMul struct {
 	EthUpdaterWeb3
-	height uint64
 }
 
 func (updater *EthupdaterMul) Start(startHeight chan uint64) {
 	for true {
-		updater.height = <-startHeight
-		startHeight <- updater.height + 1
-		updater.Forever()
+		t := <-startHeight
+		log.Infof("height %d", t)
+		startHeight <- t + 1
+		updater.Forever(t)
 	}
 
 }
 
-func (updater *EthupdaterMul) Forever() {
+func (updater *EthupdaterMul) Forever(height uint64) {
 	//updater.TableBlock = updater.TableBlock.SelectMaxHeight()
 	//dbHehght := updater.TableBlock.BlockHeight
 	//height := MaxIntByString(updater.StartHeight, dbHehght)
 	rpcHeight, err := updater.connection.Eth.GetBlockNumber()
-	height := updater.height
 	if err != nil {
 		log.Errorf("web3 rpcHeight error %s", err)
 		return
@@ -56,6 +55,7 @@ Again:
 		log.Info("again")
 		goto Again
 	}
+	log.Infof("------------------ %d", height)
 
 }
 
@@ -83,11 +83,13 @@ func StartEthupdaterMul(height uint64) {
 	log.Infof("db height = %s , input height = %d", dbHeight, height)
 	height = MaxIntByString(height, dbHeight)
 	log.Infof("update height = %d", height)
+
+	time.Sleep(time.Second * 2)
 	c := make(chan uint64, 5)
 	t := make(chan int)
 
 	c <- height
-	for i:=0;i<5 ;i++  {
+	for i := 0; i < 5; i++ {
 		go updater.Start(c)
 	}
 	<-t

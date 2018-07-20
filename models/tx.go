@@ -16,7 +16,7 @@ type Tx struct {
 	GasPrice    string
 	GasUsed     string
 	Fee         string    `orm:"digits(65);decimals(8)"`
-	TxHash      string    `orm:"index"`
+	TxHash      string    `orm:"unique"`
 	BlockHash   string    `orm:"index"`
 	BlockHeight string    `orm:"index"`
 	ConfirmTime string    `orm:"index"`
