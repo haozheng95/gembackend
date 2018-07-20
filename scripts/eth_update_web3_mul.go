@@ -14,15 +14,7 @@ type EthupdaterMul struct {
 	EthUpdaterWeb3
 }
 
-func (updater *EthupdaterMul) Start(startHeight chan uint64) {
-	for true {
-		t := <-startHeight
-		log.Infof("height %d", t)
-		startHeight <- t + 1
-		updater.Forever(t)
-	}
 
-}
 
 func (updater *EthupdaterMul) Forever(height uint64) {
 	//updater.TableBlock = updater.TableBlock.SelectMaxHeight()
@@ -77,6 +69,15 @@ func NewEthupdaterMul() *EthupdaterMul {
 	return u
 }
 
+func Start(startHeight chan uint64, updater *EthupdaterMul) {
+	for true {
+		t := <-startHeight
+		log.Infof("height %d", t)
+		startHeight <- t + 1
+		updater.Forever(t)
+	}
+}
+
 func StartEthupdaterMul(height uint64) {
 	updater := NewEthupdaterMul()
 	dbHeight := updater.TableBlock.SelectMaxHeight().BlockHeight
@@ -89,8 +90,9 @@ func StartEthupdaterMul(height uint64) {
 	t := make(chan int)
 
 	c <- height
-	for i := 0; i < 5; i++ {
-		go updater.Start(c)
+	for i := 0; i < 15; i++ {
+		u := NewEthupdaterMul()
+		go Start(c, u)
 	}
 	<-t
 	log.Error("error exit")
