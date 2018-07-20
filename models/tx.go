@@ -16,7 +16,7 @@ type Tx struct {
 	GasPrice    string
 	GasUsed     string
 	Fee         string    `orm:"digits(65);decimals(8)"`
-	TxHash      string    `orm:"unique"`
+	TxHash      string    `orm:"index"`
 	BlockHash   string    `orm:"index"`
 	BlockHeight string    `orm:"index"`
 	ConfirmTime string    `orm:"index"`
@@ -49,6 +49,6 @@ func (Self *Tx) InsertOneRaw(data *Tx) *Tx {
 	return Self
 }
 
-func (u *Tx) TableEngine() string {
-	return "MYISAM"
-}
+//func (u *Tx) TableEngine() string {
+//	return "MYISAM"
+//}

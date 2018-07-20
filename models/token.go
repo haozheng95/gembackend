@@ -12,6 +12,6 @@ type Erc20Token struct {
 	ContractAbi   string    `orm:"type(text)"`
 }
 
-func (u *Erc20Token) TableEngine() string {
-	return "MYISAM"
-}
+//func (u *Erc20Token) TableEngine() string {
+//	return "MYISAM"
+//}

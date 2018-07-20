@@ -8,7 +8,7 @@ import (
 type Block struct {
 	Id          int64
 	BlockHeight string    `orm:"index"`
-	BlockHash   string    `orm:"unique"`
+	BlockHash   string    `orm:"index"`
 	TimeStamp   string    `orm:"index"`
 	ParentHash  string    `orm:"index"`
 	Miner       string    `orm:"index"`
@@ -58,7 +58,7 @@ func (block *Block) InsertOneRaw(data *Block) *Block {
 	return block
 }
 
-func (u *Block) TableEngine() string {
-	return "MYISAM"
-}
+//func (u *Block) TableEngine() string {
+//	return "MYISAM"
+//}
 

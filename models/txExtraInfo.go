@@ -14,6 +14,6 @@ type TxExtraInfo struct {
 	Created     time.Time `orm:"auto_now_add;type(datetime)"`
 }
 
-func (u *TxExtraInfo) TableEngine() string {
-	return "MYISAM"
-}
+//func (u *TxExtraInfo) TableEngine() string {
+//	return "MYISAM"
+//}

@@ -48,6 +48,6 @@ func (address *Address) SelectAddr() (*Address, error) {
 	return address, err
 }
 
-func (u *Address) TableEngine() string {
-	return "MYISAM"
-}
+//func (u *Address) TableEngine() string {
+//	return "MYISAM"
+//}

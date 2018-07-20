@@ -32,11 +32,11 @@ type TokenTx struct {
 	Decimal      string
 }
 
-func (u *TokenTx) TableUnique() [][]string {
-	return [][]string{
-		{"TxHash", "LogIndex"},
-	}
-}
+//func (u *TokenTx) TableUnique() [][]string {
+//	return [][]string{
+//		{"TxHash", "LogIndex"},
+//	}
+//}
 
 func (Self *TokenTx) DeleteOneRaw(blockHash string) *TokenTx {
 	o := orm.NewOrm()
