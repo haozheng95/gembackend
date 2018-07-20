@@ -18,8 +18,8 @@ type EthupdaterMul struct {
 func (updater *EthupdaterMul) Start(startHeight chan uint64) {
 	for true {
 		updater.height = <-startHeight
-		updater.Forever()
 		startHeight <- updater.height + 1
+		updater.Forever()
 	}
 
 }
