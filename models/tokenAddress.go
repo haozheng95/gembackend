@@ -38,6 +38,19 @@ func (address *TokenAddress) Update(s string) *TokenAddress {
 	return address
 }
 
+func (address *TokenAddress) UpdateAmount(s string) *TokenAddress {
+	o := orm.NewOrm()
+	qs := o.QueryTable(address)
+	p := orm.Params{
+		"amount":           address.Amount,
+		"unconfirm_amount": address.UnconfirmAmount,
+		"updated":          time.Now(),
+	}
+
+	qs.Filter("addr", s).Filter("contract_addr", address.ContractAddr).Update(p)
+	return address
+}
+
 func (Self *TokenAddress) InsertOneRaw(data *TokenAddress) *TokenAddress {
 	o := orm.NewOrm()
 	data.Id = 0

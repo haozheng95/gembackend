@@ -99,8 +99,11 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransactions() {
 }
 
 func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]interface{}) {
-	transactionReceiptInfo, _ := updaterWeb3.connection.Eth.GetTransactionReceipt(transaction["hash"].(string))
-
+	transactionReceiptInfo, err := updaterWeb3.connection.Eth.GetTransactionReceipt(transaction["hash"].(string))
+	if err != nil {
+		log.Error(err)
+		return
+	}
 	updaterWeb3.TableTx.Nonce = HexDec(transaction["nonce"].(string))
 	updaterWeb3.TableTx.GasLimit = HexDec(transaction["gas"].(string))
 	updaterWeb3.TableTx.Amount = formatAmount(transaction["value"].(string), 18)

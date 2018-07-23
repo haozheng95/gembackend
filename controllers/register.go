@@ -17,7 +17,7 @@ func (r *RegisterController) Post() {
 	err := json.Unmarshal(r.Ctx.Input.RequestBody, &m)
 	if err != nil {
 		log.Error(err)
-		r.Data["json"] = err.Error()
+		r.Data["json"] = resultResponseErrorMake(2001, err.Error())
 		r.ServeJSON()
 		return
 	}
@@ -28,14 +28,14 @@ func (r *RegisterController) Post() {
 
 	if !err1 || !err2 || !err3 {
 		log.Error(err1, err2, err3)
-		r.Data["json"] = "missing params"
+		r.Data["json"] = resultResponseErrorMake(2000, nil)
 		r.ServeJSON()
 		return
 	}
 
 	if !checkSign(walletId, sign) {
 		log.Error("checkSign false")
-		r.Data["json"] = "checkSign false"
+		r.Data["json"] = resultResponseErrorMake(2007, nil)
 		r.ServeJSON()
 		return
 	}
@@ -47,6 +47,7 @@ func (r *RegisterController) Post() {
 		Amount:          "0",
 		UnconfirmAmount: "0",
 		TypeId:          4,
+		Decimal:         18,
 	}
 	addressTable.InsertOneRaw(addressTable)
 	// 添加token地址
@@ -57,7 +58,7 @@ func (r *RegisterController) Post() {
 		UnconfirmAmount: "0",
 		Added:           1,
 	}
-	for _, v := range defaultToken {
+	for _, v := range DefaultToken {
 		addressTokenTable.ContractAddr = v[0]
 		dec, _ := strconv.Atoi(v[1])
 		addressTokenTable.Decimal = int64(dec)
@@ -67,7 +68,3 @@ func (r *RegisterController) Post() {
 	r.Data["json"] = resultResponseMake("success")
 	r.ServeJSON()
 }
-
-
-
-

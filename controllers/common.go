@@ -18,10 +18,11 @@ var (
 		2004: "User does not exist",
 		2005: "param error",
 		2006: "User does not exist",
+		2007: "checkSign false",
 	}
 	log = gembackendlog.Log
 	//默认token
-	defaultToken = [][]string{
+	DefaultToken = [][]string{
 		//EOS
 		{"0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0", "18"},
 		//TRX

@@ -32,6 +32,8 @@ const (
 	eth_estimateGas                         = "https://api.etherscan.io/api?module=proxy&action=eth_estimateGas&to=%s&value=0xff22&gasPrice=%s&gas=%s&apikey=" + _API_KEY
 	eth_getMulBalance                       = "https://api.etherscan.io/api?module=account&action=balancemulti&address=%s&tag=latest&apikey=" + _API_KEY
 	eth_getBalance                          = "https://api.etherscan.io/api?module=account&action=balance&address=%s&tag=latest&apikey=" + _API_KEY
+	eth_getTxList                           = "https://api.etherscan.io/api?module=account&action=txlist&address=%s&startblock=0&endblock=99999999&page=%d&offset=10&sort=asc&apikey=" + _API_KEY
+	eth_getTokenTxList                      = "http://api.etherscan.io/api?module=account&action=tokentx&address=%s&startblock=0&endblock=999999999&sort=asc&apikey=" + _API_KEY
 )
 
 // 获取token信息
@@ -56,13 +58,15 @@ type TokenResonse struct {
 	Error   map[string]interface{}
 }
 
-func test() {
-	//s, _ := Eth_getTokenBalance("0xf230b790e05390fc8295f4d3f60332c93bed42e2", "5e5978030b2c74e3fa5aa0ef8a40da3912e00e93")
-	//s, _ := Eth_getTokenName("0xf230b790e05390fc8295f4d3f60332c93bed42e2")
-	s, _ := Eth_getTokenSymbol("0xf230b790e05390fc8295f4d3f60332c93bed42e2")
-	e, _ := FormatTokenResponse(s)
-	fmt.Println(DecodeHexResponseToString(e.Result))
-
+func Eth_getTxList(addr string, page int) (string, error) {
+	url := fmt.Sprintf(eth_getTxList, addr, page)
+	log.Debug(url)
+	s, e := httpGet(url)
+	if e != nil {
+		log.Error(e)
+	}
+	log.Info(s)
+	return s, e
 }
 
 func Eth_getTokenSymbol(contract string) (string, error) {
@@ -250,7 +254,7 @@ func HttpPost(song map[string]interface{}) string {
 		panic(err)
 	}
 	reader := bytes.NewReader(bytesData)
-	url := "http://" + conf.EthRpcHost +":"+ conf.EthRpcPort
+	url := "http://" + conf.EthRpcHost + ":" + conf.EthRpcPort
 
 	resp, err := http.Post(url, "application/json", reader)
 
