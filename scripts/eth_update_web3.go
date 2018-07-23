@@ -171,8 +171,7 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 			// 判断是否是相关eth地址
 			booltokenfrom := models.GetEthAddrExist(updaterWeb3.TableTokenTx.From)
 			booltokento := models.GetEthAddrExist(updaterWeb3.TableTokenTx.To)
-			// todo defbug 模式
-			if booltokenfrom || booltokento || true {
+			if booltokenfrom || booltokento {
 				// 更新用户token信息
 				if booltokenfrom {
 					updaterWeb3.disposeusertoken(updaterWeb3.TableTokenTx.From, tokenDecimal, transactionParameters)
@@ -192,8 +191,7 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 	// 判断是否是相关eth地址
 	boolfrom := models.GetEthAddrExist(updaterWeb3.TableTx.From)
 	boolto := models.GetEthAddrExist(updaterWeb3.TableTx.To)
-	// todo debug 模式
-	if boolfrom || boolto || true {
+	if boolfrom || boolto {
 		if boolfrom {
 			updaterWeb3.disposeuserbalance(updaterWeb3.TableTx.From)
 		}

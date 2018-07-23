@@ -46,7 +46,7 @@ func (a *AssetController) Get() {
 
 	var t []*models.TokenAddress
 	qs = o.QueryTable("token_address")
-	_, err = qs.Filter("addr", addr).Limit(sizeInt, (beginInt-1)*sizeInt).All(&t)
+	_, err = qs.Filter("addr", addr).Filter("added", 1).Limit(sizeInt, beginInt*sizeInt).All(&t)
 	if err != nil {
 		a.Data["json"] = resultResponseErrorMake(2001, err.Error())
 	} else {

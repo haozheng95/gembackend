@@ -1,0 +1,563 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "gembackend project doc \ngod_key[借口访问debug验证码(调试用)]\n权限token:auth-token(请求的header中加入键)\ngod_key:ASDFASDqwqfasvsfqioqjweamsdfmosejoqjma\nHMAC_KEY:0642de2eb660d56402fa690b1c5474a4",
+    "version": "0.0.1",
+    "title": "gembackend"
+  },
+  "host": "39.106.55.83:8080",
+  "basePath": "/api",
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/auth": {
+      "get": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "获取jwt验证token",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "每个token默认有效时间24h",
+            "examples": {
+              "one": {
+                "result": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MzIzMTc1NTMsImlzcyI6Imp3dC16eiIsIm5iZiI6MTUzMjMxNjU1M30.6LZqzqXu0KIWTd6UPD5EZ5yovgsepZGhszA0JAME3SY",
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/balance": {
+      "get": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "获取eth可用余额,合约地址余额",
+        "description": "不穿合约地址 将只会获得eth的相关信息",
+        "operationId": "getBalance",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "contract_addr",
+            "in": "query",
+            "description": "合约地址",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "user_addr",
+            "in": "query",
+            "description": "eth地址",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "examples": {
+              "one": {
+                "result": {
+                  "eth_data": {
+                    "amount": "0",
+                    "nonce": "4"
+                  },
+                  "token_data": null
+                },
+                "status": 0,
+                "version": 1
+              },
+              "two": {
+                "result": {
+                  "eth_data": {
+                    "amount": "0",
+                    "nonce": "4"
+                  },
+                  "token_data": {
+                    "amount": "572368.99140578",
+                    "contract_addr": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
+                    "decimal": 0
+                  }
+                },
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/asset": {
+      "get": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "获取钱包余额",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "user_addr",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "begin_page",
+            "in": "query",
+            "description": "开始页从0开始",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "分页控制的是token结果集的里面obj的数量，eth结果集每次都会返回",
+            "examples": {
+              "one": {
+                "result": {
+                  "eth": {
+                    "Id": 1,
+                    "WalletId": "111",
+                    "Addr": "0xfbb1b73c4f0bda4f67dca266ce6ef42f520fbb98",
+                    "TypeId": 4,
+                    "Nonce": "4",
+                    "Created": "2018-07-23T11:04:33+08:00",
+                    "Amount": "0",
+                    "UnconfirmAmount": "0",
+                    "Updated": "2018-07-23T11:04:43+08:00",
+                    "Decimal": 18
+                  },
+                  "token": [
+                    {
+                      "Id": 2,
+                      "WalletId": "fff",
+                      "Addr": "0xfbb1b73c4f0bda4f67dca266ce6ef42f520fbb98",
+                      "Created": "2018-07-19T15:27:39+08:00",
+                      "ContractAddr": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
+                      "Amount": "572368.99140578",
+                      "UnconfirmAmount": "0",
+                      "Updated": "2018-07-19T07:34:18+08:00",
+                      "Decimal": 0,
+                      "TokenName": "ss",
+                      "Added": 0
+                    }
+                  ]
+                },
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "创建账户 添加十个默认token",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sign",
+            "in": "query",
+            "description": "walletId + HMAC_KEY的一次sha256的十六进制摘要",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "eth_addr",
+            "in": "query",
+            "description": "eth地址",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "examples": {
+              "one": {
+                "result": "success",
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/txs/{coin_type}": {
+      "get": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "获取交易记录",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "coin_type",
+            "in": "path",
+            "description": "eth和token都传eth",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "contract_addr",
+            "in": "query",
+            "description": "如果传合约地址 则会获取合约的交易记录 否则只返回eth交易记录",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "从0开始",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "tx state:1表示交易成功，0表示交易失败，-1表示打包中",
+            "examples": {
+              "one": {
+                "result": {
+                  "last": true,
+                  "record": [
+                    {
+                      "Id": 1,
+                      "From": "0x0681d8db095565fe8a346fa0277bffde9c0edbbf",
+                      "To": "0xf53354a8dc35416d28ab2523589d1b44843e025c",
+                      "Amount": "2845.545516",
+                      "Nonce": "221655",
+                      "Fee": "0.0039835",
+                      "TxHash": "0x696a35492b283624ccf4ae9438ae2d5d5e84a4a00798155b568d1eb52606d829",
+                      "BlockHeight": "5000000",
+                      "ConfirmTime": "1517319693",
+                      "Created": "2018-07-18T06:36:39+08:00",
+                      "BlockState": 0,
+                      "TxState": 1,
+                      "IsToken": 1,
+                      "Collection": 0,
+                      "LogIndex": "0",
+                      "Decimal": "18"
+                    }
+                  ],
+                  "size": 1
+                },
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "petstore_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "http://petstore.swagger.io/oauth/dialog",
+      "flow": "implicit",
+      "scopes": {
+        "write:pets": "modify pets in your account",
+        "read:pets": "read your pets"
+      }
+    },
+    "api_key": {
+      "type": "apiKey",
+      "name": "auth-token",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "Order": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "petId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "quantity": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "shipDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Order Status",
+          "enum": [
+            "placed",
+            "approved",
+            "delivered"
+          ]
+        },
+        "complete": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "xml": {
+        "name": "Order"
+      }
+    },
+    "Category": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "Category"
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "username": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "userStatus": {
+          "type": "integer",
+          "format": "int32",
+          "description": "User Status"
+        }
+      },
+      "xml": {
+        "name": "User"
+      }
+    },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "Tag"
+      }
+    },
+    "Pet": {
+      "type": "object",
+      "required": [
+        "name",
+        "photoUrls"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "category": {
+          "$ref": "#/definitions/Category"
+        },
+        "name": {
+          "type": "string",
+          "example": "doggie"
+        },
+        "photoUrls": {
+          "type": "array",
+          "xml": {
+            "name": "photoUrl",
+            "wrapped": true
+          },
+          "items": {
+            "type": "string"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "xml": {
+            "name": "tag",
+            "wrapped": true
+          },
+          "items": {
+            "$ref": "#/definitions/Tag"
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "pet status in the store",
+          "enum": [
+            "available",
+            "pending",
+            "sold"
+          ]
+        }
+      },
+      "xml": {
+        "name": "Pet"
+      }
+    },
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "type": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  }
+}

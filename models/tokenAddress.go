@@ -46,7 +46,7 @@ func (Self *TokenAddress) InsertOneRaw(data *TokenAddress) *TokenAddress {
 	if err != nil {
 		log.Errorf("TokenAddress insert error %s", err)
 	}
-	log.Debugf("TokenAddress insert id %startscript", id)
+	log.Debugf("TokenAddress insert id %d ", id)
 	return Self
 }
 //func (u *TokenAddress) TableEngine() string {

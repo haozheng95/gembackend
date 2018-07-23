@@ -14,12 +14,7 @@ type EthupdaterMul struct {
 	EthUpdaterWeb3
 }
 
-
-
 func (updater *EthupdaterMul) Forever(height uint64) {
-	//updater.TableBlock = updater.TableBlock.SelectMaxHeight()
-	//dbHehght := updater.TableBlock.BlockHeight
-	//height := MaxIntByString(updater.StartHeight, dbHehght)
 	rpcHeight, err := updater.connection.Eth.GetBlockNumber()
 	if err != nil {
 		log.Errorf("web3 rpcHeight error %s", err)

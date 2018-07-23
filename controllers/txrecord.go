@@ -14,7 +14,7 @@ func (t *TxrecordController) Get() {
 	cointype := t.Ctx.Input.Param(":coin_type")
 	walletid := t.Input().Get("wallet_id")
 	contract := t.Input().Get("contract_addr")
-	page, err := t.GetUint64("page", 0)
+	page, err := t.GetUint64("begin_page", 0)
 	if err != nil {
 		t.Data["json"] = resultResponseErrorMake(2005, err.Error())
 		t.ServeJSON()
