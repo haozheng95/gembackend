@@ -26,6 +26,9 @@ var (
 	EthRpcPort    string
 	EthRpcTimeOut int
 	EthRpcSecure  bool
+	//kafka config
+	KafkaHost string
+	KafkaPort string
 )
 
 func init() {
@@ -43,6 +46,9 @@ func init() {
 	EthRpcPort = iniconf.String("eth_rpc::port")
 	EthRpcTimeOut, _ = iniconf.Int("eth_rpc::timeOut")
 	EthRpcSecure, _ = iniconf.Bool("eth_rpc::secure")
+	// init kafka config
+	KafkaHost = iniconf.String("kafka::host")
+	KafkaPort = iniconf.String("kafka::port")
 }
 
 
