@@ -24,25 +24,25 @@ var (
 	//默认token
 	DefaultToken = [][]string{
 		//EOS
-		{"0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0", "18"},
+		{"0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0", "18", "EOS"},
 		//TRX
-		{"0xf230b790e05390fc8295f4d3f60332c93bed42e2", "6"},
+		{"0xf230b790e05390fc8295f4d3f60332c93bed42e2", "6", "TRX"},
 		//OMG
-		{"0xd26114cd6ee289accf82350c8d8487fedb8a0c07", "18"},
+		{"0xd26114cd6ee289accf82350c8d8487fedb8a0c07", "18", "OMG"},
 		//SNT
-		{"0x744d70fdbe2ba4cf95131626614a1763df805b9e", "18"},
+		{"0x744d70fdbe2ba4cf95131626614a1763df805b9e", "18", "SNT"},
 		//MKR
-		{"0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2", "18"},
+		{"0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2", "18", "MKR"},
 		//ZRX
-		{"0xe41d2489571d322189246dafa5ebde1f4699f498", "18"},
+		{"0xe41d2489571d322189246dafa5ebde1f4699f498", "18", "ZRX"},
 		//REP
-		{"0xe94327d07fc17907b4db788e5adf2ed424addff6", "18"},
+		{"0xe94327d07fc17907b4db788e5adf2ed424addff6", "18", "REP"},
 		//BAT
-		{"0x0d8775f648430679a709e98d2b0cb6250d2887ef", "18"},
+		{"0x0d8775f648430679a709e98d2b0cb6250d2887ef", "18", "BAT"},
 		//SALT
-		{"0x4156d3342d5c385a87d264f90653733592000581", "8"},
+		{"0x4156d3342d5c385a87d264f90653733592000581", "8", "SALT"},
 		//FUN
-		{"0x419d0d8bdd9af5e606ae2232ed285aff190e711b", "8"},
+		{"0x419d0d8bdd9af5e606ae2232ed285aff190e711b", "8", "FUN"},
 	}
 )
 

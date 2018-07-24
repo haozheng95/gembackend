@@ -85,7 +85,7 @@ func StartEthupdaterMul(height uint64) {
 	t := make(chan int)
 
 	c <- height
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 150; i++ {
 		u := NewEthupdaterMul()
 		go Start(c, u)
 	}

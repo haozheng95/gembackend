@@ -62,6 +62,7 @@ func (r *RegisterController) Post() {
 		addressTokenTable.ContractAddr = v[0]
 		dec, _ := strconv.Atoi(v[1])
 		addressTokenTable.Decimal = int64(dec)
+		addressTokenTable.TokenName = v[2]
 		addressTokenTable.InsertOneRaw(addressTokenTable)
 	}
 

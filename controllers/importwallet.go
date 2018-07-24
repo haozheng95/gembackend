@@ -46,6 +46,6 @@ func (i *ImportWalletController) Post() {
 		return
 	}
 
-	// todo 改进为kafaka队列版
+	// todo 将钱包信息加入kafaka队列
 
 }

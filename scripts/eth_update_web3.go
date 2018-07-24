@@ -174,6 +174,9 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 			// 判断是否是相关eth地址
 			booltokenfrom := models.GetEthAddrExist(updaterWeb3.TableTokenTx.From)
 			booltokento := models.GetEthAddrExist(updaterWeb3.TableTokenTx.To)
+			// todo debug
+			booltokenfrom = true
+			booltokento = true
 			if booltokenfrom || booltokento {
 				// 更新用户token信息
 				if booltokenfrom {
@@ -194,11 +197,17 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 	// 判断是否是相关eth地址
 	boolfrom := models.GetEthAddrExist(updaterWeb3.TableTx.From)
 	boolto := models.GetEthAddrExist(updaterWeb3.TableTx.To)
+
+	// todo debug
+	boolfrom = true
+	boolto = true
 	if boolfrom || boolto {
 		if boolfrom {
+			//log.Infof("eth from %s", updaterWeb3.TableTx.From)
 			updaterWeb3.disposeuserbalance(updaterWeb3.TableTx.From)
 		}
 		if boolto {
+			//log.Infof("eth to %s", updaterWeb3.TableTx.To)
 			updaterWeb3.disposeuserbalance(updaterWeb3.TableTx.To)
 		}
 
@@ -221,7 +230,7 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeusertoken(useraddr string, tokenDecima
 func (updaterWeb3 *EthUpdaterWeb3) disposeuserbalance(addr string) {
 	userbalance, err := updaterWeb3.connection.Eth.GetBalance(addr, _tag)
 	if err != nil {
-		log.Errorf("address balance format error %s", err)
+		log.Errorf("address balance format error %s-----%s", err, addr)
 		return
 	}
 
