@@ -45,9 +45,22 @@ func (Self *TokenTx) DeleteOneRaw(blockHash string) *TokenTx {
 	if err != nil {
 		log.Errorf("token tx delete error %s", err)
 	}
-	log.Debugf("token tx delete num = %startscript", num)
+	log.Debugf("token tx delete num = %run", num)
 	return Self
 }
+
+// 更新程序更新交易前先删除此条记录
+func (t *TokenTx) DeleteOneRawByHashAndLogindex(txhash string) *TokenTx {
+	o := orm.NewOrm()
+	qs := o.QueryTable(t)
+	num, err := qs.Filter("tx_hash", txhash).Filter("log_index", "-1").Delete()
+	if err != nil {
+		log.Errorf("token tx delete error %s", err)
+	}
+	log.Debugf("token tx delete num = %d", num)
+	return t
+}
+
 func (Self *TokenTx) InsertOneRaw(data *TokenTx) *TokenTx {
 	o := orm.NewOrm()
 	data.Id = 0
@@ -56,7 +69,7 @@ func (Self *TokenTx) InsertOneRaw(data *TokenTx) *TokenTx {
 	if err != nil {
 		log.Errorf("Tx insert error %s", err)
 	}
-	//log.Debugf("Tx insert id %startscript", id)
+	//log.Debugf("Tx insert id %run", id)
 	return Self
 }
 

@@ -5,7 +5,3 @@
 + script部分负责从节点将相关地址的数据从parity节点上同步下来
 
 ## 添加docker file
-((测试版))
-```dockerfile
-docker pull yinhaozheng/test1
-```

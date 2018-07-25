@@ -42,7 +42,7 @@ func (block *Block) DeleteOneRaw(blockHash string) *Block {
 	if err != nil {
 		log.Errorf("block delete error %s", err)
 	}
-	log.Debugf("block delete num = %startscript", num)
+	log.Debugf("block delete num = %run", num)
 	return block
 }
 
@@ -54,7 +54,7 @@ func (block *Block) InsertOneRaw(data *Block) *Block {
 	if err != nil {
 		log.Errorf("block insert error %s", err)
 	}
-	log.Debugf("block insert id %d startscript", id)
+	log.Debugf("block insert id %d run", id)
 	return block
 }
 

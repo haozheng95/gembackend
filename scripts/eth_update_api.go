@@ -30,11 +30,11 @@ func (updater *EthUpdater) Forever() {
 		//// todo 验证块高度
 		if dbBlockInfo.Id != 0 && blockInfo.Result["parentHash"] != dbBlockInfo.BlockHash {
 			// 开始回滚高度
-			log.Warningf("block exception!! will rollback !! except height = %startscript", height-1)
+			log.Warningf("block exception!! will rollback !! except height = %run", height-1)
 			height, blockInfo = updater.RollBackBlock(height)
 		}
 		// todo 更新块
-		log.Warningf("\n The height %startscript", height)
+		log.Warningf("\n The height %run", height)
 		if blockInfo.Result != nil {
 			updater.BeginUpdateBlockInfo(blockInfo)
 			height++
@@ -62,10 +62,10 @@ func (updater *EthUpdater) RollBackBlock(height uint64) (uint64, *rpc.Response) 
 		blockInfo := updater.getBlockInfo(i)
 		dbBlockInfo := updater.TableBlock.SelectRawByHeight(i)
 		if dbBlockInfo.BlockHash != blockInfo.Result["hash"] && dbBlockInfo.Id != 0 {
-			log.Debugf("delete height %startscript", i)
+			log.Debugf("delete height %run", i)
 			updater.TableBlock.DeleteOneRaw(dbBlockInfo.BlockHash)
 		} else if dbBlockInfo.BlockHash == blockInfo.Result["hash"] {
-			log.Debugf("delete block over!! will recover  i = %startscript", i)
+			log.Debugf("delete block over!! will recover  i = %run", i)
 			return i, blockInfo
 		} else {
 			panic("RollBackBlock Error")
@@ -274,7 +274,7 @@ func (updater *EthUpdater) disposeUpdateEthTokenInfo(addr string, contractAddr s
 }
 
 
-func NewEthUpdater(startHeight uint64) *EthUpdater {
+func NewEthUpdaterApi(startHeight uint64) *EthUpdater {
 	u := new(EthUpdater)
 	u.StartHeight = startHeight
 	u.TableBlock = new(models.Block)

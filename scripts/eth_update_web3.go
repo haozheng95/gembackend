@@ -174,7 +174,9 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 			// 判断是否是相关eth地址
 			booltokenfrom := models.GetEthAddrExist(updaterWeb3.TableTokenTx.From)
 			booltokento := models.GetEthAddrExist(updaterWeb3.TableTokenTx.To)
-
+			// debug
+			booltokenfrom = true
+			booltokento = true
 			if booltokenfrom || booltokento {
 				// 更新用户token信息
 				if booltokenfrom {
@@ -185,6 +187,7 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 					updaterWeb3.disposeusertoken(updaterWeb3.TableTokenTx.To, tokenDecimal, transactionParameters)
 				}
 				// 数据库操作
+				updaterWeb3.TableTokenTx.DeleteOneRawByHashAndLogindex(updaterWeb3.TableTokenTx.TxHash) //删除接口插入的记录
 				updaterWeb3.TableTokenTx.InsertOneRaw(updaterWeb3.TableTokenTx)
 			}
 
@@ -195,8 +198,9 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 	// 判断是否是相关eth地址
 	boolfrom := models.GetEthAddrExist(updaterWeb3.TableTx.From)
 	boolto := models.GetEthAddrExist(updaterWeb3.TableTx.To)
-
-
+	// debug
+	boolto = true
+	boolfrom = true
 	if boolfrom || boolto {
 		if boolfrom {
 			//log.Infof("eth from %s", updaterWeb3.TableTx.From)
@@ -206,7 +210,7 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 			//log.Infof("eth to %s", updaterWeb3.TableTx.To)
 			updaterWeb3.disposeuserbalance(updaterWeb3.TableTx.To)
 		}
-
+		updaterWeb3.TableTx.DeleteOneRawByTxHash() //删除当前hash
 		updaterWeb3.TableTx.InsertOneRaw(updaterWeb3.TableTx)
 	}
 }

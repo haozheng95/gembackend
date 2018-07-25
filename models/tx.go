@@ -37,6 +37,17 @@ func (Self *Tx) DeleteOneRawByBlockHash(blockHash string) *Tx {
 	return Self
 }
 
+func (t *Tx) DeleteOneRawByTxHash() *Tx {
+	o := orm.NewOrm()
+	qs := o.QueryTable(t)
+	num, err := qs.Filter("tx_hash", t.TxHash).Delete()
+	if err != nil {
+		log.Errorf("tx delete error %s", err)
+	}
+	log.Debugf("tx delete num = %d ", num)
+	return t
+}
+
 func (Self *Tx) InsertOneRaw(data *Tx) *Tx {
 	o := orm.NewOrm()
 	data.Id = 0
@@ -45,7 +56,7 @@ func (Self *Tx) InsertOneRaw(data *Tx) *Tx {
 	if err != nil {
 		log.Errorf("Tx insert error %s", err)
 	}
-	//log.Debugf("Tx insert id %startscript", id)
+	//log.Debugf("Tx insert id %run", id)
 	return Self
 }
 
