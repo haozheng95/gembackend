@@ -4,6 +4,7 @@ import (
 	"github.com/Shopify/sarama"
 	"github.com/gembackend/gembackendlog"
 	"github.com/gembackend/conf"
+	"encoding/json"
 )
 
 var (
@@ -18,7 +19,7 @@ var (
 )
 
 func init() {
-	kafkaurl = conf.MysqlHost + ":" + conf.KafkaPort
+	kafkaurl = conf.KafkaHost + ":" + conf.KafkaPort
 }
 
 func MakeProducer() (producer sarama.SyncProducer) {
@@ -56,6 +57,7 @@ func MakeConsumer() (consumer sarama.Consumer) {
 }
 
 func MakePcs(consumer sarama.Consumer, topic string) (pcs []sarama.PartitionConsumer) {
+	// 分区列表
 	partitionList, err := consumer.Partitions(topic)
 	if err != nil {
 		panic(err)
@@ -69,4 +71,22 @@ func MakePcs(consumer sarama.Consumer, topic string) (pcs []sarama.PartitionCons
 		pcs = append(pcs, pc)
 	}
 	return
+}
+
+func ReadMessage(pc sarama.PartitionConsumer, f func(interface{}) interface{}, c chan <- interface{}) {
+	defer pc.AsyncClose()
+	for msg := range pc.Messages() {
+		log.Infof("Partition:%d, Offset:%d, Key:%s, Value:%s\n", msg.Partition, msg.Offset, string(msg.Key), string(msg.Value))
+		c <- f(msg.Value)
+	}
+}
+
+func DisJsonFunc(jb interface{}) interface{} {
+	jbs := jb.([]byte)
+	res := make(map[string]interface{})
+	if err := json.Unmarshal(jbs, &res); err != nil {
+		log.Errorf("DisJsonFunc error %s", err)
+	}
+	log.Info(res)
+	return res
 }

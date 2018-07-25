@@ -19,6 +19,7 @@ var (
 		2005: "param error",
 		2006: "User does not exist",
 		2007: "checkSign false",
+		2008: "map to json error",
 	}
 	log = gembackendlog.Log
 	//默认token
@@ -57,7 +58,6 @@ func checkSign(walletId, sign string) bool {
 	hashValue := hex.EncodeToString(bs)
 	return strings.Compare(sign, hashValue) == 0
 }
-
 
 func resultResponseMake(result interface{}) interface{} {
 	resultResponse := map[string]interface{}{

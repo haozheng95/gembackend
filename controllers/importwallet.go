@@ -4,6 +4,8 @@ import (
 	"github.com/astaxie/beego"
 	"encoding/json"
 	"github.com/gembackend/models"
+	"github.com/gembackend/messagequeue"
+	"github.com/gembackend/conf"
 )
 
 type ImportWalletController struct {
@@ -39,7 +41,6 @@ func (i *ImportWalletController) Post() {
 		return
 	}
 
-
 	if models.GetEthAddrExist(ethAddr) {
 		i.Data["json"] = resultResponseMake("import success")
 		i.ServeJSON()
@@ -47,5 +48,21 @@ func (i *ImportWalletController) Post() {
 	}
 
 	// todo 将钱包信息加入kafaka队列
+	ethkafka := map[string]interface{}{
+		"walletId": walletId,
+		"addr":     ethAddr,
+	}
+	ethkafkaparam, err := json.Marshal(ethkafka)
+	if err != nil {
+		i.Data["json"] = resultResponseErrorMake(2008, err.Error())
+		i.ServeJSON()
+		return
+	}
 
+	ethtopicname := conf.KafkaimportEthTopicName
+	p := messagequeue.MakeProducer()
+	defer p.Close()
+	messagequeue.MakeMessage(ethtopicname, string(ethkafkaparam), p)
+	i.Data["json"] = resultResponseMake("import success! pleases! wait some time")
+	i.ServeJSON()
 }

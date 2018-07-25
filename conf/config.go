@@ -27,8 +27,9 @@ var (
 	EthRpcTimeOut int
 	EthRpcSecure  bool
 	//kafka config
-	KafkaHost string
-	KafkaPort string
+	KafkaHost               string
+	KafkaPort               string
+	KafkaimportEthTopicName string
 )
 
 func init() {
@@ -49,8 +50,8 @@ func init() {
 	// init kafka config
 	KafkaHost = iniconf.String("kafka::host")
 	KafkaPort = iniconf.String("kafka::port")
+	KafkaimportEthTopicName = iniconf.String("kafka::importEthTopic")
 }
-
 
 func GetCurrentFilepath() (filename string) {
 	_, filename, _, _ = runtime.Caller(0)

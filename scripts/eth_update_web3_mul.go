@@ -82,13 +82,12 @@ func StartEthupdaterMul(height uint64) {
 
 	time.Sleep(time.Second * 2)
 	c := make(chan uint64, 5)
-	t := make(chan int)
-
+	wg.Add(1)
 	c <- height
 	for i := 0; i < 150; i++ {
 		u := NewEthupdaterMul()
 		go Start(c, u)
 	}
-	<-t
+	wg.Wait()
 	log.Error("error exit")
 }

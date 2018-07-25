@@ -1,6 +1,9 @@
 package scripts
 
-import "github.com/gembackend/gembackendlog"
+import (
+	"github.com/gembackend/gembackendlog"
+	"sync"
+)
 
 type Updater interface {
 	Forever()
@@ -17,4 +20,8 @@ const (
 	_tag               = "latest"
 )
 
-var log = gembackendlog.Log
+var
+(
+	log = gembackendlog.Log
+	wg sync.WaitGroup
+)
