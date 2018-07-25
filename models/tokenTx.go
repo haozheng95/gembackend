@@ -56,8 +56,8 @@ func (t *TokenTx) DeleteOneRawByHashAndLogindex(txhash string) *TokenTx {
 	num, err := qs.Filter("tx_hash", txhash).Filter("log_index", "-1").Delete()
 	if err != nil {
 		log.Errorf("token tx delete error %s", err)
+		log.Debugf("token tx delete num = %d", num)
 	}
-	log.Debugf("token tx delete num = %d", num)
 	return t
 }
 

@@ -43,8 +43,8 @@ func (t *Tx) DeleteOneRawByTxHash() *Tx {
 	num, err := qs.Filter("tx_hash", t.TxHash).Delete()
 	if err != nil {
 		log.Errorf("tx delete error %s", err)
+		log.Debugf("tx delete num = %d ", num)
 	}
-	log.Debugf("tx delete num = %d ", num)
 	return t
 }
 
