@@ -84,7 +84,7 @@ func StartEthupdaterMul(height uint64) {
 	c := make(chan uint64, 5)
 	wg.Add(1)
 	c <- height
-	for i := 0; i < 150; i++ {
+	for i := 0; i < 5; i++ {
 		u := NewEthupdaterMul()
 		go Start(c, u)
 	}
