@@ -3,9 +3,9 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"encoding/json"
-	"github.com/gembackend/models"
 	"github.com/gembackend/messagequeue"
 	"github.com/gembackend/conf"
+	"github.com/gembackend/models/eth_query"
 )
 
 type ImportWalletController struct {
@@ -41,7 +41,7 @@ func (i *ImportWalletController) Post() {
 		return
 	}
 
-	if models.GetEthAddrExist(ethAddr) {
+	if eth_query.GetEthAddrExist(ethAddr) {
 		i.Data["json"] = resultResponseMake("import success")
 		i.ServeJSON()
 		return

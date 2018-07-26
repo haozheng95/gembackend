@@ -13,7 +13,7 @@ type AuthController struct {
 func (a *AuthController) Get() {
 
 	walletId := a.Input().Get("wallet_id")
-
+	// from default eth_query
 	o := orm.NewOrm()
 	qs := o.QueryTable("address")
 	n := qs.Filter("wallet_id", walletId).Exist()

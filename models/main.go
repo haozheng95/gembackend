@@ -4,26 +4,30 @@ import (
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gembackend/conf"
-)
-
-var (
-	o orm.Ormer
+	"github.com/gembackend/models/eth_query"
+	"github.com/gembackend/models/exchange"
 )
 
 func init() {
-	orm.RegisterModel(new(Address), new(Block),
-		new(TokenAddress), new(TokenTx), new(Tx),
-		new(TxExtraInfo), new(Erc20Token))
-	orm.RegisterDriver("mysql", orm.DRMySQL)
 	maxIdle := 30
 	maxConn := 30
 
+	orm.RegisterModel(new(eth_query.Address), new(eth_query.Block),
+		new(eth_query.TokenAddress), new(eth_query.TokenTx), new(eth_query.Tx),
+		new(eth_query.TxExtraInfo), new(exchange.EthToken), new(exchange.MainChain))
+	orm.RegisterDriver("mysql", orm.DRMySQL)
+	// eth query -----------------------
 	orm.RegisterDataBase("default",
 		"mysql", conf.MysqlUser + ":" + conf.MysqlPasswd+
 			"@tcp("+ conf.MysqlHost+ ":"+ conf.MysqlPort+ ")/eth_query?charset=utf8", maxIdle, maxConn)
-	err := orm.RunSyncdb("default", false, true)
-	if err != nil{
-		log.Errorf("db create error !!! %s", err)
-	}
-	o = orm.NewOrm()
+
+	// exchange --------------------------
+	orm.RegisterDataBase("exchange",
+		"mysql", conf.MysqlUser + ":" + conf.MysqlPasswd+
+			"@tcp("+ conf.MysqlHost+ ":"+ conf.MysqlPort+ ")/exchange?charset=utf8", maxIdle, maxConn)
+}
+
+func CreateTable() {
+	orm.RunSyncdb("default", true, true)
+	orm.RunSyncdb("exchange", true, true)
 }

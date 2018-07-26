@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"strings"
-	"github.com/gembackend/models"
+	"github.com/gembackend/models/eth_query"
 )
 
 type TxrecordController struct {
@@ -33,7 +33,7 @@ func (t *TxrecordController) Get() {
 	var r int64
 	switch cointype {
 	case "eth":
-		addst := new(models.Address)
+		addst := new(eth_query.Address)
 		addst.WalletId = walletid
 		_, err = addst.SelectAddr()
 		if err != nil {
@@ -46,10 +46,10 @@ func (t *TxrecordController) Get() {
 
 		if len(contract) != 0 {
 			//合约记录
-			txs, r = models.GetEthTokenTxrecord(addst.Addr, contract, page*size, size)
+			txs, r = eth_query.GetEthTokenTxrecord(addst.Addr, contract, page*size, size)
 		} else {
 			//eth记录
-			txs, r = models.GetEthTxrecord(addst.Addr, page*size, size)
+			txs, r = eth_query.GetEthTxrecord(addst.Addr, page*size, size)
 		}
 	}
 

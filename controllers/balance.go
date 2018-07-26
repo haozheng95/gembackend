@@ -3,8 +3,8 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"github.com/gembackend/models"
 	"github.com/shopspring/decimal"
+	"github.com/gembackend/models/eth_query"
 )
 
 type BalanceController struct {
@@ -16,7 +16,7 @@ func (b *BalanceController) Get() {
 
 	addr := b.Input().Get("user_addr")
 	contract := b.Input().Get("contract_addr")
-	var r models.Address
+	var r eth_query.Address
 	o := orm.NewOrm()
 	qs := o.QueryTable("address")
 	err := qs.Filter("addr", addr).One(&r)
@@ -30,7 +30,7 @@ func (b *BalanceController) Get() {
 
 	amount := amount1.Sub(amount2)
 
-	var c models.TokenAddress
+	var c eth_query.TokenAddress
 	var contractResult interface{} = nil
 	if contract != "" {
 		qs = o.QueryTable(c)

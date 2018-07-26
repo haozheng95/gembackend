@@ -3,8 +3,8 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"encoding/json"
-	"github.com/gembackend/models"
 	"strconv"
+	"github.com/gembackend/models/eth_query"
 )
 
 type RegisterController struct {
@@ -40,7 +40,7 @@ func (r *RegisterController) Post() {
 		return
 	}
 	// 添加eth地址
-	addressTable := &models.Address{
+	addressTable := &eth_query.Address{
 		WalletId:        walletId,
 		Addr:            ethAddr,
 		Nonce:           "0",
@@ -51,7 +51,7 @@ func (r *RegisterController) Post() {
 	}
 	addressTable.InsertOneRaw(addressTable)
 	// 添加token地址
-	addressTokenTable := &models.TokenAddress{
+	addressTokenTable := &eth_query.TokenAddress{
 		WalletId:        walletId,
 		Addr:            ethAddr,
 		Amount:          "0",

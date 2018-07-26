@@ -3,8 +3,8 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"github.com/gembackend/models"
 	"strconv"
+	"github.com/gembackend/models/eth_query"
 )
 
 type AssetController struct {
@@ -33,7 +33,7 @@ func (a *AssetController) Get() {
 	}
 
 	o := orm.NewOrm()
-	var address models.Address
+	var address eth_query.Address
 	qs := o.QueryTable(address)
 	qs.Filter("addr", addr).One(&address)
 	var addressResult interface{}
@@ -44,7 +44,7 @@ func (a *AssetController) Get() {
 		addressResult = address
 	}
 
-	var t []*models.TokenAddress
+	var t []*eth_query.TokenAddress
 	qs = o.QueryTable("token_address")
 	_, err = qs.Filter("addr", addr).Filter("added", 1).Limit(sizeInt, beginInt*sizeInt).All(&t)
 	if err != nil {

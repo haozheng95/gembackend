@@ -1,20 +1,35 @@
 package main
 
 import (
+	_ "github.com/gembackend/models"
 	_ "github.com/astaxie/beego/config/xml"
 	"github.com/gembackend/messagequeue"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/scripts"
 	"flag"
 	"github.com/gembackend/gembackendlog"
+	"os"
+	"os/signal"
+	"github.com/gembackend/scripts/eth"
 )
 
 func main() {
+	log := gembackendlog.Log
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	go func(interrupt chan os.Signal) {
+		defer close(interrupt)
+		msg := <-interrupt
+		log.Warningf("exit message %s", msg)
+		log.Warning("program exit....... ")
+		os.Exit(0)
+	}(interrupt)
+	feixiaohaoapi()
+	os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
 	height := flag.Uint64("height", 5000000, "change start height")
 	flag.Parse()
-	log := gembackendlog.Log
 
 	switch *action {
 	case "eth-updater-web3":
@@ -22,7 +37,7 @@ func main() {
 		ethUpdaterWeb3(*height)
 	case "eth-updater-web3-mul":
 		log.Info("eth-updater-web3-mul start")
-		scripts.StartEthupdaterMul(*height)
+		eth.StartEthupdaterMul(*height)
 	case "eth-updater-ethscan":
 		log.Info("eth-updater-ethscan start")
 		ethUpdaterEthscan(*height)
@@ -48,7 +63,7 @@ func ethkafkascript() {
 	go func(r <-chan interface{}) {
 		for z := range r {
 			t := z.(map[string]interface{})
-			scripts.Main(t["walletId"].(string), t["addr"].(string))
+			eth.Main(t["walletId"].(string), t["addr"].(string))
 		}
 	}(r)
 
@@ -59,12 +74,22 @@ func ethkafkascript() {
 
 // 单线程更新web3更新程序
 func ethUpdaterWeb3(height uint64) {
-	updater := scripts.NewEthUpdaterWeb3(height)
+	updater := eth.NewEthUpdaterWeb3(height)
 	updater.Forever()
 }
 
 // 单线程ethscan接口更新程序
 func ethUpdaterEthscan(height uint64) {
-	updater := scripts.NewEthUpdaterApi(height)
+	updater := eth.NewEthUpdaterApi(height)
 	updater.Forever()
+}
+
+// 火币websocket启动
+func huobiwebsocket() {
+	scripts.Huobiwebsocker()
+}
+
+// 非小号获取价格启动
+func feixiaohaoapi() {
+	scripts.FeixiaohaoStart()
 }
