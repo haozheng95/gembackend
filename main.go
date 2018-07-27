@@ -3,6 +3,7 @@ package main
 import (
 	_ "github.com/gembackend/models"
 	"github.com/astaxie/beego"
+	_ "github.com/gembackend/routers"
 )
 
 func main() {

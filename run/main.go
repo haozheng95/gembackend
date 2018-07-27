@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/signal"
 	"github.com/gembackend/scripts/eth"
+	"github.com/gembackend/models"
 )
 
 func main() {
@@ -24,7 +25,8 @@ func main() {
 		log.Warning("program exit....... ")
 		os.Exit(0)
 	}(interrupt)
-	feixiaohaoapi()
+
+	huobiwebsocket()
 	os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
@@ -44,6 +46,13 @@ func main() {
 	case "eth-kafka-script":
 		log.Info("eth-kafka-script start")
 		ethkafkascript()
+	case "feixiaohao":
+		log.Info("feixiaohao start")
+		feixiaohaoapi()
+	case "createtestdata":
+		log.Info("createtestdata start")
+		createtestdata()
+
 	default:
 		log.Info("no operation was selected")
 		log.Info("you can select action")
@@ -51,6 +60,8 @@ func main() {
 		log.Info("eth-updater-web3-mul")
 		log.Info("eth-updater-ethscan")
 		log.Info("eth-kafka-script")
+		log.Info("feixiaohao")
+		log.Info("createtestdata")
 	}
 }
 
@@ -92,4 +103,10 @@ func huobiwebsocket() {
 // 非小号获取价格启动
 func feixiaohaoapi() {
 	scripts.FeixiaohaoStart()
+}
+
+//创建测试数据
+func createtestdata(){
+	models.AutoInsertData("exchange", "eth_token")
+	models.AutoInsertData("exchange", "main_chain")
 }

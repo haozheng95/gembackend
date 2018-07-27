@@ -9,6 +9,9 @@ import (
 	"io/ioutil"
 	"fmt"
 	"encoding/json"
+	"strings"
+	"github.com/shopspring/decimal"
+	"github.com/gembackend/models/exchange"
 )
 
 var (
@@ -29,10 +32,10 @@ func Huobiwebsocker() {
 			msgtype, msg, err := c.ReadMessage()
 			if err != nil {
 				log.Errorf("read error: %s", err)
+				log.Infof("msg-type: %d", msgtype)
 				wg.Done()
 				continue
 			}
-			log.Infof("msg-type: %d", msgtype)
 			dat := huobiunzipmsg(msg)
 			huobidisposebyte(c, dat)
 		}
@@ -58,13 +61,19 @@ func Huobiwebsocker() {
 	// sub
 	huobisub(c)
 	wg.Wait()
-	log.Warning("huobiwebsocket exit!!!!")
+	log.Warning("wg == 0 !!@huobiwebsocket exit!!!!")
 }
 
 func huobisub(c *websocket.Conn) {
-	substr := fmt.Sprintf(huobisubstr, "btcusdt")
-	fmt.Println(substr)
-	c.WriteMessage(websocket.TextMessage, []byte(substr))
+	//substr := fmt.Sprintf(huobisubstr, "btcusdt")
+	//fmt.Println(substr)
+	//c.WriteMessage(websocket.TextMessage, []byte(substr))
+	//return
+	for _, v := range exchange.GetAllTokenName() {
+		substr := fmt.Sprintf(huobisubstr, strings.ToLower(v.TokenName) + baseCoin)
+		fmt.Println(substr)
+		c.WriteMessage(websocket.TextMessage, []byte(substr))
+	}
 }
 
 func huobiunzipmsg(msg []byte) (s []byte) {
@@ -107,4 +116,47 @@ func huobidisposebyte(c *websocket.Conn, s []byte) {
 		return
 	}
 
+	ch, ok := dat["ch"]
+	if !ok {
+		return
+	}
+	//log.Debugf("ch: %s", ch)
+	//log.Debugf("coin: %s", coin)
+	tick, ok := dat["tick"]
+	if !ok {
+		return
+	}
+
+	//log.Debugf("tick: %s",tick)
+	//log.Debug(dat)
+	coin := splitch(ch)
+	price := filttick(tick)
+	st := new(exchange.EthToken)
+	usdtcny := exchange.GetMainChainCny(baseCoinFullName)
+	st.TokenName = strings.ToUpper(coin) //must to upper
+	st.Cny = price.String()
+	st.Usdt = DivString(st.Cny, usdtcny).String()
+	st.UpdateCnyAndUsdt()
+}
+
+func splitch(ch interface{}) string {
+	chs := ch.(string)
+	s := strings.Split(chs, ".")
+	return strings.Replace(s[1], baseCoin, "", -1)
+}
+
+func filttick(tick interface{}) (price decimal.Decimal) {
+	tickmap := tick.(map[string]interface{})
+	ticclose, ok := tickmap["close"]
+	if !ok {
+		//log.Debugf("close ---- %f", ticclose)
+		log.Error("filttick error")
+		log.Error(tick)
+		price = decimal.New(0, 0)
+		return
+	}
+	//log.Debug(ticclose.(float64))
+
+	price = decimal.NewFromFloat(ticclose.(float64))
+	return
 }

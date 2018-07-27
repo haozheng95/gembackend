@@ -52,6 +52,7 @@ func init() {
 	beego.Router("/api/auth", &controllers.AuthController{})
 	beego.Router("/api/txs/?:coin_type", &controllers.TxrecordController{})
 	beego.Router("/api/import", &controllers.ImportWalletController{})
+	beego.Router("/api/rawtx/?:coin_type", &controllers.SendRawTx{})
 	// 错误信息返回
 	beego.Router("/error/?:error_id", &controllers.ErrorsController{})
 }

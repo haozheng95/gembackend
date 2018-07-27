@@ -6,23 +6,65 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strings"
+	"time"
+	"fmt"
+	"github.com/gembackend/models/exchange"
 )
 
 // tether -> usdt
 // bitcoin -> btc
 var (
-	feixiaohaoBaseUrl = url.URL{Scheme: "https", Host: "www.feixiaohao.com", Path: "/currencies/"}
-	cointype          = []string{"tether"}
-	reg               = regexp.MustCompile(`coinprice(.*?)<`)
+	cointype []string
+	reg      = regexp.MustCompile(`coinprice(.*?)<`)
+	baseHost = "www.feixiaohao.com"
 )
 
 func FeixiaohaoStart() {
-	feixiaohaoBaseUrl.Path = feixiaohaoBaseUrl.Path + cointype[0]
-	log.Debugf("connect url = %s", feixiaohaoBaseUrl.String())
-	original := feixiaohaoGetpage(feixiaohaoBaseUrl.String())
-	price := feixiaohaoExtractPrice(original)
-	log.Infof("the %s price : %s cny", cointype[0], price)
+	fullnames := exchange.GetAllCoinFullNaml()
+	cointype = make([]string, len(fullnames))
+	for i := range fullnames {
+		cointype[i]= fullnames[i].FullName
+	}
+	log.Infof("coin num:%d", len(cointype))
+	wg.Add(1)
+	for _, coin := range cointype {
+
+		go func(coin string) {
+
+			ticker := time.NewTicker(time.Second * 1)
+			defer ticker.Stop()
+
+			for range ticker.C {
+				feixiaohaoBaseUrl := url.URL{Scheme: "https", Host: baseHost, Path: "/currencies/%s"}
+				feixiaohaoBaseUrl.Path = fmt.Sprintf(feixiaohaoBaseUrl.Path, coin)
+				//log.Infof("connect url = %s", feixiaohaoBaseUrl.String())
+				original := feixiaohaoGetpage(feixiaohaoBaseUrl.String())
+				price := feixiaohaoExtractPrice(original)
+				//log.Infof("the %s price : %s cny", coin, price)
+				updatemainchain(coin, price)
+			}
+		}(coin)
+	}
+
+	wg.Wait()
+
 }
+
+func updatemainchain(coin , cny string) {
+	st := new(exchange.MainChain)
+	st.FullName = baseCoinFullName
+	st.SelectCny()
+	usdtCny := st.Cny
+	usdtNum := DivString(cny, usdtCny)
+
+	st.FullName = coin
+	st.Cny = cny
+	st.Usdt = usdtNum.String()
+	st.UpdateCnyAndUsdt()
+	log.Infof("cny :%s, coin :%s, usdt_num :%s", cny, coin, usdtNum.String())
+}
+
+
 
 func feixiaohaoGetpage(url string) string {
 	resp, err := http.Get(url)
@@ -46,6 +88,7 @@ func feixiaohaoGetpage(url string) string {
 func feixiaohaoExtractPrice(original string) (s string) {
 	s = strings.Replace(original, "coinprice>￥", "", -1)
 	s = strings.Replace(s, "<", "", -1)
+	s = strings.Replace(s, ",", "", -1)
 	s = strings.TrimSpace(s)
 	return
 }
