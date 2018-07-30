@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
-	"strings"
-	"strconv"
-	"github.com/gembackend/gembackendlog"
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/astaxie/beego"
+	"github.com/gembackend/gembackendlog"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -20,6 +20,9 @@ var (
 		2006: "User does not exist",
 		2007: "checkSign false",
 		2008: "map to json error",
+		2009: "send raw tx error",
+		2010: "This currency is not supported",
+		2011: "You can't transfer it to yourself",
 	}
 	log = gembackendlog.Log
 	//默认token
