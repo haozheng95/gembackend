@@ -1,21 +1,21 @@
 package scripts
 
 import (
-	"github.com/gorilla/websocket"
-	"time"
-	"net/url"
 	"bytes"
 	"compress/gzip"
-	"io/ioutil"
-	"fmt"
 	"encoding/json"
-	"strings"
-	"github.com/shopspring/decimal"
+	"fmt"
 	"github.com/gembackend/models/exchange"
+	"github.com/gorilla/websocket"
+	"github.com/shopspring/decimal"
+	"io/ioutil"
+	"net/url"
+	"strings"
+	"time"
 )
 
 var (
-	huobisubstr = `{"sub": "market.%s.kline.1min","id": "id10"}`
+	huobisubstr = `{"sub": "market.%s.kline.15min","id": "id10"}`
 )
 
 func Huobiwebsocker() {
@@ -36,6 +36,7 @@ func Huobiwebsocker() {
 				wg.Done()
 				continue
 			}
+			//log.Infof("msg-type: %d", msgtype)
 			dat := huobiunzipmsg(msg)
 			huobidisposebyte(c, dat)
 		}
@@ -65,13 +66,11 @@ func Huobiwebsocker() {
 }
 
 func huobisub(c *websocket.Conn) {
-	//substr := fmt.Sprintf(huobisubstr, "btcusdt")
-	//fmt.Println(substr)
-	//c.WriteMessage(websocket.TextMessage, []byte(substr))
-	//return
+
 	for _, v := range exchange.GetAllTokenName() {
-		substr := fmt.Sprintf(huobisubstr, strings.ToLower(v.TokenName) + baseCoin)
-		fmt.Println(substr)
+		substr := fmt.Sprintf(huobisubstr, strings.ToLower(v.TokenName)+baseCoin)
+		//substr := fmt.Sprintf(huobisubstr, strings.ToLower("bat") + baseCoin)
+		fmt.Println(substr, v)
 		c.WriteMessage(websocket.TextMessage, []byte(substr))
 	}
 }
@@ -88,6 +87,7 @@ func huobiunzipmsg(msg []byte) (s []byte) {
 		log.Errorf("huobiunzipmsg setp-2 error: %s", err)
 		return
 	}
+	//log.Debug(string(s))
 	return
 }
 
@@ -121,7 +121,6 @@ func huobidisposebyte(c *websocket.Conn, s []byte) {
 		return
 	}
 	//log.Debugf("ch: %s", ch)
-	//log.Debugf("coin: %s", coin)
 	tick, ok := dat["tick"]
 	if !ok {
 		return
@@ -130,6 +129,7 @@ func huobidisposebyte(c *websocket.Conn, s []byte) {
 	//log.Debugf("tick: %s",tick)
 	//log.Debug(dat)
 	coin := splitch(ch)
+	log.Debugf("coin: %s", coin)
 	price := filttick(tick)
 	st := new(exchange.EthToken)
 	usdtcny := exchange.GetMainChainCny(baseCoinFullName)

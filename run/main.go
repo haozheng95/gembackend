@@ -1,17 +1,17 @@
 package main
 
 import (
-	_ "github.com/gembackend/models"
-	_ "github.com/astaxie/beego/config/xml"
-	"github.com/gembackend/messagequeue"
-	"github.com/gembackend/conf"
-	"github.com/gembackend/scripts"
 	"flag"
+	_ "github.com/astaxie/beego/config/xml"
+	"github.com/gembackend/conf"
 	"github.com/gembackend/gembackendlog"
+	"github.com/gembackend/messagequeue"
+	"github.com/gembackend/models"
+	_ "github.com/gembackend/models"
+	"github.com/gembackend/scripts"
+	"github.com/gembackend/scripts/eth"
 	"os"
 	"os/signal"
-	"github.com/gembackend/scripts/eth"
-	"github.com/gembackend/models"
 )
 
 func main() {
@@ -25,8 +25,8 @@ func main() {
 		log.Warning("program exit....... ")
 		os.Exit(0)
 	}(interrupt)
-
-	huobiwebsocket()
+	feixiaohaoapi()
+	//huobiwebsocket()
 	os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
@@ -106,7 +106,8 @@ func feixiaohaoapi() {
 }
 
 //创建测试数据
-func createtestdata(){
+func createtestdata() {
+	models.CreateTable()
 	models.AutoInsertData("exchange", "eth_token")
 	models.AutoInsertData("exchange", "main_chain")
 }

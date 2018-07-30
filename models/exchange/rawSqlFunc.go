@@ -39,3 +39,17 @@ func GetAllTokenName() (r []allTokenName) {
 	o.Raw(sql).QueryRows(&r)
 	return
 }
+
+type allTokenFullName struct {
+	TokenFullName string
+}
+
+func GetAllFullTokenName() (r []allTokenFullName) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("token_full_name").From("eth_token")
+	sql := qb.String()
+	o := orm.NewOrm()
+	o.Using(databases)
+	o.Raw(sql).QueryRows(&r)
+	return
+}
