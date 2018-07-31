@@ -110,10 +110,10 @@ func (s *SendRawTx) Post() {
 			token_amount = amount
 			is_token = 1
 		}
-		txhash, err := web3conn.Eth.SendRawTransaction(raw)
+		txhash, err := web3conn.Eth.SendRawTransaction([]string{raw})
 		// dispose error
 		// db operation
-		log.Debug(err)
+		log.Error(err)
 		// todo extra info table operation
 		if err == nil {
 			// Combining data
@@ -164,7 +164,14 @@ func (s *SendRawTx) Post() {
 				}
 
 				st3.InsertOneRaw(&st3)
+				// update token address
+				eth_query.UpdateTokenAddress(token_amount, from, contractaddr)
 			}
+
+			// update address
+			unconfirmAmount := AddString(eth_amount, fee)
+			eth_query.UpdateAddress(unconfirmAmount, from)
+
 			s.Data["json"] = resultResponseMake(txhash)
 		} else {
 			s.Data["json"] = resultResponseErrorMake(2009, err.Error())

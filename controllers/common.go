@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"github.com/astaxie/beego"
 	"github.com/gembackend/gembackendlog"
+	"github.com/shopspring/decimal"
 	"strconv"
 	"strings"
 )
@@ -23,6 +24,7 @@ var (
 		2009: "send raw tx error",
 		2010: "This currency is not supported",
 		2011: "You can't transfer it to yourself",
+		2012: "The returned data is less than one",
 	}
 	log = gembackendlog.Log
 	//默认token
@@ -105,4 +107,36 @@ func (e *ErrorsController) Get() {
 		e.Data["json"] = resultResponseErrorMake(eId, nil)
 	}
 	e.ServeJSON()
+}
+
+func SubString(d1, d2 string) (r string) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+	m3 := m1.Sub(m2)
+	r = m3.String()
+	return
+}
+
+func AddString(d1, d2 string) (r string) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+	m3 := m1.Add(m2)
+	r = m3.String()
+	return
+}
+
+func MulString(d1, d2 string) (r string) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+	m3 := m1.Mul(m2)
+	r = m3.String()
+	return
+}
+
+func DivString(d1, d2 string) (r string) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+	m3 := m1.Div(m2)
+	r = m3.String()
+	return
 }

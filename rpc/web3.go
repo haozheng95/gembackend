@@ -1,12 +1,12 @@
 package rpc
 
 import (
-	"github.com/regcostajr/go-web3/providers"
 	"github.com/regcostajr/go-web3"
+	"github.com/regcostajr/go-web3/dto"
 	"github.com/regcostajr/go-web3/net"
 	"github.com/regcostajr/go-web3/personal"
+	"github.com/regcostajr/go-web3/providers"
 	"github.com/regcostajr/go-web3/utils"
-	"github.com/regcostajr/go-web3/dto"
 )
 
 // Web3 extension
@@ -37,7 +37,7 @@ func NewWeb3(provider providers.ProviderInterface) *Web3 {
 }
 
 // add eth_sendRawTransaction
-func (eth *Eth) SendRawTransaction(params string) (string, error) {
+func (eth *Eth) SendRawTransaction(params interface{}) (string, error) {
 
 	pointer := &dto.RequestResult{}
 

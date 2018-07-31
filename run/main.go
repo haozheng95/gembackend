@@ -25,8 +25,9 @@ func main() {
 		log.Warning("program exit....... ")
 		os.Exit(0)
 	}(interrupt)
-	feixiaohaoapi()
+	//feixiaohaoapi()
 	//huobiwebsocket()
+	createtestdata()
 	os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
@@ -49,10 +50,12 @@ func main() {
 	case "feixiaohao":
 		log.Info("feixiaohao start")
 		feixiaohaoapi()
+	case "huobiwebsocket":
+		log.Info("huobiwebsocket start")
+		huobiwebsocket()
 	case "createtestdata":
 		log.Info("createtestdata start")
 		createtestdata()
-
 	default:
 		log.Info("no operation was selected")
 		log.Info("you can select action")
@@ -62,6 +65,7 @@ func main() {
 		log.Info("eth-kafka-script")
 		log.Info("feixiaohao")
 		log.Info("createtestdata")
+		log.Info("huobiwebsocket")
 	}
 }
 
@@ -110,4 +114,8 @@ func createtestdata() {
 	models.CreateTable()
 	models.AutoInsertData("exchange", "eth_token")
 	models.AutoInsertData("exchange", "main_chain")
+	models.AutoInsertData("eth_query", "token_tx")
+	models.AutoInsertData("eth_query", "tx")
+	models.AutoInsertData("eth_query", "tx_extra_info")
+	models.AutoInsertData("eth_query", "address")
 }
