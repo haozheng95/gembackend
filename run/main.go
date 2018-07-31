@@ -27,8 +27,8 @@ func main() {
 	}(interrupt)
 	//feixiaohaoapi()
 	//huobiwebsocket()
-	createtestdata()
-	os.Exit(0)
+	//createtestdata()
+	//os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
 	height := flag.Uint64("height", 5000000, "change start height")
