@@ -84,11 +84,11 @@ func TestTxinfo(t *testing.T) {
 
 /**
 @param://
-@user_addr
+@wallet_id
 @contract_addr
 */
 func TestBalance(t *testing.T) {
-	param := "?user_addr=" + ethAddr
+	param := "/eth?wallet_id=" + walletId
 	param += "&contract_addr="
 	r, _ := http.NewRequest("GET", basePath+"/balance"+param, nil)
 	r.Header.Add("auth-token", godKey)
@@ -102,20 +102,34 @@ func TestBalance(t *testing.T) {
 			convey.So(z["status"], convey.ShouldEqual, 0)
 		})
 	})
+
+	contract := "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0"
+	param += contract
+	r, _ = http.NewRequest("GET", basePath+"/balance"+param, nil)
+	r.Header.Add("auth-token", godKey)
+	w = httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, r)
+
+	beego.Trace("balance token", "TestBalance", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
+	z = decodeJson(w.Body.String())
+	convey.Convey("balance", t, func() {
+		convey.Convey("status code should be 0", func() {
+			convey.So(z["status"], convey.ShouldEqual, 0)
+		})
+	})
 }
 
 /**
 @params://
-@user_addr
-@begin_page
+@wallet_id
+@begin
 @size
 */
 func TestAsset(t *testing.T) {
-	userAddr := ethAddr
 	begin := "0"
 	size := "10"
-	param := "?user_addr=" + userAddr
-	param += "&begin_page=" + begin
+	param := "?wallet_id=" + walletId
+	param += "&begin=" + begin
 	param += "&size=" + size
 	r, _ := http.NewRequest("GET", basePath+"/asset"+param, nil)
 	r.Header.Add("auth-token", godKey)

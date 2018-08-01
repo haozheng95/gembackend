@@ -25,9 +25,6 @@ func main() {
 		log.Warning("program exit....... ")
 		os.Exit(0)
 	}(interrupt)
-	//feixiaohaoapi()
-	//huobiwebsocket()
-	//createtestdata()
 	//os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
@@ -56,6 +53,9 @@ func main() {
 	case "createtestdata":
 		log.Info("createtestdata start")
 		createtestdata()
+	case "auxiliary":
+		log.Info("auxiliary start")
+		auxiliary()
 	default:
 		log.Info("no operation was selected")
 		log.Info("you can select action")
@@ -66,6 +66,7 @@ func main() {
 		log.Info("feixiaohao")
 		log.Info("createtestdata")
 		log.Info("huobiwebsocket")
+		log.Info("auxiliary")
 	}
 }
 
@@ -118,4 +119,9 @@ func createtestdata() {
 	models.AutoInsertData("eth_query", "tx")
 	models.AutoInsertData("eth_query", "tx_extra_info")
 	models.AutoInsertData("eth_query", "address")
+}
+
+//gaslimit和gasprice更新
+func auxiliary() {
+	scripts.AuxiliaryMain()
 }

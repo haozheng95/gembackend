@@ -2,9 +2,8 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
-	"github.com/shopspring/decimal"
 	"github.com/gembackend/models/eth_query"
+	"github.com/gembackend/models/exchange"
 )
 
 type BalanceController struct {
@@ -13,48 +12,62 @@ type BalanceController struct {
 
 // 获取eth余额 和合约地址余额
 func (b *BalanceController) Get() {
+	cointype := b.Ctx.Input.Param(":coin_type")
+	walletid := b.Input().Get("wallet_id")
 
-	addr := b.Input().Get("user_addr")
-	contract := b.Input().Get("contract_addr")
-	var r eth_query.Address
-	o := orm.NewOrm()
-	qs := o.QueryTable("address")
-	err := qs.Filter("addr", addr).One(&r)
-	if err != nil {
-		b.Data["json"] = resultResponseErrorMake(2003, err.Error())
+	res := new(balanceControllerResponse)
+	switch cointype {
+	case "eth":
+		contractaddr := b.Input().Get("contract_addr")
+		if len(contractaddr) > 0 {
+			// contract dispose
+			st := eth_query.GetEthTokenInfoByWalletId(walletid, contractaddr)
+			res.Amount = SubString(st.Amount, st.UnconfirmAmount)
+			res.TokenAmount = SubString(st.TokenAmount, st.TokenUnconfirmAmount)
+			res.TokenName = st.TokenName
+			res.Nonce = st.Nonce
+			res.Dec = st.Decimal
+			res.Istoken = "1"
+			tokenGasLimit := exchange.GetTokenGasLimit(contractaddr)
+			if len(tokenGasLimit) == 0 {
+				res.Gaslimit = defaultTokenGasLimit
+			} else {
+				res.Gaslimit = tokenGasLimit
+			}
+		} else {
+			// eth dispose
+			st := eth_query.GetEthInfoByWalletId(walletid)
+			res.Amount = SubString(st.Amount, st.UnconfirmAmount)
+			res.Nonce = st.Nonce
+			res.Dec = st.Decimal
+			res.Istoken = "0"
+			gaslimit := exchange.GetMainChainGasLimit(cointype)
+			if len(gaslimit) > 0 {
+				res.Gaslimit = gaslimit
+			} else {
+				res.Gaslimit = defaultGasLimit
+			}
+		}
+		res.Coin = cointype
+		res.ContractAddr = contractaddr
+		gasprice := exchange.GetMainChainGasPrice(cointype)
+		if len(gasprice) > 0 {
+			res.Gasprice = gasprice
+		} else {
+			res.Gasprice = defaultGasPrice
+		}
+
+	default:
+		// error
+		b.Data["json"] = resultResponseErrorMake(2010, nil)
 		b.ServeJSON()
 		return
 	}
-	amount1, err := decimal.NewFromString(r.Amount)
-	amount2, err := decimal.NewFromString(r.UnconfirmAmount)
-
-	amount := amount1.Sub(amount2)
-
-	var c eth_query.TokenAddress
-	var contractResult interface{} = nil
-	if contract != "" {
-		qs = o.QueryTable(c)
-		err = qs.Filter("addr", addr).Filter("contract_addr", contract).One(&c)
-		if err != nil {
-			contractResult = err.Error()
-		} else {
-			tokenAmount1, _ := decimal.NewFromString(c.Amount)
-			tokenAmount2, _ := decimal.NewFromString(c.UnconfirmAmount)
-			tokenAmount := tokenAmount1.Sub(tokenAmount2)
-			contractResult = map[string]interface{}{
-				"contract_addr": contract,
-				"decimal":       c.Decimal,
-				"amount":        tokenAmount,
-			}
-		}
-	}
-
-	b.Data["json"] = resultResponseMake(map[string]interface{}{
-		"eth_data": map[string]interface{}{
-			"amount": amount,
-			"nonce":  r.Nonce,
-		},
-		"token_data": contractResult,
-	})
+	//log.Debug(res)
+	b.Data["json"] = resultResponseMake(res)
 	b.ServeJSON()
+}
+
+type balanceControllerResponse struct {
+	Coin, Amount, TokenAmount, Nonce, Gasprice, Gaslimit, Dec, Istoken, ContractAddr, TokenName string
 }

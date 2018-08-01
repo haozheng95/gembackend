@@ -166,3 +166,52 @@ func GetTxInfo(txhash string) (r []*txinfores) {
 	o.Raw(qb.String(), txhash).QueryRows(&r)
 	return
 }
+
+// get eth info by wallet id
+func GetEthInfoByWalletId(walletId string) (st struct{ Nonce, Amount, UnconfirmAmount, Addr, Decimal string }) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("nonce", "amount", "unconfirm_amount", "addr", "`decimal`").
+		From("address").Where("wallet_id=?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	o.Raw(qb.String(), walletId).QueryRow(&st)
+	return
+}
+
+// get token for eth info by wallet id
+func GetEthTokenInfoByWalletId(walletId, contractAddr string) (st struct {
+	Nonce,
+	Amount,
+	UnconfirmAmount,
+	TokenAmount,
+	TokenUnconfirmAmount,
+	TokenName,
+	Decimal string
+}) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("t1.nonce", "t1.amount", "t1.unconfirm_amount", "t2.amount as token_amount",
+		"t2.unconfirm_amount as token_unconfirm_amount", "t2.decimal", "t2.token_name").From("address as t1").
+		LeftJoin("token_address as t2").On("t1.addr = t2.addr").
+		Where("t1.wallet_id=?").And("t2.contract_addr=?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	o.Raw(qb.String(), walletId, contractAddr).QueryRow(&st)
+	return
+}
+
+// get all token info
+func GetAllTokenInfoWithUser(walletId string, begin, size int) (st []*struct {
+	ContractAddr, Amount, UnconfirmAmount, TokenName, Decimal string
+}) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("contract_addr", "amount", "unconfirm_amount", "token_name", "`decimal`").
+		From("token_address").Where("wallet_id=?").And("added=?").Limit(size).Offset(begin)
+	o := orm.NewOrm()
+	o.Using(databases)
+	//log.Debug(qb.String())
+	_, err := o.Raw(qb.String(), walletId, 1).QueryRows(&st)
+	if err != nil {
+		log.Debug(err)
+	}
+	return
+}

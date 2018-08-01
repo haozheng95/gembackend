@@ -20,7 +20,7 @@ func (t *TxinfoController) Get() {
 	case "eth":
 		// get now height
 		blockHeight := eth_query.GetBlockHeight()
-		log.Debug(blockHeight)
+		//log.Debug(blockHeight)
 		contract := t.Input().Get("contract_addr")
 		if len(contract) > 1 {
 			// contract info
@@ -28,7 +28,7 @@ func (t *TxinfoController) Get() {
 			if len(r) > 0 {
 				tmp := r[0]
 				if tmp.TxState != -1 && strings.Compare(tmp.BlockHeight, "") != 0 && len(tmp.BlockHeight) > 0 {
-					tmp.ConfirmNum = SubString(tmp.BlockHeight, blockHeight)
+					tmp.ConfirmNum = SubString(blockHeight, tmp.BlockHeight)
 				}
 				t.Data["json"] = resultResponseMake(tmp)
 			} else {
@@ -40,7 +40,7 @@ func (t *TxinfoController) Get() {
 			if len(r) > 0 {
 				tmp := r[0]
 				if tmp.TxState != -1 && strings.Compare(tmp.BlockHeight, "") != 0 && len(tmp.BlockHeight) > 0 {
-					tmp.ConfirmNum = SubString(tmp.BlockHeight, blockHeight)
+					tmp.ConfirmNum = SubString(blockHeight, tmp.BlockHeight)
 				}
 				t.Data["json"] = resultResponseMake(tmp)
 			} else {

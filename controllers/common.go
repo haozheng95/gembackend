@@ -11,6 +11,10 @@ import (
 )
 
 var (
+	defaultTokenGasLimit = "150000"
+	defaultGasLimit      = "21000"
+	defaultGasPrice      = "90000000000"
+
 	resultResponseErrors = map[int]string{
 		2000: "missing parameter",
 		2001: "Parameter resolution error",
