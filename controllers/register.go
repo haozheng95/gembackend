@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
 	"encoding/json"
-	"strconv"
+	"github.com/astaxie/beego"
+	"github.com/gembackend/conf"
 	"github.com/gembackend/models/eth_query"
+	"strconv"
 )
 
 type RegisterController struct {
@@ -65,6 +66,9 @@ func (r *RegisterController) Post() {
 		addressTokenTable.TokenName = v[2]
 		addressTokenTable.InsertOneRaw(addressTokenTable)
 	}
+
+	// add eth address for kafka
+	SaveForKafka(conf.KafkagetbalanceParityTopic, ethAddr)
 
 	r.Data["json"] = resultResponseMake("success")
 	r.ServeJSON()

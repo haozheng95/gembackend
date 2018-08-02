@@ -116,6 +116,10 @@ func (s *SendRawTx) Post() {
 		log.Error(err)
 		// todo extra info table operation
 		if err == nil {
+			// Save for kafka
+			// wait:parity web socket don't support getTraction func
+			//ethtopicname := conf.KafkatransactionParityTopic
+			//SaveForKafka(ethtopicname, txhash)
 			// Combining data
 			st1 := eth_query.TxExtraInfo{
 				From:        from,

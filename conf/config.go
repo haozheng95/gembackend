@@ -2,8 +2,8 @@ package conf
 
 import (
 	"github.com/astaxie/beego/config"
-	"runtime"
 	"path/filepath"
+	"runtime"
 )
 
 const (
@@ -22,14 +22,18 @@ var (
 	MysqlPort   string
 	MysqlUser   string
 	//eth rpc config
-	EthRpcHost    string
-	EthRpcPort    string
-	EthRpcTimeOut int
-	EthRpcSecure  bool
+	EthRpcHost       string
+	EthRpcPort       string
+	EthWebsocketPort string
+	EthRpcTimeOut    int
+	EthRpcSecure     bool
+	EthWebsocketUrl  string
 	//kafka config
-	KafkaHost               string
-	KafkaPort               string
-	KafkaimportEthTopicName string
+	KafkaHost                   string
+	KafkaPort                   string
+	KafkaimportEthTopicName     string
+	KafkatransactionParityTopic string
+	KafkagetbalanceParityTopic  string
 )
 
 func init() {
@@ -45,12 +49,16 @@ func init() {
 	// init eth rpc config
 	EthRpcHost = iniconf.String("eth_rpc::host")
 	EthRpcPort = iniconf.String("eth_rpc::port")
+	EthWebsocketPort = iniconf.String("eth_rpc::websocket")
+	EthWebsocketUrl = EthRpcHost + ":" + EthWebsocketPort
 	EthRpcTimeOut, _ = iniconf.Int("eth_rpc::timeOut")
 	EthRpcSecure, _ = iniconf.Bool("eth_rpc::secure")
 	// init kafka config
 	KafkaHost = iniconf.String("kafka::host")
 	KafkaPort = iniconf.String("kafka::port")
 	KafkaimportEthTopicName = iniconf.String("kafka::importEthTopic")
+	KafkatransactionParityTopic = iniconf.String("kafka::transactionParityTopic")
+	KafkagetbalanceParityTopic = iniconf.String("kafka::getbalanceParityTopic")
 }
 
 func GetCurrentFilepath() (filename string) {

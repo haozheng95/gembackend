@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"github.com/astaxie/beego"
 	"github.com/gembackend/gembackendlog"
+	"github.com/gembackend/messagequeue"
 	"github.com/shopspring/decimal"
 	"strconv"
 	"strings"
@@ -143,4 +144,10 @@ func DivString(d1, d2 string) (r string) {
 	m3 := m1.Div(m2)
 	r = m3.String()
 	return
+}
+
+func SaveForKafka(topicname, kafkaParam string) {
+	p := messagequeue.MakeProducer()
+	defer p.Close()
+	messagequeue.MakeMessage(topicname, kafkaParam, p)
 }

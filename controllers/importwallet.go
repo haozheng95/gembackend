@@ -1,9 +1,8 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
 	"encoding/json"
-	"github.com/gembackend/messagequeue"
+	"github.com/astaxie/beego"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/models/eth_query"
 )
@@ -58,11 +57,12 @@ func (i *ImportWalletController) Post() {
 		i.ServeJSON()
 		return
 	}
-
+	// save data for kafka
 	ethtopicname := conf.KafkaimportEthTopicName
-	p := messagequeue.MakeProducer()
-	defer p.Close()
-	messagequeue.MakeMessage(ethtopicname, string(ethkafkaparam), p)
+	SaveForKafka(ethtopicname, string(ethkafkaparam))
+	// add eth address for kafka
+	SaveForKafka(conf.KafkagetbalanceParityTopic, ethAddr)
+
 	i.Data["json"] = resultResponseMake("import success! pleases! wait some time")
 	i.ServeJSON()
 }

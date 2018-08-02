@@ -95,7 +95,7 @@ func huobidisposebyte(c *websocket.Conn, s []byte) {
 	var dat map[string]interface{}
 	var echo map[string]interface{}
 	echo = make(map[string]interface{})
-	err := json.Unmarshal([]byte(s), &dat)
+	err := json.Unmarshal(s, &dat)
 	if err != nil {
 		return
 	}

@@ -1,10 +1,10 @@
 package messagequeue
 
 import (
-	"github.com/Shopify/sarama"
-	"github.com/gembackend/gembackendlog"
-	"github.com/gembackend/conf"
 	"encoding/json"
+	"github.com/Shopify/sarama"
+	"github.com/gembackend/conf"
+	"github.com/gembackend/gembackendlog"
 )
 
 var (
@@ -73,7 +73,7 @@ func MakePcs(consumer sarama.Consumer, topic string) (pcs []sarama.PartitionCons
 	return
 }
 
-func ReadMessage(pc sarama.PartitionConsumer, f func(interface{}) interface{}, c chan <- interface{}) {
+func ReadMessage(pc sarama.PartitionConsumer, f func(interface{}) interface{}, c chan<- interface{}) {
 	defer pc.AsyncClose()
 	for msg := range pc.Messages() {
 		log.Infof("Partition:%d, Offset:%d, Key:%s, Value:%s\n", msg.Partition, msg.Offset, string(msg.Key), string(msg.Value))
@@ -89,4 +89,8 @@ func DisJsonFunc(jb interface{}) interface{} {
 	}
 	log.Info(res)
 	return res
+}
+
+func NothingFunc(jb interface{}) interface{} {
+	return jb
 }
