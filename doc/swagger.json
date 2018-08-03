@@ -6,7 +6,7 @@
     "title": "gembackend"
   },
   "host": "39.106.55.83:8080",
-  "basePath": "/api",
+  "basePath": "/v1",
   "schemes": [
     "https",
     "http"
@@ -56,6 +56,78 @@
         ]
       }
     },
+    "/txinfo": {
+      "get": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "交易详情",
+        "description": "不穿合约地址 将只会获得eth的相关信息",
+        "operationId": "getTxinfo",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "contract_addr",
+            "in": "query",
+            "description": "合约地址",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "description": "wallet_id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "examples": {
+              "one": {
+                "result": {
+                  "Id": 0,
+                  "From": "0xd6cb6744b7f2da784c5afd6b023d957188522198",
+                  "To": "0x88a690553913a795c3c668275297635b903a29e5",
+                  "Amount": "3.18096329",
+                  "InputData": "0x",
+                  "Nonce": "4079",
+                  "GasLimit": "121000",
+                  "GasPrice": "134000000000",
+                  "GasUsed": "21000",
+                  "Fee": "0.002814",
+                  "TxHash": "0x569c5b35f203ca6db6e2cec44bceba756fad513384e2bd79c06a8c0181273379",
+                  "BlockHash": "0x7d5a4369273c723454ac137f48a4f142b097aa2779464e6505f1b1c5e37b5382",
+                  "BlockHeight": "5000000",
+                  "ConfirmTime": "1517319693",
+                  "Created": "0001-01-01T00:00:00Z",
+                  "BlockState": 0,
+                  "TxState": 1,
+                  "IsToken": 0,
+                  "ConfirmNum": "-5000000"
+                },
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
     "/balance": {
       "get": {
         "tags": [
@@ -79,9 +151,9 @@
             "type": "string"
           },
           {
-            "name": "user_addr",
+            "name": "wallet_id",
             "in": "query",
-            "description": "eth地址",
+            "description": "wallet_id",
             "required": true,
             "type": "string"
           }
@@ -92,29 +164,37 @@
             "examples": {
               "one": {
                 "result": {
-                  "eth_data": {
-                    "amount": "0",
-                    "nonce": "4"
-                  },
-                  "token_data": null
+                  "Coin": "eth",
+                  "Amount": "3998.6",
+                  "TokenAmount": "",
+                  "Nonce": "4",
+                  "Gasprice": "6000000000",
+                  "Gaslimit": "21272",
+                  "Dec": "0",
+                  "Istoken": "0",
+                  "ContractAddr": "",
+                  "TokenName": ""
                 },
                 "status": 0,
                 "version": 1
               },
               "two": {
                 "result": {
-                  "eth_data": {
-                    "amount": "0",
-                    "nonce": "4"
+                  "result": {
+                    "Coin": "eth",
+                    "Amount": "3998.6",
+                    "TokenAmount": "5",
+                    "Nonce": "4",
+                    "Gasprice": "6000000000",
+                    "Gaslimit": "11",
+                    "Dec": "18",
+                    "Istoken": "1",
+                    "ContractAddr": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
+                    "TokenName": "EOS"
                   },
-                  "token_data": {
-                    "amount": "572368.99140578",
-                    "contract_addr": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
-                    "decimal": 0
-                  }
-                },
-                "status": 0,
-                "version": 1
+                  "status": 0,
+                  "version": 1
+                }
               }
             }
           }
@@ -151,7 +231,7 @@
             "type": "string"
           },
           {
-            "name": "begin_page",
+            "name": "begin",
             "in": "query",
             "description": "开始页从0开始",
             "required": true,
@@ -167,38 +247,246 @@
         ],
         "responses": {
           "200": {
-            "description": "分页控制的是token结果集的里面obj的数量，eth结果集每次都会返回",
+            "description": "",
             "examples": {
               "one": {
-                "result": {
-                  "eth": {
-                    "Id": 1,
-                    "WalletId": "111",
-                    "Addr": "0xfbb1b73c4f0bda4f67dca266ce6ef42f520fbb98",
-                    "TypeId": 4,
-                    "Nonce": "4",
-                    "Created": "2018-07-23T11:04:33+08:00",
-                    "Amount": "0",
-                    "UnconfirmAmount": "0",
-                    "Updated": "2018-07-23T11:04:43+08:00",
-                    "Decimal": 18
+                "result": [
+                  {
+                    "Coin": "eth",
+                    "Amount": "3998.6",
+                    "Price": "11535961",
+                    "Dec": "0",
+                    "Istoken": "0"
                   },
-                  "token": [
-                    {
-                      "Id": 2,
-                      "WalletId": "fff",
-                      "Addr": "0xfbb1b73c4f0bda4f67dca266ce6ef42f520fbb98",
-                      "Created": "2018-07-19T15:27:39+08:00",
-                      "ContractAddr": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
-                      "Amount": "572368.99140578",
-                      "UnconfirmAmount": "0",
-                      "Updated": "2018-07-19T07:34:18+08:00",
-                      "Decimal": 0,
-                      "TokenName": "ss",
-                      "Added": 0
-                    }
-                  ]
-                },
+                  {
+                    "Coin": "EOS",
+                    "Amount": "5",
+                    "Price": "250.15",
+                    "Dec": "18",
+                    "Istoken": "1"
+                  },
+                  {
+                    "Coin": "TRX",
+                    "Amount": "0",
+                    "Price": "0",
+                    "Dec": "6",
+                    "Istoken": "1"
+                  },
+                  {
+                    "Coin": "OMG",
+                    "Amount": "0",
+                    "Price": "0",
+                    "Dec": "18",
+                    "Istoken": "1"
+                  },
+                  {
+                    "Coin": "SNT",
+                    "Amount": "0",
+                    "Price": "0",
+                    "Dec": "18",
+                    "Istoken": "1"
+                  },
+                  {
+                    "Coin": "MKR",
+                    "Amount": "0",
+                    "Price": "0",
+                    "Dec": "18",
+                    "Istoken": "1"
+                  },
+                  {
+                    "Coin": "ZRX",
+                    "Amount": "0",
+                    "Price": "0",
+                    "Dec": "18",
+                    "Istoken": "1"
+                  },
+                  {
+                    "Coin": "REP",
+                    "Amount": "0",
+                    "Price": "0",
+                    "Dec": "18",
+                    "Istoken": "1"
+                  },
+                  {
+                    "Coin": "BAT",
+                    "Amount": "0",
+                    "Price": "0",
+                    "Dec": "18",
+                    "Istoken": "1"
+                  },
+                  {
+                    "Coin": "SALT",
+                    "Amount": "0",
+                    "Price": "0",
+                    "Dec": "8",
+                    "Istoken": "1"
+                  }
+                ],
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/rawtx{coin_type}": {
+      "post": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "导入账户",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "coin_type",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "raw",
+            "in": "query",
+            "description": "原文",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "fee",
+            "in": "query",
+            "description": "fee",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "from addr",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "to addr",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "note",
+            "in": "query",
+            "description": "备注",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "gaslimit",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "gasprice",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "contract_addr",
+            "in": "query",
+            "description": "如果是token把合约地址发合约地址",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "examples": {
+              "one": {
+                "result": "success",
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
+    "/import": {
+      "post": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "导入账户",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sign",
+            "in": "query",
+            "description": "walletId + HMAC_KEY的一次sha256的十六进制摘要",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "eth_addr",
+            "in": "query",
+            "description": "eth地址",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "examples": {
+              "one": {
+                "result": "success",
                 "status": 0,
                 "version": 1
               }
@@ -309,7 +597,7 @@
             "type": "string"
           },
           {
-            "name": "page",
+            "name": "begin_page",
             "in": "query",
             "description": "从0开始",
             "required": true,
@@ -332,25 +620,92 @@
                   "last": true,
                   "record": [
                     {
-                      "Id": 1,
-                      "From": "0x0681d8db095565fe8a346fa0277bffde9c0edbbf",
-                      "To": "0xf53354a8dc35416d28ab2523589d1b44843e025c",
-                      "Amount": "2845.545516",
+                      "Id": 5,
+                      "From": "0xd6cb6744b7f2da784c5afd6b023d957188522198",
+                      "To": "0x4ac751f0152b6799a5acfc25614072fbb06dca06",
+                      "Amount": "1",
+                      "Nonce": "22",
+                      "Fee": "0.4",
+                      "TxHash": "1234",
+                      "BlockHeight": "",
+                      "ConfirmTime": "",
+                      "Comment": "sup no token",
+                      "Created": "2018-07-31T06:00:01+08:00",
+                      "BlockState": 0,
+                      "TxState": -1,
+                      "IsToken": 0,
+                      "Collection": 0
+                    },
+                    {
+                      "Id": 4,
+                      "From": "0xd6cb6744b7f2da784c5afd6b023d957188522198",
+                      "To": "0x4ac751f0152b6799a5acfc25614072fbb06dca06",
+                      "Amount": "1",
+                      "Nonce": "22",
+                      "Fee": "0.4",
+                      "TxHash": "123",
+                      "BlockHeight": "",
+                      "ConfirmTime": "",
+                      "Comment": "sup no token",
+                      "Created": "2018-07-31T05:56:30+08:00",
+                      "BlockState": 0,
+                      "TxState": -1,
+                      "IsToken": 0,
+                      "Collection": 0
+                    },
+                    {
+                      "Id": 3,
+                      "From": "0x88a690553913a795c3c668275297635b903a29e5",
+                      "To": "0xd6cb6744b7f2da784c5afd6b023d957188522198",
+                      "Amount": "31.18096329",
+                      "Nonce": "221655",
+                      "Fee": "0.0039835",
+                      "TxHash": "0x696a35492b283624ccf4ae9438ae2d5d5e84a4a00798155b568d1eb52606d828",
+                      "BlockHeight": "",
+                      "ConfirmTime": "",
+                      "Comment": "test3",
+                      "Created": "2018-07-31T02:10:56+08:00",
+                      "BlockState": 0,
+                      "TxState": -1,
+                      "IsToken": 1,
+                      "Collection": 1
+                    },
+                    {
+                      "Id": 2,
+                      "From": "0x88a690553913a795c3c668275297635b903a29e5",
+                      "To": "0xd6cb6744b7f2da784c5afd6b023d957188522198",
+                      "Amount": "3.18096329",
                       "Nonce": "221655",
                       "Fee": "0.0039835",
                       "TxHash": "0x696a35492b283624ccf4ae9438ae2d5d5e84a4a00798155b568d1eb52606d829",
                       "BlockHeight": "5000000",
                       "ConfirmTime": "1517319693",
-                      "Created": "2018-07-18T06:36:39+08:00",
+                      "Comment": "test2",
+                      "Created": "2018-07-31T02:10:56+08:00",
                       "BlockState": 0,
                       "TxState": 1,
                       "IsToken": 1,
-                      "Collection": 0,
-                      "LogIndex": "0",
-                      "Decimal": "18"
+                      "Collection": 1
+                    },
+                    {
+                      "Id": 1,
+                      "From": "0xd6cb6744b7f2da784c5afd6b023d957188522198",
+                      "To": "0x88a690553913a795c3c668275297635b903a29e5",
+                      "Amount": "3.18096329",
+                      "Nonce": "4079",
+                      "Fee": "0.002814",
+                      "TxHash": "0x569c5b35f203ca6db6e2cec44bceba756fad513384e2bd79c06a8c0181273379",
+                      "BlockHeight": "5000000",
+                      "ConfirmTime": "1517319693",
+                      "Comment": "test1",
+                      "Created": "2018-07-31T02:10:56+08:00",
+                      "BlockState": 0,
+                      "TxState": 1,
+                      "IsToken": 0,
+                      "Collection": 0
                     }
                   ],
-                  "size": 1
+                  "size": 5
                 },
                 "status": 0,
                 "version": 1

@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/astaxie/beego"
-	"github.com/gembackend/conf"
 	"github.com/gembackend/models/eth_query"
 	"strconv"
 )
@@ -68,7 +67,7 @@ func (r *RegisterController) Post() {
 	}
 
 	// add eth address for kafka
-	SaveForKafka(conf.KafkagetbalanceParityTopic, ethAddr)
+	//SaveForKafka(conf.KafkagetbalanceParityTopic, ethAddr)
 
 	r.Data["json"] = resultResponseMake("success")
 	r.ServeJSON()

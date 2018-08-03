@@ -3,12 +3,14 @@
 //time: 2018/8/2 下午2:46
 
 //wait:parity web socket don't support getTraction func
+//abandon----------------------------------------------
 package eth
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gembackend/conf"
+	"github.com/gembackend/messagequeue"
 	"github.com/gorilla/websocket"
 	"net/url"
 )
@@ -27,6 +29,10 @@ var (
 
 	formatsUnSubString = func(str string) string {
 		return fmt.Sprintf(unSub, str)
+	}
+
+	formatSubGetBalanceString = func(str string) string {
+		return fmt.Sprintf(subEthGetBalance, str)
 	}
 )
 
@@ -103,11 +109,26 @@ func unsubscribe(conn *websocket.Conn) {
 }
 func subscribe(conn *websocket.Conn) {
 	// block number
-	conn.WriteMessage(websocket.TextMessage, []byte(subEthBlockNumber))
-	contrast <- "eth_blockNumber"
+	//conn.WriteMessage(websocket.TextMessage, []byte(subEthBlockNumber))
+	//contrast <- "eth_blockNumber"
 
 	// setp 2---- chain by this format
-	contrast <- "eth_getBalance"
+
+	c := messagequeue.MakeConsumer()
+	r := make(chan interface{})
+	defer c.Close()
+	defer close(r)
+	go func(r <-chan interface{}) {
+		for z := range r {
+			t := string(z.([]byte))
+			conn.WriteMessage(websocket.TextMessage, []byte(formatSubGetBalanceString(t)))
+			contrast <- "eth_getBalance"
+			log.Debug(t)
+		}
+	}(r)
+
+	pcs := messagequeue.MakePcs(c, conf.KafkagetbalanceParityTopic)
+	messagequeue.ReadMessage(pcs[0], messagequeue.NothingFunc, r)
 
 	log.Info("subscribe finish")
 }

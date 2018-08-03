@@ -61,7 +61,7 @@ func (i *ImportWalletController) Post() {
 	ethtopicname := conf.KafkaimportEthTopicName
 	SaveForKafka(ethtopicname, string(ethkafkaparam))
 	// add eth address for kafka
-	SaveForKafka(conf.KafkagetbalanceParityTopic, ethAddr)
+	//SaveForKafka(conf.KafkagetbalanceParityTopic, ethAddr)
 
 	i.Data["json"] = resultResponseMake("import success! pleases! wait some time")
 	i.ServeJSON()

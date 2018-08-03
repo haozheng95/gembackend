@@ -1,17 +1,17 @@
 package eth
 
 import (
-	"github.com/regcostajr/go-web3"
-	"time"
-	"github.com/regcostajr/go-web3/providers"
 	"fmt"
-	"github.com/gembackend/rpc"
-	"strings"
-	"github.com/regcostajr/go-web3/dto"
-	"strconv"
 	"github.com/gembackend/conf"
-	"github.com/regcostajr/go-web3/complex/types"
 	"github.com/gembackend/models/eth_query"
+	"github.com/gembackend/rpc"
+	"github.com/regcostajr/go-web3"
+	"github.com/regcostajr/go-web3/complex/types"
+	"github.com/regcostajr/go-web3/dto"
+	"github.com/regcostajr/go-web3/providers"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type EthUpdaterWeb3 struct {
@@ -172,8 +172,8 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 			booltokenfrom := eth_query.GetEthAddrExist(updaterWeb3.TableTokenTx.From)
 			booltokento := eth_query.GetEthAddrExist(updaterWeb3.TableTokenTx.To)
 			// debug
-			booltokenfrom = true
-			booltokento = true
+			//booltokenfrom = true
+			//booltokento = true
 			if booltokenfrom || booltokento {
 				// 更新用户token信息
 				if booltokenfrom {
@@ -196,8 +196,8 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 	boolfrom := eth_query.GetEthAddrExist(updaterWeb3.TableTx.From)
 	boolto := eth_query.GetEthAddrExist(updaterWeb3.TableTx.To)
 	// debug
-	boolto = true
-	boolfrom = true
+	//boolto = true
+	//boolfrom = true
 	if boolfrom || boolto {
 		if boolfrom {
 			//log.Infof("eth from %s", updaterWeb3.TableTx.From)
