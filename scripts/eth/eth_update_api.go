@@ -1,14 +1,13 @@
 package eth
 
 import (
+	"github.com/gembackend/models/eth_query"
 	"github.com/gembackend/rpc"
+	"github.com/shopspring/decimal"
+	"math"
 	"strconv"
 	"strings"
-	"math"
-	"github.com/shopspring/decimal"
-	"github.com/gembackend/models/eth_query"
 )
-
 
 type EthUpdater struct {
 	StartHeight       uint64
@@ -21,16 +20,16 @@ type EthUpdater struct {
 }
 
 func (updater *EthUpdater) Forever() {
+	updater.TableBlock = updater.TableBlock.SelectMaxHeight()
 	height := MaxIntByString(updater.StartHeight, updater.TableBlock.BlockHeight)
 	for {
 		blockInfo := updater.getBlockInfo(height)
 		dbBlockInfo := updater.TableBlock.SelectRawByHeight(height - 1)
 		if dbBlockInfo.Id != 0 && blockInfo.Result["parentHash"] != dbBlockInfo.BlockHash {
-			// 开始回滚高度
 			log.Warningf("block exception!! will rollback !! except height = %run", height-1)
 			height, blockInfo = updater.RollBackBlock(height)
 		}
-		log.Warningf("\n The height %run", height)
+		log.Warningf("\n The height %d run", height)
 		if blockInfo.Result != nil {
 			updater.BeginUpdateBlockInfo(blockInfo)
 			height++
@@ -40,7 +39,7 @@ func (updater *EthUpdater) Forever() {
 	}
 }
 
-func (updater *EthUpdater) getBlockInfo(height uint64) (*rpc.Response) {
+func (updater *EthUpdater) getBlockInfo(height uint64) *rpc.Response {
 	info, err := rpc.Eth_getBlockByNumber(height)
 	if err != nil {
 		log.Error(err)
@@ -101,7 +100,6 @@ func (updater *EthUpdater) disposeTransaction(v interface{}) {
 	for _, k := range ws {
 
 		updater.formatTransaction(k.(map[string]interface{}))
-
 		updater.formatTransactionOther()
 
 		if strings.HasPrefix(updater.TableTx.InputData, _TRANSFER) {
@@ -110,11 +108,16 @@ func (updater *EthUpdater) disposeTransaction(v interface{}) {
 		} else {
 			updater.TableTx.IsToken = 0
 		}
-		updater.TableTx.InsertOneRaw(updater.TableTx)
+		boolfrom := eth_query.GetEthAddrExist(updater.TableTx.From)
+		boolto := eth_query.GetEthAddrExist(updater.TableTx.To)
+		if boolfrom || boolto {
+			updater.TableTx.DeleteOneRawByTxHash()
+			updater.TableTx.InsertOneRaw(updater.TableTx)
+			// 更新用户以太坊信息
+			updater.disposeUpdateEthInfo(updater.TableTx.From)
+			updater.disposeUpdateEthInfo(updater.TableTx.To)
+		}
 
-		// 更新用户以太坊信息
-		updater.disposeUpdateEthInfo(updater.TableTx.From)
-		updater.disposeUpdateEthInfo(updater.TableTx.To)
 	}
 
 }
@@ -206,7 +209,7 @@ func (updater *EthUpdater) AnalysisTokenLog() {
 	for _, v := range info {
 		t := v.(map[string]interface{})
 		t1 := t["topics"].([]interface{})
-		if strings.Compare(t1[0].(string), _TRANSACTION_TOPIC) == 0 {
+		if strings.Compare(t1[0].(string), _TRANSACTION_TOPIC) == 0 && len(t1) > 3 {
 			updater.TableTokenTx.To = t1[2].(string)
 			dec, _ := rpc.Eth_getTokenDecimals(updater.TableTokenTx.ContractAddr)
 			f, _ := rpc.FormatTokenResponse(dec)
@@ -218,17 +221,21 @@ func (updater *EthUpdater) AnalysisTokenLog() {
 			updater.TableTokenTx.BlockState = 1
 			updater.TableTokenTx.IsToken = 1
 			// 添加表数据
-			updater.TableTokenTx.InsertOneRaw(updater.TableTokenTx)
+			boolfrom := eth_query.GetEthAddrExist(updater.TableTokenTx.From)
+			boolto := eth_query.GetEthAddrExist(updater.TableTokenTx.To)
+			if boolfrom || boolto {
+				updater.TableTokenTx.DeleteOneRawByHashAndLogindex(updater.TableTokenTx.TxHash)
+				updater.TableTokenTx.InsertOneRaw(updater.TableTokenTx)
+				// 更新token用户信息
+				updater.disposeUpdateEthTokenInfo(updater.TableTokenTx.From, updater.TableTokenTx.ContractAddr)
+				updater.disposeUpdateEthTokenInfo(updater.TableTokenTx.To, updater.TableTokenTx.ContractAddr)
+			}
 
-			// 更新token用户信息
-			updater.disposeUpdateEthTokenInfo(updater.TableTokenTx.From, updater.TableTokenTx.ContractAddr)
-			updater.disposeUpdateEthTokenInfo(updater.TableTokenTx.To, updater.TableTokenTx.ContractAddr)
 		}
 	}
 }
 
 func (updater *EthUpdater) disposeUpdateEthInfo(addr string) {
-
 
 	r1, _ := rpc.Eth_getTransactionCount(addr)
 	f1, err := rpc.FormatTokenResponse(r1)
@@ -269,7 +276,6 @@ func (updater *EthUpdater) disposeUpdateEthTokenInfo(addr string, contractAddr s
 	updater.TableTokenAddress.Update(updater.TableTokenAddress.Addr)
 }
 
-
 func NewEthUpdaterApi(startHeight uint64) *EthUpdater {
 	u := new(EthUpdater)
 	u.StartHeight = startHeight
@@ -280,5 +286,3 @@ func NewEthUpdaterApi(startHeight uint64) *EthUpdater {
 	u.TableTokenAddress = new(eth_query.TokenAddress)
 	return u
 }
-
-

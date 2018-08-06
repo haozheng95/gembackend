@@ -1,14 +1,14 @@
 package rpc
 
 import (
-	"net/http"
-	"io/ioutil"
-	"github.com/gembackend/gembackendlog"
-	"fmt"
-	"encoding/json"
-	"strings"
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/gembackend/conf"
+	"github.com/gembackend/gembackendlog"
+	"io/ioutil"
+	"net/http"
+	"strings"
 )
 
 var log = gembackendlog.Log
@@ -71,40 +71,40 @@ func Eth_getTxList(addr string, page int) (string, error) {
 
 func Eth_getTokenSymbol(contract string) (string, error) {
 	url := fmt.Sprintf(eth_call, contract, _tokenSymbol)
-	log.Debug(url)
+	//log.Debug(url)
 	s, e := httpGet(url)
 	if e != nil {
 		log.Error(e)
 	}
-	log.Info(s)
+	//log.Info(s)
 	return s, e
 }
 
 func Eth_getTokenDecimals(contract string) (string, error) {
 	url := fmt.Sprintf(eth_call, contract, _tokenDecimals)
-	log.Debug(url)
+	//log.Debug(url)
 	s, e := httpGet(url)
 	if e != nil {
 		log.Error(e)
 	}
-	log.Info(s)
+	//log.Info(s)
 	return s, e
 
 }
 
 func Eth_getBalance(s string) string {
 	url := fmt.Sprintf(eth_getBalance, s)
-	log.Debug(url)
+	//log.Debug(url)
 	str, e := httpGet(url)
 	if e != nil {
 		log.Error(e)
 	}
-	log.Info(str)
+	//log.Info(str)
 	return str
 }
 
 // 获取多个eth地址的余额
-func Eth_getMulBalance(s ... string) string {
+func Eth_getMulBalance(s ...string) string {
 	s1 := strings.Join(s, ",")
 	url := fmt.Sprintf(eth_getMulBalance, s1)
 	log.Debug(url)
@@ -130,12 +130,12 @@ func Eth_getTokenName(contract string) (string, error) {
 // 获取用户的eoken余额
 func Eth_getTokenBalance(contract, addr string) (string, error) {
 	url := fmt.Sprintf(eth_call, contract, _tokenBalance+addr)
-	log.Debug(url)
+	//log.Debug(url)
 	s, e := httpGet(url)
 	if e != nil {
 		log.Error(e)
 	}
-	log.Info(s)
+	//log.Info(s)
 	return s, e
 }
 
@@ -177,24 +177,24 @@ func FormatResponseMap(s *string) (map[string]interface{}, error) {
 
 func Eth_getTransactionReceipt(hash string) (string, error) {
 	url := fmt.Sprintf(eth_getTransactionReceipt, hash)
-	log.Debug(url)
+	//log.Debug(url)
 	s, e := httpGet(url)
 	if e != nil {
 		log.Error(e)
 	}
-	log.Info(s)
+	//log.Info(s)
 	return s, e
 
 }
 
 func Eth_getTransactionCount(address string) (string, error) {
 	url := fmt.Sprintf(eth_getTransactionCount, address)
-	log.Debug(url)
+	//log.Debug(url)
 	s, e := httpGet(url)
 	if e != nil {
 		log.Error(e)
 	}
-	log.Info(s)
+	//log.Info(s)
 	return s, e
 }
 
@@ -212,12 +212,12 @@ func Eth_getTransactionByHash(hash string) (string, error) {
 func Eth_getBlockByNumber(num uint64) (string, error) {
 	h := fmt.Sprintf("%x", num)
 	url := fmt.Sprintf(eth_getBlockByNumber, h)
-	log.Debug(url)
+	//log.Debug(url)
 	s, e := httpGet(url)
 	if e != nil {
 		log.Error(e)
 	}
-	log.Info(s)
+	//log.Info(s)
 	return s, e
 }
 

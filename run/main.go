@@ -25,7 +25,7 @@ func main() {
 		log.Warning("program exit....... ")
 		os.Exit(0)
 	}(interrupt)
-	//eth.ParityWebSocketStart()
+	//createtestdata()
 	//os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
@@ -113,7 +113,7 @@ func feixiaohaoapi() {
 
 //创建测试数据
 func createtestdata() {
-	models.CreateTable()
+	//models.CreateTable()
 	models.AutoInsertData("exchange", "eth_token")
 	models.AutoInsertData("exchange", "main_chain")
 	models.AutoInsertData("eth_query", "token_tx")

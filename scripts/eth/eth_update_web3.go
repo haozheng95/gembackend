@@ -132,7 +132,6 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 		updaterWeb3.TableTx.IsToken = 1
 
 		transactionParameters := new(dto.TransactionParameters)
-		//处理token
 		for _, v := range transactionReceiptInfo.Logs {
 			from, to, amount, logindex := AnalysisTokenLog(v)
 			if logindex == "" {
