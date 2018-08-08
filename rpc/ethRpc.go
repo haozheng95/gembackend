@@ -154,6 +154,7 @@ func FormatTokenResponse(s string) (*TokenResonse, error) {
 func FormatResponse(s *string) (*Response, error) {
 	x := []byte(*s)
 	r := &Response{}
+	log.Debug(*s)
 	err := json.Unmarshal(x, &r)
 
 	if err != nil {

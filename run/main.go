@@ -26,7 +26,8 @@ func main() {
 		os.Exit(0)
 	}(interrupt)
 	//createtestdata()
-	//os.Exit(0)
+	eth.StartEthApiMul(5000000)
+	os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
 	height := flag.Uint64("height", 5000000, "change start height")

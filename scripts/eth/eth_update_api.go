@@ -23,7 +23,7 @@ func (updater *EthUpdater) Forever() {
 	updater.TableBlock = updater.TableBlock.SelectMaxHeight()
 	height := MaxIntByString(updater.StartHeight, updater.TableBlock.BlockHeight)
 	for {
-		blockInfo := updater.getBlockInfo(height)
+		blockInfo, _ := updater.getBlockInfo(height)
 		dbBlockInfo := updater.TableBlock.SelectRawByHeight(height - 1)
 		if dbBlockInfo.Id != 0 && blockInfo.Result["parentHash"] != dbBlockInfo.BlockHash {
 			log.Warningf("block exception!! will rollback !! except height = %run", height-1)
@@ -39,22 +39,25 @@ func (updater *EthUpdater) Forever() {
 	}
 }
 
-func (updater *EthUpdater) getBlockInfo(height uint64) *rpc.Response {
+func (updater *EthUpdater) getBlockInfo(height uint64) (*rpc.Response, error) {
 	info, err := rpc.Eth_getBlockByNumber(height)
 	if err != nil {
 		log.Error(err)
-		panic(err)
+		//panic(err)
+		return nil, err
 	}
 	blockInfo, err := rpc.FormatResponse(&info)
 	if err != nil {
-		panic(err)
+		log.Debug(err)
+		//panic(err)
+		return nil, err
 	}
-	return blockInfo
+	return blockInfo, err
 }
 
 func (updater *EthUpdater) RollBackBlock(height uint64) (uint64, *rpc.Response) {
 	for i := height; i >= updater.StartHeight; i-- {
-		blockInfo := updater.getBlockInfo(i)
+		blockInfo, _ := updater.getBlockInfo(i)
 		dbBlockInfo := updater.TableBlock.SelectRawByHeight(i)
 		if dbBlockInfo.BlockHash != blockInfo.Result["hash"] && dbBlockInfo.Id != 0 {
 			log.Debugf("delete height %run", i)
@@ -66,7 +69,8 @@ func (updater *EthUpdater) RollBackBlock(height uint64) (uint64, *rpc.Response) 
 			panic("RollBackBlock Error")
 		}
 	}
-	return height, updater.getBlockInfo(height)
+	r, _ := updater.getBlockInfo(height)
+	return height, r
 }
 
 func (updater *EthUpdater) formatBlockInfo(info map[string]interface{}) {

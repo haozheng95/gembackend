@@ -66,6 +66,7 @@ func (a *AssetController) Get() {
 		st.Price = MulString(cny, amount)
 		st.Amount = amount
 		st.Coin = v.TokenName
+		st.ContractAddr = v.ContractAddr
 		result = append(result, st)
 	}
 	//log.Debug(cap(result))
@@ -80,5 +81,5 @@ func (a *AssetController) Get() {
 
 // result struct
 type assertControllerResponse struct {
-	Coin, Amount, Price, Dec, Istoken string
+	Coin, Amount, Price, Dec, ContractAddr, Istoken string
 }
