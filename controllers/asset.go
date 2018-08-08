@@ -76,7 +76,7 @@ func (a *AssetController) Get() {
 	//	"last":sizeInt < len(result),
 	//}
 	a.Data["json"] = resultResponseMake(result)
-	a.ServeJSON()
+	a.ServeJSON(true)
 }
 
 // result struct

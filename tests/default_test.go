@@ -127,7 +127,7 @@ func TestBalance(t *testing.T) {
 */
 func TestAsset(t *testing.T) {
 	begin := "0"
-	size := "10"
+	size := "99999999"
 	param := "?wallet_id=" + walletId
 	param += "&begin=" + begin
 	param += "&size=" + size
