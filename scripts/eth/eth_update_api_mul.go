@@ -62,8 +62,8 @@ func StartEthApiMul(height uint64) {
 
 	time.Sleep(time.Second)
 	wg.Add(1)
-	c := make(chan uint64, 30)
-	tolerance := make(chan uint64, 30)
+	c := make(chan uint64, 20)
+	tolerance := make(chan uint64)
 	c <- height
 	defer close(c)
 	i := 0
