@@ -121,8 +121,8 @@ func (updater *EthUpdater) disposeTransaction(v interface{}) {
 			updater.TableTx.DeleteOneRawByTxHash()
 			updater.TableTx.InsertOneRaw(updater.TableTx)
 			// 更新用户以太坊信息
-			updater.disposeUpdateEthInfo(updater.TableTx.From)
-			updater.disposeUpdateEthInfo(updater.TableTx.To)
+			go updater.disposeUpdateEthInfo(updater.TableTx.From)
+			go updater.disposeUpdateEthInfo(updater.TableTx.To)
 		}
 
 	}
@@ -180,7 +180,6 @@ func (updater *EthUpdater) formatTransactionOther() {
 		log.Errorf("Response Error %s", updater.TxReceipt.Error)
 		return
 	}
-
 	updater.FormatReceipt()
 }
 func (updater *EthUpdater) FormatReceipt() {
@@ -241,8 +240,8 @@ func (updater *EthUpdater) AnalysisTokenLog() {
 				updater.TableTokenTx.DeleteOneRawByHashAndLogindex(updater.TableTokenTx.TxHash)
 				updater.TableTokenTx.InsertOneRaw(updater.TableTokenTx)
 				// 更新token用户信息
-				updater.disposeUpdateEthTokenInfo(updater.TableTokenTx.From, updater.TableTokenTx.ContractAddr)
-				updater.disposeUpdateEthTokenInfo(updater.TableTokenTx.To, updater.TableTokenTx.ContractAddr)
+				go updater.disposeUpdateEthTokenInfo(updater.TableTokenTx.From, updater.TableTokenTx.ContractAddr)
+				go updater.disposeUpdateEthTokenInfo(updater.TableTokenTx.To, updater.TableTokenTx.ContractAddr)
 			}
 
 		}
