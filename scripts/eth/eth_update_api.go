@@ -113,6 +113,9 @@ func (updater *EthUpdater) disposeTransaction(v interface{}) {
 		}
 		boolfrom := eth_query.GetEthAddrExist(updater.TableTx.From)
 		boolto := eth_query.GetEthAddrExist(updater.TableTx.To)
+
+		// todo debug
+		boolfrom = true
 		if boolfrom || boolto {
 			updater.formatTransactionOther()
 			updater.TableTx.DeleteOneRawByTxHash()
@@ -228,6 +231,8 @@ func (updater *EthUpdater) AnalysisTokenLog() {
 			// 添加表数据
 			boolfrom := eth_query.GetEthAddrExist(updater.TableTokenTx.From)
 			boolto := eth_query.GetEthAddrExist(updater.TableTokenTx.To)
+			// debug
+			boolfrom = true
 			if boolfrom || boolto {
 
 				updater.TableTokenTx.GasUsed = updater.TableTx.GasUsed
