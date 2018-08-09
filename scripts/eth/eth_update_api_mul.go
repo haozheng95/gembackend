@@ -62,20 +62,25 @@ func StartEthApiMul(height uint64) {
 
 	time.Sleep(time.Second)
 	wg.Add(1)
-	c := make(chan uint64, 5)
-	tolerance := make(chan uint64)
+	c := make(chan uint64, 30)
+	tolerance := make(chan uint64, 30)
 	c <- height
 	defer close(c)
+	i := 0
+	go func() {
+		select {
+		case h := <-tolerance:
+			i++
+			log.Debugf("rescue ---------------------- count %d the hright == %d", i, h)
+			c <- h
+			go startEthUpdateApiMul(c, NewEthupdaterApiMul(), &tolerance)
+		}
+
+	}()
+
 	for i := 0; i < 10; i++ {
 		go startEthUpdateApiMul(c, NewEthupdaterApiMul(), &tolerance)
 	}
-	i := 0
-	select {
-	case h := <-tolerance:
-		i++
-		log.Debugf("rescue ---------------------- count %d the hright == %d", i, h)
-		c <- h
-		go startEthUpdateApiMul(c, NewEthupdaterApiMul(), &tolerance)
-	}
+
 	wg.Wait()
 }
