@@ -209,6 +209,7 @@ func (updater *EthUpdater) formatTokenTransaction() {
 	updater.AnalysisTokenLog()
 }
 func (updater *EthUpdater) AnalysisTokenLog() {
+	updater.formatTransactionOther()
 	info := updater.TxReceipt.Result["logs"].([]interface{})
 	for _, v := range info {
 		t := v.(map[string]interface{})
@@ -228,7 +229,7 @@ func (updater *EthUpdater) AnalysisTokenLog() {
 			boolfrom := eth_query.GetEthAddrExist(updater.TableTokenTx.From)
 			boolto := eth_query.GetEthAddrExist(updater.TableTokenTx.To)
 			if boolfrom || boolto {
-				updater.formatTransactionOther()
+
 				updater.TableTokenTx.GasUsed = updater.TableTx.GasUsed
 				updater.TableTokenTx.GasPrice = updater.TableTx.GasPrice
 				updater.TableTokenTx.Fee = updater.TableTx.Fee
