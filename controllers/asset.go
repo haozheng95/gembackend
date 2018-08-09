@@ -25,19 +25,12 @@ func (a *AssetController) Get() {
 	beginInt, _ := strconv.Atoi(begin)
 	sizeInt, _ := strconv.Atoi(size)
 
-	// result ----
-	//result := make([]assertControllerResponse, sizeInt, sizeInt)
-	result := make([]assertControllerResponse, 0, sizeInt)
+	result := make([]assertControllerResponse, 0, 10)
 	st := assertControllerResponse{}
 	if beginInt == 0 {
 		ethData := eth_query.GetEthInfoByWalletId(walletId)
 		cny := exchange.GetMainChainCnyByCoinName("eth")
 		amount := SubString(ethData.Amount, ethData.UnconfirmAmount)
-		//result[0].Coin = "eth"
-		//result[0].Amount = amount
-		//result[0].Dec = ethData.Decimal
-		//result[0].Istoken = "0"
-		//result[0].Price = MulString(cny, amount)
 		st.Coin = "eth"
 		st.Amount = amount
 		st.Dec = ethData.Decimal
@@ -49,18 +42,9 @@ func (a *AssetController) Get() {
 		beginInt = beginInt*sizeInt - 1
 	}
 	ethTokenData := eth_query.GetAllTokenInfoWithUser(walletId, beginInt, sizeInt)
-	//log.Debug(walletId)//d3ba134f262d6d197a93ade4a6c123ddb9122c5cc0ff666f5447639d36f5f155
-	//if beginInt != 0 {
-	//	sizeInt--
-	//}
 	for _, v := range ethTokenData {
 		amount := SubString(v.Amount, v.UnconfirmAmount)
 		cny := exchange.GetEthTokenCnyByContractAddr(v.ContractAddr)
-		//result[sizeInt-i].Istoken = "1"
-		//result[sizeInt-i].Dec = v.Decimal
-		//result[sizeInt-i].Price = MulString(cny, amount)
-		//result[sizeInt-i].Amount = amount
-		//result[sizeInt-i].Coin = v.TokenName
 		st.Istoken = "1"
 		st.Dec = v.Decimal
 		st.Price = MulString(cny, amount)
@@ -69,12 +53,7 @@ func (a *AssetController) Get() {
 		st.ContractAddr = v.ContractAddr
 		result = append(result, st)
 	}
-	//log.Debug(cap(result))
-	//log.Debug(len(result))
-	//res := map[string]interface{}{
-	//	"data":result,
-	//	"last":sizeInt < len(result),
-	//}
+
 	a.Data["json"] = resultResponseMake(result)
 	a.ServeJSON(true)
 }

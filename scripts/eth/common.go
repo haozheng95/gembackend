@@ -1,12 +1,16 @@
 package eth
 
 import (
+	"fmt"
+	"github.com/gembackend/conf"
 	"github.com/gembackend/gembackendlog"
-	"sync"
 	"github.com/gembackend/models/eth_query"
 	"github.com/regcostajr/go-web3"
-	"github.com/gembackend/conf"
 	"github.com/regcostajr/go-web3/providers"
+	"runtime"
+	"strconv"
+	"strings"
+	"sync"
 )
 
 type Updater interface {
@@ -24,8 +28,7 @@ const (
 	_tag               = "latest"
 )
 
-var
-(
+var (
 	log = gembackendlog.Log
 	wg  sync.WaitGroup
 )
@@ -50,4 +53,21 @@ func init() {
 	source := conf.EthRpcSecure
 	connection_web3 = web3.NewWeb3(providers.NewHTTPProvider(url, int32(timeOut), source))
 	initTokenmap()
+}
+
+func Goid() int {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("panic recover:panic info:%v", err)
+		}
+	}()
+
+	var buf [64]byte
+	n := runtime.Stack(buf[:], false)
+	idField := strings.Fields(strings.TrimPrefix(string(buf[:n]), "goroutine "))[0]
+	id, err := strconv.Atoi(idField)
+	if err != nil {
+		panic(fmt.Sprintf("cannot get goroutine id: %v", err))
+	}
+	return id
 }

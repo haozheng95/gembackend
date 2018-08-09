@@ -102,9 +102,8 @@ func (updater *EthUpdater) BeginUpdateBlockInfo(response *rpc.Response) {
 func (updater *EthUpdater) disposeTransaction(v interface{}) {
 	ws := v.([]interface{})
 	for _, k := range ws {
-
 		updater.formatTransaction(k.(map[string]interface{}))
-		updater.formatTransactionOther()
+		//updater.formatTransactionOther()
 
 		if strings.HasPrefix(updater.TableTx.InputData, _TRANSFER) {
 			updater.TableTx.IsToken = 1
@@ -115,6 +114,7 @@ func (updater *EthUpdater) disposeTransaction(v interface{}) {
 		boolfrom := eth_query.GetEthAddrExist(updater.TableTx.From)
 		boolto := eth_query.GetEthAddrExist(updater.TableTx.To)
 		if boolfrom || boolto {
+			updater.formatTransactionOther()
 			updater.TableTx.DeleteOneRawByTxHash()
 			updater.TableTx.InsertOneRaw(updater.TableTx)
 			// 更新用户以太坊信息
@@ -198,8 +198,8 @@ func (updater *EthUpdater) formatTokenTransaction() {
 	updater.TableTokenTx.ContractAddr = updater.TableTx.To
 	updater.TableTokenTx.InputData = updater.TableTx.InputData
 	updater.TableTokenTx.Nonce = updater.TableTx.Nonce
-	updater.TableTokenTx.GasUsed = updater.TableTx.GasUsed
-	updater.TableTokenTx.GasPrice = updater.TableTx.GasPrice
+	//updater.TableTokenTx.GasUsed = updater.TableTx.GasUsed
+	//updater.TableTokenTx.GasPrice = updater.TableTx.GasPrice
 	updater.TableTokenTx.GasLimit = updater.TableTx.GasLimit
 	updater.TableTokenTx.Fee = updater.TableTx.Fee
 	updater.TableTokenTx.TxHash = updater.TableTx.TxHash
@@ -228,6 +228,10 @@ func (updater *EthUpdater) AnalysisTokenLog() {
 			boolfrom := eth_query.GetEthAddrExist(updater.TableTokenTx.From)
 			boolto := eth_query.GetEthAddrExist(updater.TableTokenTx.To)
 			if boolfrom || boolto {
+				updater.formatTransactionOther()
+				updater.TableTokenTx.GasUsed = updater.TableTx.GasUsed
+				updater.TableTokenTx.GasPrice = updater.TableTx.GasPrice
+				updater.TableTokenTx.Fee = updater.TableTx.Fee
 				updater.TableTokenTx.DeleteOneRawByHashAndLogindex(updater.TableTokenTx.TxHash)
 				updater.TableTokenTx.InsertOneRaw(updater.TableTokenTx)
 				// 更新token用户信息

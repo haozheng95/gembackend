@@ -73,7 +73,7 @@ func StartEthApiMul(height uint64) {
 	select {
 	case h := <-tolerance:
 		i++
-		log.Debugf("rescue count %d the hright == %d", i, h)
+		log.Debugf("rescue ---------------------- count %d the hright == %d", i, h)
 		c <- h
 		go startEthUpdateApiMul(c, NewEthupdaterApiMul(), &tolerance)
 	}
