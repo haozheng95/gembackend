@@ -68,6 +68,7 @@ func jwtAuth(ctx *context.Context) bool {
 		return true
 	}
 	token, check := ctx.Request.Header["Auth-Token"]
+
 	if check && len(token) > 0 && hjwt.CheckToken(token[0]) {
 		return true
 	} else {

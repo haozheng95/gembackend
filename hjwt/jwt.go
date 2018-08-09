@@ -1,25 +1,23 @@
 package hjwt
 
 import (
-	"time"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gembackend/conf"
 	"github.com/gembackend/gembackendlog"
-	"github.com/astaxie/beego"
 	"strings"
+	"time"
 )
 
 var (
-	key = []byte(beego.AppConfig.String("JwtKey"))
+	key = []byte(conf.JwtKey)
 	log = gembackendlog.Log
 )
 
-
 // 产生json web token
 func GenToken() string {
-	eTime , _ := beego.GetConfig("Int64", "JwtExpiration", 2000)
 	claims := &jwt.StandardClaims{
 		NotBefore: int64(time.Now().Unix()),
-		ExpiresAt: int64(time.Now().Unix() + eTime.(int64)),
+		ExpiresAt: int64(time.Now().Unix() + conf.JwtExpiration),
 		Issuer:    "jwt-zz",
 	}
 
@@ -35,7 +33,7 @@ func GenToken() string {
 // 校验token是否有效
 func CheckToken(token string) bool {
 
-	if strings.Compare(token, beego.AppConfig.String("JwtGodKey")) == 0 {
+	if strings.Compare(token, conf.JwtGodKey) == 0 {
 		return true
 	}
 
@@ -44,7 +42,7 @@ func CheckToken(token string) bool {
 	})
 	if err != nil {
 		log.Errorf("parase with claims failed. %s", err)
-		return false
 	}
-	return true
+	return false
+
 }
