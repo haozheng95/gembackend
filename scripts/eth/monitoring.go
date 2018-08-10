@@ -22,7 +22,7 @@ func Monitoring(hash string, isToken bool) {
 	hash = "0x6d5536df432f8b7e9ffeecfc91a82cca611015236f5df22c8279a63a8eed287f"
 	for range ticker.C {
 		ethscanResponse, err := rpc.Eth_getTransactionReceipt(hash)
-		log.Debug(ethscanResponse)
+		//log.Debug(ethscanResponse)
 		if err != nil {
 			log.Error(err)
 			continue
@@ -33,7 +33,7 @@ func Monitoring(hash string, isToken bool) {
 			continue
 		}
 		dbtx, err := eth_query.GetTxOneRawByHash(hash)
-		if err != nil {
+		if err != nil && !debugMole {
 			log.Error(err)
 			time.Sleep(time.Second)
 			return
@@ -96,6 +96,8 @@ func Monitoring(hash string, isToken bool) {
 				}
 			}
 		}
+
+		return
 	}
 }
 func UpdateEthAccount(s string, s2 string) {
