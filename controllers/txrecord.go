@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"strings"
 	"github.com/gembackend/models/eth_query"
+	"strings"
 )
 
 type TxrecordController struct {
@@ -51,12 +51,14 @@ func (t *TxrecordController) Get() {
 			//eth记录
 			txs, r = eth_query.GetEthTxrecord(addst.Addr, page*size, size)
 		}
+		// save kafka
+		//SaveForKafka(conf.KafkaTxRecordTopic, addst.Addr)
 	}
 
 	t.Data["json"] = resultResponseMake(map[string]interface{}{
 		"record": txs,
-		"size":r,
-		"last":r < int64(size),
+		"size":   r,
+		"last":   r < int64(size),
 	})
 	t.ServeJSON()
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	_ "github.com/astaxie/beego/config/xml"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/gembackendlog"
@@ -27,7 +28,14 @@ func main() {
 	}(interrupt)
 	//createtestdata()
 	//eth.StartEthApiMul(5000000)
-	//os.Exit(0)
+	//createtestdata()
+	for i := 0; i < 100; i++ {
+		go eth.Monitoring("0x569c5b35f203ca6db6e2cec44bceba756fad513384e2bd79c06a8c0181273379", true)
+		fmt.Println(i)
+	}
+	r := make(chan interface{})
+	<-r
+	os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
 	height := flag.Uint64("height", 5000000, "change start height")

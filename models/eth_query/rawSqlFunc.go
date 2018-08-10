@@ -5,6 +5,93 @@ import (
 	"time"
 )
 
+func UpdateAddressAmount(unconfirm, addr, nonce, amount string) (err error) {
+	qb, err := orm.NewQueryBuilder("mysql")
+	qb.Update("address").Set("unconfirm_amount=?", "nonce=?", "amount=?").Where("addr=?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	_, err = o.Raw(qb.String(), unconfirm, nonce, amount, addr).Exec()
+	if err != nil {
+		log.Warning(err)
+	}
+	return
+}
+
+func UpdateTokenAddressAmount(amount, unconfirm, addr, contractaddr string) (err error) {
+	qb, err := orm.NewQueryBuilder("mysql")
+	qb.Update("token_address").Set("unconfirm_amount=?", "amount=?").
+		Where("addr=?").And("contract_addr=?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	o.Raw(qb.String(), amount, unconfirm, addr, contractaddr)
+	return
+}
+
+// delete token tx
+func DeleteTokenTxbyHashWhere(hash string) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Delete("token_tx").Where("tx_hash=?").And("log_index=-1")
+	sql := qb.String()
+	o := orm.NewOrm()
+	o.Using(databases)
+	_, err := o.Raw(sql).Exec()
+	if err != nil {
+		log.Warning(err)
+	}
+}
+
+// insert token tx
+func InsertTokenTx(args ...string) (err error) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	for i := range args {
+		args[i] = "'" + args[i] + "'"
+	}
+	qb.InsertInto("token_tx", "`from`", "`to`", "amount", "input_data",
+		"nonce", "gas_limit", "gas_price", "gas_used", "fee", "tx_hash", "block_hash",
+		"confirm_time", "created", "block_state", "is_token", "log_index", "contract_addr",
+		"`decimal`").Values(args...)
+	sql := qb.String()
+	o := orm.NewOrm()
+	o.Using(databases)
+	_, err = o.Raw(sql).Exec()
+	if err != nil {
+		log.Warning(err)
+	}
+	return
+}
+
+// update one tx
+func UpdateTxOneRawByHash(gasUsed, fee, status, blockHash, blockNumber, hash string) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Update("tx").Set("gas_used=?",
+		"fee=?", "block_height=?", "confirm_time=?", "block_state=?", "tx_state=?",
+		"block_hash=?").Where("tx_hash=?")
+	sql := qb.String()
+	o := orm.NewOrm()
+	o.Using(databases)
+	_, err := o.Raw(sql, gasUsed, fee, blockNumber, time.Now().Unix(), "1", status, blockHash, hash).Exec()
+	if err != nil {
+		log.Warning(err)
+		log.Warning(sql)
+	}
+}
+
+// select one tx
+func GetTxOneRawByHash(hash string) (st struct {
+	GasLimit, GasPrice string
+}, err error) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("gas_limit", "gas_price").From("tx").Where("tx_hash=?")
+	sql := qb.String()
+	o := orm.NewOrm()
+	o.Using(databases)
+	err = o.Raw(sql, hash).QueryRow(&st)
+	if err != nil {
+		log.Error(err)
+	}
+	return
+}
+
 type ethtxrecordst struct {
 	Id          int64
 	From        string
@@ -129,7 +216,7 @@ func GetTokenTxinfo(txhash string) (r []*tokentxinfores) {
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("`from`", "`to`", "amount", "nonce", "input_data", "gas_limit", "gas_price",
 		"gas_used", "fee", "tx_hash", "block_hash", "block_height", "confirm_time", "tx_state",
-		"is_token", "log_index", "contract_addr", "`decimal`").
+		"is_token", "log_index", "contract_addr", "`decimal`", "created").
 		From("token_tx").Where("tx_hash=?")
 	o := orm.NewOrm()
 	o.Using(databases)

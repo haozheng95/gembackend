@@ -7,6 +7,7 @@ import (
 	"github.com/gembackend/models/eth_query"
 	"github.com/regcostajr/go-web3"
 	"github.com/regcostajr/go-web3/providers"
+	"github.com/shopspring/decimal"
 	"runtime"
 	"strconv"
 	"strings"
@@ -70,4 +71,36 @@ func Goid() int {
 		panic(fmt.Sprintf("cannot get goroutine id: %v", err))
 	}
 	return id
+}
+
+func SubString(d1, d2 string) (r string) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+	m3 := m1.Sub(m2)
+	r = m3.String()
+	return
+}
+
+func AddString(d1, d2 string) (r string) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+	m3 := m1.Add(m2)
+	r = m3.String()
+	return
+}
+
+func MulString(d1, d2 string) (r string) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+	m3 := m1.Mul(m2)
+	r = m3.String()
+	return
+}
+
+func DivString(d1, d2 string) (r string) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+	m3 := m1.Div(m2)
+	r = m3.String()
+	return
 }

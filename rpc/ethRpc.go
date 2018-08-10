@@ -58,6 +58,18 @@ type TokenResonse struct {
 	Error   map[string]interface{}
 }
 
+func Eth_sendRawTransaction(raw string) string {
+	url := fmt.Sprintf(eth_sendRawTransaction, raw)
+	log.Debug(url)
+	s, e := httpGet(url)
+	if e != nil {
+		log.Error(e)
+		return ""
+	}
+	t, _ := FormatTokenResponse(s)
+	return t.Result
+}
+
 func Eth_getTxList(addr string, page int) (string, error) {
 	url := fmt.Sprintf(eth_getTxList, addr, page)
 	log.Debug(url)
@@ -112,7 +124,7 @@ func Eth_getMulBalance(s ...string) string {
 	if e != nil {
 		log.Error(e)
 	}
-	log.Info(str)
+	//log.Info(str)
 	return str
 }
 

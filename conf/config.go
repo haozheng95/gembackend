@@ -34,10 +34,14 @@ var (
 	KafkaimportEthTopicName     string
 	KafkatransactionParityTopic string
 	KafkagetbalanceParityTopic  string
+	KafkaSendRawTopic           string //ethscan
+	KafkaTxRecordTopic          string //ethscan
 	//jwt config
 	JwtGodKey     string
 	JwtExpiration int64
 	JwtKey        string
+	//init server config
+	RunMode string
 )
 
 func init() {
@@ -63,10 +67,14 @@ func init() {
 	KafkaimportEthTopicName = iniconf.String("kafka::importEthTopic")
 	KafkatransactionParityTopic = iniconf.String("kafka::transactionParityTopic")
 	KafkagetbalanceParityTopic = iniconf.String("kafka::getbalanceParityTopic")
+	KafkaSendRawTopic = iniconf.String("kafka::KafkaSendRawTopic")
+	KafkaTxRecordTopic = iniconf.String("kafka::KafkaTxRecordTopic") // eth
 	// init jwt
 	JwtGodKey = iniconf.String("jwt::JwtGodKey")
 	JwtKey = iniconf.String("jwt::JwtKey")
 	JwtExpiration, _ = iniconf.Int64("jwt::JwtExpiration")
+	// init app config
+	RunMode = iniconf.String("app::mode")
 }
 
 func GetCurrentFilepath() (filename string) {
