@@ -7,7 +7,6 @@ import (
 	"github.com/gembackend/models/eth_query"
 	"github.com/gembackend/rpc"
 	"math"
-	"os"
 	"strconv"
 	"time"
 )
@@ -54,7 +53,6 @@ func Monitoring(hash string, isToken bool) {
 		log.Debug(ethscanResponse)
 		eth_query.UpdateTxOneRawByHash(gasUsed, fee, status, blockHash, blockNumber, hash)
 		UpdateEthAccount(from, to)
-		os.Exit(1)
 
 		if isToken {
 			tokenSts := eth_query.GetTokenTxinfo(hash)
