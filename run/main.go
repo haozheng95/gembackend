@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	_ "github.com/astaxie/beego/config/xml"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/gembackendlog"
@@ -10,7 +11,6 @@ import (
 	_ "github.com/gembackend/models"
 	"github.com/gembackend/scripts"
 	"github.com/gembackend/scripts/eth"
-	"github.com/go-ethereum/log"
 	"os"
 	"os/signal"
 )
@@ -92,7 +92,7 @@ func txMonitoring() {
 			if t["is_token"].(float64) > 0 {
 				is_token = true
 			}
-			log.Debug("txMonitoring, ---- %s", z)
+			fmt.Println("txMonitoring, ----", z)
 			go eth.Monitoring(t["hash"].(string), is_token)
 		}
 	}(r)
