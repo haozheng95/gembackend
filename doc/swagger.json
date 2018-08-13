@@ -12,6 +12,100 @@
     "http"
   ],
   "paths": {
+    "/asset/expand": {
+      "get": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "一条交易记录",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "param",
+            "in": "query",
+            "description": "{\"eth\":[\"\", \"0xd26114cd6ee289accf82350c8d8487fedb8a0c07\"]}",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "eth_addr",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "examples": {
+              "one": {
+                "result": {
+                  "eth": [
+                    {
+                      "eth": {
+                        "Id": 525,
+                        "From": "0xd6cb6744b7f2da784c5afd6b023d957188522198",
+                        "To": "0x7f22b0e02bda844a8f616a8bfd82a3e9a4542763",
+                        "Amount": "3.99",
+                        "Nonce": "29959",
+                        "Fee": "0.002814",
+                        "TxHash": "0xc719e9733d1c2ac7ab2c8848a5a4db976b66f8def0711f86bfeeb4fa6d6b5e8c",
+                        "BlockHeight": "6117170",
+                        "ConfirmTime": "1533829916",
+                        "Comment": "",
+                        "Created": "2018-08-13T06:11:11+08:00",
+                        "BlockState": 0,
+                        "TxState": 1,
+                        "IsToken": 0,
+                        "Collection": 0
+                      }
+                    },
+                    {
+                      "0xd26114cd6ee289accf82350c8d8487fedb8a0c07": {
+                        "Id": 4,
+                        "From": "0xd6cb6744b7f2da784c5afd6b023d957188522198",
+                        "To": "0x24dd7159c188b399dba59ecc65196f9cc1476cce",
+                        "Amount": "10509.71557555",
+                        "Nonce": "",
+                        "Fee": "0.00335574",
+                        "TxHash": "0x27c6cab9bc0a17c50927b6119ad8804c2cf56fbb7055be54dcf855204c4b52f5",
+                        "BlockHeight": "",
+                        "ConfirmTime": "",
+                        "Comment": "",
+                        "Created": "2018-08-10T07:04:20+08:00",
+                        "BlockState": 0,
+                        "TxState": -1,
+                        "IsToken": 1,
+                        "Collection": 0,
+                        "LogIndex": "",
+                        "Decimal": "18"
+                      }
+                    }
+                  ]
+                },
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "petstore_auth": [
+              "write:pets",
+              "read:pets"
+            ]
+          }
+        ]
+      }
+    },
     "/auth": {
       "get": {
         "tags": [
