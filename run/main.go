@@ -89,16 +89,15 @@ func txMonitoring() {
 		for z := range r {
 			t := z.(map[string]interface{})
 			is_token := false
-			if t["is_token"].(int) == 1 {
+			if t["is_token"].(float64) > 0 {
 				is_token = true
 			}
 			log.Debug("txMonitoring, ---- %s", z)
 			go eth.Monitoring(t["hash"].(string), is_token)
 		}
 	}(r)
-	pcs := messagequeue.MakePcs(c, conf.KafkaimportEthTopicName)
+	pcs := messagequeue.MakePcs(c, conf.KafkaSendRawTopic)
 	messagequeue.ReadMessage(pcs[0], messagequeue.DisJsonFunc, r)
-
 }
 
 // 处理eth外部钱包导入
