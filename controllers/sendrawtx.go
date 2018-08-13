@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/models/eth_query"
@@ -121,6 +123,9 @@ func (s *SendRawTx) Post() {
 			txhash, err = web3conn.Eth.SendRawTransaction([]string{raw})
 		} else {
 			txhash = rpc.Eth_sendRawTransaction(raw)
+			if txhash == "" || len(txhash) == 0 {
+				err = errors.New("send error")
+			}
 		}
 		// dispose error
 		// db operation
@@ -129,8 +134,15 @@ func (s *SendRawTx) Post() {
 		if err == nil {
 			// Save for kafka
 			// wait:parity web socket don't support getTraction func
-			ethtopicname := conf.KafkaSendRawTopic
-			SaveForKafka(ethtopicname, txhash)
+			if conf.RunMode != "node" {
+				ethtopicname := conf.KafkaSendRawTopic
+				b, _ := json.Marshal(map[string]interface{}{
+					"hash":     txhash,
+					"is_token": is_token,
+				})
+				fmt.Println(string(b))
+				SaveForKafka(ethtopicname, string(b))
+			}
 			// Combining data
 			st1 := eth_query.TxExtraInfo{
 				From:        from,

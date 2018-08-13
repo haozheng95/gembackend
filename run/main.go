@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	_ "github.com/astaxie/beego/config/xml"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/gembackendlog"
@@ -11,6 +10,7 @@ import (
 	_ "github.com/gembackend/models"
 	"github.com/gembackend/scripts"
 	"github.com/gembackend/scripts/eth"
+	"github.com/go-ethereum/log"
 	"os"
 	"os/signal"
 )
@@ -29,12 +29,7 @@ func main() {
 	//createtestdata()
 	//eth.StartEthApiMul(5000000)
 	//createtestdata()
-	for i := 0; i < 100; i++ {
-		go eth.Monitoring("0x569c5b35f203ca6db6e2cec44bceba756fad513384e2bd79c06a8c0181273379", true)
-		fmt.Println(i)
-	}
-	r := make(chan interface{})
-	<-r
+	txMonitoring()
 	os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
@@ -66,6 +61,9 @@ func main() {
 	case "auxiliary":
 		log.Info("auxiliary start")
 		auxiliary()
+	case "txMonitoring":
+		log.Info("txMonitoring start")
+		txMonitoring()
 	default:
 		log.Info("no operation was selected")
 		log.Info("you can select action")
@@ -78,6 +76,29 @@ func main() {
 		log.Info("huobiwebsocket")
 		log.Info("auxiliary")
 	}
+}
+
+// 区块浏览器模式导入交易记录
+func txMonitoring() {
+	c := messagequeue.MakeConsumer()
+	r := make(chan interface{})
+	defer c.Close()
+	defer close(r)
+
+	go func(r <-chan interface{}) {
+		for z := range r {
+			t := z.(map[string]interface{})
+			is_token := false
+			if t["is_token"].(int) == 1 {
+				is_token = true
+			}
+			log.Debug("txMonitoring, ---- %s", z)
+			go eth.Monitoring(t["hash"].(string), is_token)
+		}
+	}(r)
+	pcs := messagequeue.MakePcs(c, conf.KafkaimportEthTopicName)
+	messagequeue.ReadMessage(pcs[0], messagequeue.DisJsonFunc, r)
+
 }
 
 // 处理eth外部钱包导入

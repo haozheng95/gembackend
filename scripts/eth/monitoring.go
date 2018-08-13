@@ -13,13 +13,13 @@ import (
 
 var (
 	ethdec    = strconv.FormatFloat(math.Pow(10, 18), 'f', -1, 64)
-	debugMole = true
+	debugMole = false
 )
 
 func Monitoring(hash string, isToken bool) {
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(time.Second * 15)
 	defer ticker.Stop()
-	hash = "0x6d5536df432f8b7e9ffeecfc91a82cca611015236f5df22c8279a63a8eed287f"
+	//hash = "0x6d5536df432f8b7e9ffeecfc91a82cca611015236f5df22c8279a63a8eed287f"
 	for range ticker.C {
 		ethscanResponse, err := rpc.Eth_getTransactionReceipt(hash)
 		//log.Debug(ethscanResponse)
