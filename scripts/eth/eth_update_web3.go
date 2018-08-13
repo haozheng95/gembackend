@@ -141,7 +141,12 @@ func (updaterWeb3 *EthUpdaterWeb3) disposeTransaction(transaction map[string]int
 			transactionParameters.From = contractAddr
 			transactionParameters.To = contractAddr
 			transactionParameters.Data = _tokenDecimals
-			tokenDecimalRes, _ := updaterWeb3.connection.Eth.Call(transactionParameters)
+			tokenDecimalRes, err := updaterWeb3.connection.Eth.Call(transactionParameters)
+			if tokenDecimalRes.Result == nil || err != nil {
+				log.Debug("----", err)
+				//log.Fatalf(": get tokenDecimalRes error=%s", tokenDecimalRes.Error)
+				continue
+			}
 			transactionParameters.Data = _tokenSymbol
 			//tokenSymbol,_ := updaterWeb3.connection.Eth.Call(transactionParameters)
 

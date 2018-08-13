@@ -46,6 +46,33 @@ func decodeJson(s string) (r map[string]interface{}) {
 //Get ---
 /**
 @param://
+param = {
+"eth":["","contractaddr", "contractaddr"],
+}
+eth_addr
+*/
+func TestAssetExpend(t *testing.T) {
+	p1 := `{"eth":["", "0xd26114cd6ee289accf82350c8d8487fedb8a0c07"]}`
+	param := "?param=" + p1
+	param += "&eth_addr=" + "0xd6cb6744b7f2da784c5afd6b023d957188522198"
+
+	r, _ := http.NewRequest("GET", basePath+"/asset/expand"+param, nil)
+	r.Header.Add("auth-token", godKey)
+	w := httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, r)
+
+	beego.Trace("txinfo", "TestTxinfo", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
+	z := decodeJson(w.Body.String())
+	convey.Convey("txinfo eth", t, func() {
+		convey.Convey("status code should be 0", func() {
+			convey.So(z["status"], convey.ShouldEqual, 0)
+		})
+	})
+}
+
+//Get ---
+/**
+@param://
 @user_addr
 @contract_addr
 */

@@ -2,12 +2,12 @@ package eth
 
 import (
 	"fmt"
-	"github.com/gembackend/rpc"
-	"time"
 	"github.com/gembackend/conf"
+	"github.com/gembackend/models/eth_query"
+	"github.com/gembackend/rpc"
 	"github.com/regcostajr/go-web3"
 	"github.com/regcostajr/go-web3/providers"
-	"github.com/gembackend/models/eth_query"
+	"time"
 )
 
 type EthupdaterMul struct {
@@ -15,12 +15,12 @@ type EthupdaterMul struct {
 }
 
 func (updater *EthupdaterMul) Forever(height uint64) {
+Again:
 	rpcHeight, err := updater.connection.Eth.GetBlockNumber()
 	if err != nil {
 		log.Errorf("web3 rpcHeight error %s", err)
 		return
 	}
-Again:
 	log.Infof("db height %d ==== rpc height %s", height, rpcHeight.String())
 	if rpcHeight.Uint64() > height {
 		hexHeight := fmt.Sprintf("0x%x", height)

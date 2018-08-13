@@ -48,6 +48,7 @@ func versionForV1() {
 			beego.NSRouter("/balance/?:coin_type", &controllers.BalanceController{}, "*:Get"),
 			beego.NSRouter("/txs/?:coin_type", &controllers.TxrecordController{}, "*:Get"),
 			beego.NSRouter("/txinfo/?:coin_type", &controllers.TxinfoController{}, "*:Get"),
+			beego.NSRouter("/asset/expand", &controllers.AssetExpandController{}, "*:Get"),
 			// --post
 			beego.NSRouter("/register", &controllers.RegisterController{}, "*:Post"),
 			beego.NSRouter("/import", &controllers.ImportWalletController{}, "*:Post"),

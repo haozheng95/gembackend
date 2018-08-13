@@ -29,8 +29,8 @@ func main() {
 	//createtestdata()
 	//eth.StartEthApiMul(5000000)
 	//createtestdata()
-	txMonitoring()
-	os.Exit(0)
+	//eth.StartEthupdaterMul(6117492)
+	//os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
 	height := flag.Uint64("height", 5000000, "change start height")
