@@ -73,6 +73,9 @@ func (s *SendRawTx) Post() {
 		var conn interface{}
 		var ck bool
 		var web3conn *rpc.Web3
+		// to lower
+		from = strings.ToLower(from)
+		to = strings.ToLower(to)
 
 		if conf.RunMode == "node" {
 			conn, ck = rpc.ConnectMap["eth-web3"]
