@@ -1,0 +1,201 @@
+## 单服务器下get接口ab压测结果
+#### 请求次数1000 并发数100的情况下
+##### 重要指标
++ Failed requests 失败请求  
++ Requests per second  每秒多少请求，服务器的吞吐量 （RPS/QPS） 
++ Time per request  用户平均等待时间  
++ Time per request  服务器平均处理时间，也就是服务器吞吐量的倒数  
++ Transfer rate  每秒获取的数据长度
++ 注:QPS的稳定值应取决于 失败请求为0时支持的最高并发，此时的RPS/QPS
+
+***
+#### 结果
+* qps平均值:1221
+* 平均等待时间:570.6ms  
+***
+
+```
+Document Path:          /v1/auth?wallet_id=9efa02ddc2e3f5fa35f3f5e631212a778993594f67546e260406574c36202e58
+Document Length:        197 bytes
+
+Concurrency Level:      100
+Time taken for tests:   0.187 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      736000 bytes
+HTML transferred:       197000 bytes
+Requests per second:    5354.09 [#/sec] (mean)
+Time per request:       18.677 [ms] (mean)
+Time per request:       0.187 [ms] (mean, across all concurrent requests)
+Transfer rate:          3848.25 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    3   2.6      3      11
+Processing:     4   15   8.2     13      47
+Waiting:        4   14   7.8     11      47
+Total:          5   18   7.5     17      49
+
+Percentage of the requests served within a certain time (ms)
+  50%     17
+  66%     18
+  75%     21
+  80%     23
+  90%     28
+  95%     34
+  98%     38
+  99%     42
+ 100%     49 (longest request)
+ ```
+ ```
+Server Software:
+Server Hostname:        127.0.0.1
+Server Port:            8080
+
+Document Path:          /v1/txs/eth?wallet_id=9efa02ddc2e3f5fa35f3f5e631212a778993594f67546e260406574c36202e58&begin_page=0&size=10
+Document Length:        104 bytes
+
+Concurrency Level:      100
+Time taken for tests:   5.620 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      643000 bytes
+HTML transferred:       104000 bytes
+Requests per second:    177.92 [#/sec] (mean)
+Time per request:       562.048 [ms] (mean)
+Time per request:       5.620 [ms] (mean, across all concurrent requests)
+Transfer rate:          111.72 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.8      0       4
+Processing:    10  530 440.7    450    3258
+Waiting:       10  530 440.7    450    3258
+Total:         10  530 440.8    450    3258
+
+Percentage of the requests served within a certain time (ms)
+  50%    450
+  66%    658
+  75%    774
+  80%    803
+  90%   1090
+  95%   1336
+  98%   1841
+  99%   2109
+ 100%   3258 (longest request)
+```
+```
+Server Software:
+Server Hostname:        127.0.0.1
+Server Port:            8080
+
+Document Path:          /v1/txinfo/eth?tx_hash=0x9011ccee756daa482f7e209b8636afacb2b211599991105a419ac45ea9363972&begin_page=0&size=10
+Document Length:        711 bytes
+
+Concurrency Level:      100
+Time taken for tests:   4.780 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      1250000 bytes
+HTML transferred:       711000 bytes
+Requests per second:    209.21 [#/sec] (mean)
+Time per request:       477.995 [ms] (mean)
+Time per request:       4.780 [ms] (mean, across all concurrent requests)
+Transfer rate:          255.38 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    1   1.0      0       6
+Processing:     6  311 333.5    217    3575
+Waiting:        5  311 333.6    217    3575
+Total:          6  312 333.3    218    3575
+WARNING: The median and mean for the initial connection time are not within a normal deviation
+        These results are probably not that reliable.
+
+Percentage of the requests served within a certain time (ms)
+  50%    218
+  66%    372
+  75%    439
+  80%    493
+  90%    717
+  95%    929
+  98%   1267
+  99%   1586
+ 100%   3575 (longest request)
+```
+
+```
+Server Software:
+Server Hostname:        127.0.0.1
+Server Port:            8080
+
+Document Path:          /v1/balance/eth?wallet_id=9efa02ddc2e3f5fa35f3f5e631212a778993594f67546e260406574c36202e58
+Document Length:        278 bytes
+
+Concurrency Level:      100
+Time taken for tests:   3.333 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      817000 bytes
+HTML transferred:       278000 bytes
+Requests per second:    300.00 [#/sec] (mean)
+Time per request:       333.333 [ms] (mean)
+Time per request:       3.333 [ms] (mean, across all concurrent requests)
+Transfer rate:          239.36 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.7      0       3
+Processing:    10  271 274.8    218    2328
+Waiting:       10  271 274.8    218    2328
+Total:         10  271 274.7    218    2328
+
+Percentage of the requests served within a certain time (ms)
+  50%    218
+  66%    318
+  75%    415
+  80%    441
+  90%    608
+  95%    802
+  98%   1033
+  99%   1180
+ 100%   2328 (longest request)
+```
+
+```
+Server Software:
+Server Hostname:        127.0.0.1
+Server Port:            8080
+
+Document Path:          /v1/asset?wallet_id=9efa02ddc2e3f5fa35f3f5e631212a778993594f67546e260406574c36202e58&begin_page=0&size=10
+Document Length:        1907 bytes
+
+Concurrency Level:      100
+Time taken for tests:   14.636 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      2447000 bytes
+HTML transferred:       1907000 bytes
+Requests per second:    68.32 [#/sec] (mean)
+Time per request:       1463.637 [ms] (mean)
+Time per request:       14.636 [ms] (mean, across all concurrent requests)
+Transfer rate:          163.27 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   1.1      0       8
+Processing:    81 1282 772.5   1157    7093
+Waiting:       81 1282 772.5   1157    7093
+Total:         83 1283 772.2   1157    7093
+
+Percentage of the requests served within a certain time (ms)
+  50%   1157
+  66%   1413
+  75%   1626
+  80%   1749
+  90%   2186
+  95%   2608
+  98%   3455
+  99%   3811
+ 100%   7093 (longest request)
+```
