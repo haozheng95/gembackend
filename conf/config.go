@@ -42,6 +42,11 @@ var (
 	JwtKey        string
 	//init server config
 	RunMode string
+	//init btc config
+	BtcHost string
+	BtcPort string
+	BtcUser string
+	BtcPass string
 )
 
 func init() {
@@ -75,6 +80,11 @@ func init() {
 	JwtExpiration, _ = iniconf.Int64("jwt::JwtExpiration")
 	// init app config
 	RunMode = iniconf.String("app::mode")
+	// init btc config
+	BtcHost = iniconf.String("btc_rpc::host")
+	BtcPort = iniconf.String("btc_rpc::port")
+	BtcUser = iniconf.String("btc_rpc::rpc_user")
+	BtcPass = iniconf.String("btc_rpc::rpc_pass")
 }
 
 func GetCurrentFilepath() (filename string) {
