@@ -10,6 +10,7 @@ import (
 	"github.com/gembackend/models"
 	_ "github.com/gembackend/models"
 	"github.com/gembackend/scripts"
+	"github.com/gembackend/scripts/btc"
 	"github.com/gembackend/scripts/eth"
 	"os"
 	"os/signal"
@@ -30,7 +31,8 @@ func main() {
 	//eth.StartEthApiMul(5000000)
 	//createtestdata()
 	//eth.StartEthupdaterMul(6117492)
-	//os.Exit(0)
+	btc.Main()
+	os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
 	height := flag.Uint64("height", 5000000, "change start height")
