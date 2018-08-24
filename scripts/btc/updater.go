@@ -9,6 +9,7 @@ import (
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/gembackend/gembackendlog"
+	"github.com/gembackend/models/btc_query"
 	"github.com/gembackend/rpc"
 	"github.com/op/go-logging"
 )
@@ -17,6 +18,8 @@ var (
 	btcRpc *rpcclient.Client
 	log    *logging.Logger
 )
+
+const interval = 500
 
 func init() {
 	btcrpc, ok := rpc.ConnectMap["btc-conn"]
@@ -132,11 +135,33 @@ func Main() {
 	log.Debug("start")
 	num, err := currnum()
 	log.Debug("1")
+	log.Debug("------", num)
 	info, err := getBlockInfo(num)
 	txs, err := info.TxHashes()
+
 	log.Debug("2", "len txs === ", len(txs))
 	// get curr block all transactions
-	alltrans, err := getTxsDetail(txs[:10])
+	ltxs := len(txs)
+	alltrans := make([]map[string]interface{}, 0, ltxs)
+	if ltxs > interval {
+		i := 0
+		end := interval
+		for i < ltxs {
+			log.Debug("i  ===", i)
+			log.Debug("end===", end)
+			tslice, _ := getTxsDetail(txs[i:end])
+			alltrans = append(alltrans, tslice...)
+			i += interval
+			end += interval
+			if end < ltxs+1 {
+				// nothing
+			} else {
+				end = ltxs
+			}
+		}
+	} else {
+		alltrans, err = getTxsDetail(txs)
+	}
 	log.Debug("3")
 	//log.Debug(num, err, alltrans)
 	alltransCut := separateTxsDet(alltrans)
@@ -144,30 +169,102 @@ func Main() {
 	log.Debug(err)
 	vinhashgroup := getvinhashs(alltransCut)
 	//getvinhashs(alltransCut)
-	log.Debug("5")
 	// get spend tx
-	spendtrans, err := getTxsDetail(vinhashgroup[:3])
+	lvintxs := len(vinhashgroup)
+	log.Debug("5", "lvintxs ======", lvintxs)
+	spendtrans := make([]map[string]interface{}, 0, lvintxs)
+	if lvintxs > interval {
+		vinstart := 0
+		vinend := interval
+		for vinstart < lvintxs {
+			log.Debug("start ====", vinstart)
+			log.Debug("end   ====", vinend)
+			tslice, _ := getTxsDetail(vinhashgroup[vinstart:vinend])
+			spendtrans = append(spendtrans, tslice...)
+			vinstart += interval
+			vinend += interval
+			if vinend > lvintxs {
+				vinend = lvintxs
+			}
+		}
+	} else {
+		spendtrans, err = getTxsDetail(vinhashgroup)
+	}
+
 	spendtransCut := separateTxsDet(spendtrans)
-	log.Debug(len(spendtransCut))
 	spendData := separateTxsData(spendtransCut)
 	// get unspend tx
 	unspendData := separateTxsData(alltransCut)
 
 	// reduce
-	datareduce(spendData, unspendData)
+	result := datareduce(spendData, unspendData)
+	for i, v := range result {
+		log.Debug(i)
+		log.Debug("txid ==== ", v.txid)
+		log.Debug("from ==== ", v.from)
+		log.Debug("to   ==== ", v.to)
+	}
+	// last : format and db operation
+	formatreduce(result)
+}
+
+func formatreduce(data []*reduceData) {
+	for _, v := range data {
+		vin := v.from.([]map[string]interface{})
+		vout := v.to.(map[float64]interface{})
+		txid := v.txid
+		var amount float64 = 0
+		faddresses := make([]string, 0, len(vin))
+		for _, v1 := range vin {
+			amount += v1["value"].(float64)
+			vintxid := v1["txid"].(string)
+			index := v1["n"].(string)
+
+			// db operation
+			btc_query.UpdateUnspentVout(vintxid, index, txid)
+
+			// make from addresses
+			addresses := v1["addresses"].([]interface{})
+			for _, v2 := range addresses {
+				faddresses = append(faddresses, v2.(string))
+			}
+		}
+
+		for k1, v1 := range vout {
+			log.Debug(k1, v1)
+		}
+	}
 }
 
 type reduceData struct {
 	from, to interface{}
+	txid     string
 }
 
 func datareduce(spendData, unspendData map[string]*cutdata) (data []*reduceData) {
-	data = make([]*reduceData, len(unspendData))
+	data = make([]*reduceData, 0, len(unspendData))
 	for k1, v1 := range unspendData {
-		for k2, v2 := range v1.vout {
+		st := new(reduceData)
+		st.txid = k1
+		st.to = v1.vout
 
+		tslice := make([]interface{}, 0, len(v1.vin))
+		for k2, v2 := range v1.vin {
+			tvin, ok := spendData[k2]
+			if ok {
+				tvout, ok := tvin.vout[v2.(float64)]
+				if ok {
+					tvout["txid"] = k2 // add vin txid
+					tslice = append(tslice, tvout)
+				}
+			}
 		}
+		if len(tslice) > 0 {
+			st.from = tslice
+		}
+		data = append(data, st)
 	}
+
 	return
 }
 
