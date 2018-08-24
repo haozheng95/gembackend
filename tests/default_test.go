@@ -20,7 +20,7 @@ import (
 
 var (
 	godKey       = "ASDFASDqwqfasvsfqioqjweamsdfmosejoqjma"
-	walletId     = "d3ba134f262d6d197a93ade4a6c123ddb9122c5cc0ff666f5447639d36f5f155"
+	walletId     = "60e78ea969e88b09ffdcc4a5e8481940242dd11bcbfb41be0185411caf076c11"
 	ethAddr      = "0xd6cb6744b7f2da784c5afd6b023d957188522198"
 	sign         = "6e904d69f5277bd863c4b09be37000cd4bf61b4a17f2a0099d5f1c5692e7402c"
 	txHash       = "0x569c5b35f203ca6db6e2cec44bceba756fad513384e2bd79c06a8c0181273379"

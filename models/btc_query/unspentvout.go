@@ -8,7 +8,7 @@ import "time"
 type UnspentVout struct {
 	Id        int64
 	Txid      string `orm:"index"`
-	Spent     int
+	Spent     int    `orm:"default(0)"`
 	SpentTxid string `orm:"index"`
 	Index     int64
 	Value     string

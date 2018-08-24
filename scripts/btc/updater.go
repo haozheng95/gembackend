@@ -230,8 +230,16 @@ func formatreduce(data []*reduceData) {
 			}
 		}
 
-		for k1, v1 := range vout {
-			log.Debug(k1, v1)
+		for _, v1 := range vout {
+			//"txid", "index", "value", "address"
+			v2 := v1.(map[string]interface{})
+			value := v2["value"].(string)
+			n := v2["n"].(string)
+			addresses := v2["addresses"].([]interface{})
+			for _, v3 := range addresses {
+				addr := v3.(string)
+				btc_query.InsertUnspentVout(txid, n, value, addr)
+			}
 		}
 	}
 }

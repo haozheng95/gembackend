@@ -32,17 +32,25 @@ func GenToken() string {
 
 // 校验token是否有效
 func CheckToken(token string) bool {
-
 	if strings.Compare(token, conf.JwtGodKey) == 0 {
 		return true
 	}
 
-	_, err := jwt.Parse(token, func(*jwt.Token) (interface{}, error) {
+	res, err := jwt.Parse(token, func(*jwt.Token) (interface{}, error) {
 		return key, nil
 	})
+
 	if err != nil {
 		log.Errorf("parase with claims failed. %s", err)
+		return false
 	}
-	return false
 
+	if res.Valid {
+		if err := res.Claims.Valid(); err != nil {
+			log.Error(err)
+			return false
+		}
+	}
+
+	return true
 }

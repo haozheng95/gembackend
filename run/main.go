@@ -6,11 +6,11 @@ import (
 	_ "github.com/astaxie/beego/config/xml"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/gembackendlog"
+	"github.com/gembackend/hjwt"
 	"github.com/gembackend/messagequeue"
 	"github.com/gembackend/models"
 	_ "github.com/gembackend/models"
 	"github.com/gembackend/scripts"
-	"github.com/gembackend/scripts/btc"
 	"github.com/gembackend/scripts/eth"
 	"os"
 	"os/signal"
@@ -31,7 +31,9 @@ func main() {
 	//eth.StartEthApiMul(5000000)
 	//createtestdata()
 	//eth.StartEthupdaterMul(6117492)
-	btc.Main()
+	t := hjwt.GenToken()
+	fmt.Println(hjwt.CheckToken(t))
+	//btc.Main()
 	os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
