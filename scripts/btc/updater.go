@@ -19,7 +19,7 @@ var (
 	log    *logging.Logger
 )
 
-const interval = 500
+const interval = 100
 
 func init() {
 	btcrpc, ok := rpc.ConnectMap["btc-conn"]
@@ -133,10 +133,29 @@ func getvinhashs(separates []*separate) (hashgroup []chainhash.Hash) {
 
 func Main() {
 	log.Debug("start")
+
+	var (
+		blockHash    string
+		blockNumber  int64
+		previousHash string
+		confirmTime  int64
+	)
+
 	num, err := currnum()
 	log.Debug("1")
 	log.Debug("------", num)
 	info, err := getBlockInfo(num)
+	// block info -----
+	blockHash = info.Header.BlockHash().String()
+	blockNumber = num
+	previousHash = info.Header.PrevBlock.String()
+	confirmTime = info.Header.Timestamp.Unix()
+	log.Debug("block hash          ====", blockHash)
+	log.Debug("block number        ====", blockNumber)
+	log.Debug("block previous hash ====", previousHash)
+	log.Debug("confirm time        ====", confirmTime)
+	// ---------------
+
 	txs, err := info.TxHashes()
 
 	log.Debug("2", "len txs === ", len(txs))
@@ -147,8 +166,8 @@ func Main() {
 		i := 0
 		end := interval
 		for i < ltxs {
-			log.Debug("i  ===", i)
-			log.Debug("end===", end)
+			log.Debug("block alltrans start ===", i)
+			log.Debug("block alltrans end   ===", end)
 			tslice, _ := getTxsDetail(txs[i:end])
 			alltrans = append(alltrans, tslice...)
 			i += interval
@@ -177,8 +196,8 @@ func Main() {
 		vinstart := 0
 		vinend := interval
 		for vinstart < lvintxs {
-			log.Debug("start ====", vinstart)
-			log.Debug("end   ====", vinend)
+			log.Debug("vinhashgroup start ====", vinstart)
+			log.Debug("vinhashgroup end   ====", vinend)
 			tslice, _ := getTxsDetail(vinhashgroup[vinstart:vinend])
 			spendtrans = append(spendtrans, tslice...)
 			vinstart += interval
@@ -198,49 +217,82 @@ func Main() {
 
 	// reduce
 	result := datareduce(spendData, unspendData)
-	for i, v := range result {
-		log.Debug(i)
-		log.Debug("txid ==== ", v.txid)
-		log.Debug("from ==== ", v.from)
-		log.Debug("to   ==== ", v.to)
-	}
+	//for i, v := range result {
+	//	log.Debug(i)
+	//	log.Debug("txid ==== ", v.txid)
+	//	log.Debug("from ==== ", v.from)
+	//	log.Debug("to   ==== ", v.to)
+	//}
 	// last : format and db operation
-	formatreduce(result)
+	formatreduce(result, blockHash, blockNumber, confirmTime)
 }
 
-func formatreduce(data []*reduceData) {
+func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime int64) {
+	unspentvouts := make([]*btc_query.UnspentVout, 0, len(data))
+	tradeCollections := make([]*btc_query.TradeCollection, 0, len(data))
+
 	for _, v := range data {
-		vin := v.from.([]map[string]interface{})
-		vout := v.to.(map[float64]interface{})
+		vout := v.to.(map[float64]map[string]interface{})
 		txid := v.txid
 		var amount float64 = 0
-		faddresses := make([]string, 0, len(vin))
-		for _, v1 := range vin {
+		var faddresses []string
+		var vin []interface{}
+		if v.from == nil {
+			goto vinend
+		}
+		vin = v.from.([]interface{})
+		faddresses = make([]string, 0, len(vin))
+		for _, v := range vin {
+			v1 := v.(map[string]interface{})
 			amount += v1["value"].(float64)
 			vintxid := v1["txid"].(string)
-			index := v1["n"].(string)
+			index := v1["n"].(float64)
 
 			// db operation
-			btc_query.UpdateUnspentVout(vintxid, index, txid)
-
+			btc_query.UpdateUnspentVout(vintxid, floatToString(index), txid)
 			// make from addresses
 			addresses := v1["addresses"].([]interface{})
 			for _, v2 := range addresses {
 				faddresses = append(faddresses, v2.(string))
 			}
 		}
-
+	vinend:
+		taddresses := make([]string, 0, len(vout))
+		var tovalue float64 = 0
 		for _, v1 := range vout {
 			//"txid", "index", "value", "address"
-			v2 := v1.(map[string]interface{})
-			value := v2["value"].(string)
-			n := v2["n"].(string)
-			addresses := v2["addresses"].([]interface{})
+			v2 := v1
+			value := v2["value"].(float64)
+			tovalue += value
+			n := v2["n"].(float64)
+			var addresses []interface{}
+			if v2["addresses"] != nil {
+				addresses = v2["addresses"].([]interface{})
+			}
+
 			for _, v3 := range addresses {
 				addr := v3.(string)
-				btc_query.InsertUnspentVout(txid, n, value, addr)
+				taddresses = append(taddresses, addr)
+				//btc_query.InsertUnspentVout(txid, floatToString(n), floatToString(value), addr)
+				unspentvouts = append(unspentvouts, NewUnSpentVoutSt(txid, addr, floatToString(value), blockhash, blocknum, int64(n)))
 			}
 		}
+		fee := Subfloat(amount, tovalue)
+		log.Debug("from value ====", amount)
+		log.Debug("to   value ====", tovalue)
+		log.Debug("fee  value ====", fee)
+		log.Debug("txid value ====", txid)
+		//NewTradeCollections(output, input, blockhash, txid, addr, fee string, height, confirmtime int64, pay int)
+		closure := eachaddress(floatToString(tovalue), floatToString(amount), blockhash, txid, fee, blocknum, confirmTime)
+		tradeCollections = append(tradeCollections, closure(faddresses, 1)...)
+		tradeCollections = append(tradeCollections, closure(taddresses, 0)...)
+	}
+	// db
+	err = btc_query.InsertMulUnspentVout(unspentvouts)
+	if err != nil {
+		btc_query.InsertMulTradeCollection(tradeCollections)
+	} else {
+		log.Fatalf("insert db error %s", err)
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/gembackendlog"
+	"github.com/gembackend/models/btc_query"
 	"github.com/gembackend/models/eth_query"
 	"github.com/gembackend/models/exchange"
 	_ "github.com/go-sql-driver/mysql"
@@ -18,7 +19,10 @@ func init() {
 
 	orm.RegisterModel(new(eth_query.Address), new(eth_query.Block),
 		new(eth_query.TokenAddress), new(eth_query.TokenTx), new(eth_query.Tx),
-		new(eth_query.TxExtraInfo), new(exchange.EthToken), new(exchange.MainChain))
+		new(eth_query.TxExtraInfo),
+		new(exchange.EthToken), new(exchange.MainChain),
+		new(btc_query.AddressBtc), new(btc_query.TradeCollection), new(btc_query.TradingParticulars),
+		new(btc_query.UnspentVout))
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	// eth query -----------------------
 	orm.RegisterDataBase("default",
@@ -32,11 +36,16 @@ func init() {
 	orm.RegisterDataBase("exchange",
 		"mysql", conf.MysqlUser+":"+conf.MysqlPasswd+
 			"@tcp("+conf.MysqlHost+":"+conf.MysqlPort+")/exchange?charset=utf8", maxIdle, maxConn)
+	// btc_query --------------------------
+	orm.RegisterDataBase("btc_query",
+		"mysql", conf.MysqlUser+":"+conf.MysqlPasswd+
+			"@tcp("+conf.MysqlHost+":"+conf.MysqlPort+")/btc_query?charset=utf8", maxIdle, maxConn)
 }
 
 func CreateTable() {
-	orm.RunSyncdb("default", true, true)
-	orm.RunSyncdb("exchange", true, true)
+	//orm.RunSyncdb("default", true, true)
+	//orm.RunSyncdb("exchange", true, true)
+	orm.RunSyncdb("btc_query", true, true)
 }
 
 func AutoInsertData(dbname, tablename string) {

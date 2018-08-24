@@ -5,7 +5,7 @@ package btc_query
 
 import "time"
 
-type Address struct {
+type AddressBtc struct {
 	Id              int64
 	WalletId        string `orm:"index"`
 	Addr            string `orm:"unique"`

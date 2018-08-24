@@ -6,11 +6,15 @@ package btc_query
 import "time"
 
 type TradeCollection struct {
-	Id      int64
-	Addr    string    `orm:"index"`
-	Txid    string    `orm:"index"`
-	Updated time.Time `orm:"auto_now;type(datetime)"`
-	Amount  string
-	Fee     string
-	Pay     int
+	Id          int64
+	Addr        string    `orm:"index"`
+	Txid        string    `orm:"index"`
+	Updated     time.Time `orm:"default(now())"`
+	TotalOutput string
+	TotalInput  string
+	Fee         string
+	Pay         int
+	BlockHash   string `orm:"index"`
+	Height      int64
+	ConfirmTime int64
 }

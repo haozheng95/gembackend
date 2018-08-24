@@ -14,4 +14,6 @@ type UnspentVout struct {
 	Value     string
 	Address   string    `orm:"index"`
 	Updated   time.Time `orm:"auto_now;type(datetime)"`
+	BlockHash string    `orm:"index"`
+	Height    int64
 }

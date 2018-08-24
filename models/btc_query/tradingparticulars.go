@@ -14,6 +14,6 @@ type TradingParticulars struct {
 	Txid      string    `orm:"unique"`
 	Updated   time.Time `orm:"auto_now;type(datetime)"`
 	BlockHash string    `orm:"index"`
-	BlockNum  string
+	BlockNum  int64
 	Confirm   string `orm:"index"`
 }
