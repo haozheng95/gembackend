@@ -87,6 +87,78 @@
 			"revisionTime": "2013-12-20T20:51:30Z"
 		},
 		{
+			"checksumSHA1": "8D60uhOvGzOxthqXG2H8CVm1O/4=",
+			"path": "github.com/btcsuite/btcd/btcec",
+			"revision": "f899737d7f2764dc13e4d01ff00108ec58f766a9",
+			"revisionTime": "2018-08-10T00:06:19Z"
+		},
+		{
+			"checksumSHA1": "ivHZ9HEwLx7z2CPMcxtP2LLSo44=",
+			"path": "github.com/btcsuite/btcd/btcjson",
+			"revision": "f899737d7f2764dc13e4d01ff00108ec58f766a9",
+			"revisionTime": "2018-08-10T00:06:19Z"
+		},
+		{
+			"checksumSHA1": "wB5yJMpoju/0eCGIFslLvXNd1WU=",
+			"path": "github.com/btcsuite/btcd/chaincfg",
+			"revision": "f899737d7f2764dc13e4d01ff00108ec58f766a9",
+			"revisionTime": "2018-08-10T00:06:19Z"
+		},
+		{
+			"checksumSHA1": "hI5NhyOyOaazvlK8vWFFsPVEPiM=",
+			"path": "github.com/btcsuite/btcd/chaincfg/chainhash",
+			"revision": "f899737d7f2764dc13e4d01ff00108ec58f766a9",
+			"revisionTime": "2018-08-10T00:06:19Z"
+		},
+		{
+			"checksumSHA1": "Qors73rrAFkuYZc7h9YiSGPWX+o=",
+			"path": "github.com/btcsuite/btcd/rpcclient",
+			"revision": "f899737d7f2764dc13e4d01ff00108ec58f766a9",
+			"revisionTime": "2018-08-10T00:06:19Z"
+		},
+		{
+			"checksumSHA1": "uRvUrZlFjKlocmsf98inMItrRqA=",
+			"path": "github.com/btcsuite/btcd/wire",
+			"revision": "f899737d7f2764dc13e4d01ff00108ec58f766a9",
+			"revisionTime": "2018-08-10T00:06:19Z"
+		},
+		{
+			"checksumSHA1": "J6VwqSZwsPkigujNZo4vyYIFPWU=",
+			"path": "github.com/btcsuite/btclog",
+			"revision": "84c8d2346e9fc8c7b947e243b9c24e6df9fd206a",
+			"revisionTime": "2017-06-28T15:40:31Z"
+		},
+		{
+			"checksumSHA1": "a0lhAUra/SLAkKMxrBZIydBVJjU=",
+			"path": "github.com/btcsuite/btcutil",
+			"revision": "ab6388e0c60ae4834a1f57511e20c17b5f78be4b",
+			"revisionTime": "2018-07-06T23:06:48Z"
+		},
+		{
+			"checksumSHA1": "oQgLy8KmIOVov04WXH7KgU1bszc=",
+			"path": "github.com/btcsuite/btcutil/base58",
+			"revision": "ab6388e0c60ae4834a1f57511e20c17b5f78be4b",
+			"revisionTime": "2018-07-06T23:06:48Z"
+		},
+		{
+			"checksumSHA1": "BBnsAiKyNfocRwmEav5EJpVCwzk=",
+			"path": "github.com/btcsuite/btcutil/bech32",
+			"revision": "ab6388e0c60ae4834a1f57511e20c17b5f78be4b",
+			"revisionTime": "2018-07-06T23:06:48Z"
+		},
+		{
+			"checksumSHA1": "j3yRnuia1i5Wb7C9Tc5g0d6gdpM=",
+			"path": "github.com/btcsuite/go-socks/socks",
+			"revision": "4720035b7bfd2a9bb130b1c184f8bbe41b6f0d0f",
+			"revisionTime": "2016-12-14T21:12:04Z"
+		},
+		{
+			"checksumSHA1": "Uf5l11rLPQGlCJsRbgX9CI2wbuA=",
+			"path": "github.com/btcsuite/websocket",
+			"revision": "31079b6807923eb23992c421b114992b95131b55",
+			"revisionTime": "2015-01-19T17:41:27Z"
+		},
+		{
 			"checksumSHA1": "CSPbwbyzqA6sfORicn4HFtIhF/c=",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "8991bc29aa16c548c550c7ff78260e27b9ab7c73",
@@ -271,6 +343,12 @@
 			"path": "github.com/smartystreets/goconvey/convey/reporting",
 			"revision": "ef6db91d284a0e7badaa1f0c404c30aa7dee3aed",
 			"revisionTime": "2018-02-22T19:45:00Z"
+		},
+		{
+			"checksumSHA1": "TQoVgHqUD72/5ALzi9p5W3oyaug=",
+			"path": "golang.org/x/crypto/ripemd160",
+			"revision": "aabede6cba87e37f413b3e60ebfc214f8eeca1b0",
+			"revisionTime": "2018-08-16T21:30:07Z"
 		},
 		{
 			"checksumSHA1": "7EZyXN0EmZLgGxZxK01IJua4c8o=",
