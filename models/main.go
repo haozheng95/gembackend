@@ -22,7 +22,7 @@ func init() {
 		new(eth_query.TxExtraInfo),
 		new(exchange.EthToken), new(exchange.MainChain),
 		new(btc_query.AddressBtc), new(btc_query.TradeCollection), new(btc_query.TradingParticulars),
-		new(btc_query.UnspentVout))
+		new(btc_query.UnspentVout), new(btc_query.BlockBtc))
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	// eth query -----------------------
 	orm.RegisterDataBase("default",

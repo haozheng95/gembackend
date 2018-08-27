@@ -5,7 +5,115 @@ package btc_query
 
 import "github.com/astaxie/beego/orm"
 
+func CurrBlockNum() (num int64) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("block_height").From("block_btc").OrderBy("block_height").Desc().Limit(1)
+	o := orm.NewOrm()
+	o.Using(databases)
+	err := o.Raw(qb.String()).QueryRow(&num)
+	if err != nil {
+		log.Warning(err)
+	}
+	return
+}
+
+func Getblockhash(height int64) (blockhash string) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("block_hash").From("block_btc").Where("block_height=?").Limit(1)
+	o := orm.NewOrm()
+	o.Using(databases)
+	err := o.Raw(qb.String(), height).QueryRow(&blockhash)
+	if err != nil {
+		log.Warning(err)
+	}
+	return
+}
+
+func Deleteblockhash(blockhash string) (err error) {
+	qb1, _ := orm.NewQueryBuilder("mysql")
+	qb2, _ := orm.NewQueryBuilder("mysql")
+	qb3, _ := orm.NewQueryBuilder("mysql")
+	qb4, _ := orm.NewQueryBuilder("mysql")
+	qb1.Delete().From("trade_collection").Where("block_hash=?")
+	qb2.Delete().From("trading_particulars").Where("block_hash=?")
+	qb3.Delete().From("unspent_vout").Where("block_hash=?")
+	qb4.Delete().From("block_btc").Where("block_hash=?")
+
+	o := orm.NewOrm()
+	o.Using(databases)
+
+	_, err = o.Raw(qb1.String(), blockhash).Exec()
+	if err != nil {
+		log.Warning("qb1 ", err)
+	}
+	_, err = o.Raw(qb2.String(), blockhash).Exec()
+	if err != nil {
+		log.Warning("qb2 ", err)
+	}
+	_, err = o.Raw(qb3.String(), blockhash).Exec()
+	if err != nil {
+		log.Warning("qb3 ", err)
+	}
+	_, err = o.Raw(qb4.String(), blockhash).Exec()
+	if err != nil {
+		log.Warning("qb4 ", err)
+	}
+	return
+}
+
+func Deletetxrecord(txid string) (err error) {
+	qb1, _ := orm.NewQueryBuilder("mysql")
+	qb2, _ := orm.NewQueryBuilder("mysql")
+	qb3, _ := orm.NewQueryBuilder("mysql")
+	qb1.Delete().From("trading_particulars").Where("txid=?")
+	qb2.Delete().From("trade_collection").Where("txid=?")
+	qb3.Delete().From("unspent_vout").Where("txid = ?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	//log.Debug(qb1.String())
+	_, err = o.Raw(qb1.String(), txid).Exec()
+	if err != nil {
+		log.Warning("qb1 ", err)
+	}
+	_, err = o.Raw(qb2.String(), txid).Exec()
+	if err != nil {
+		log.Warning("qb2 ", err)
+	}
+	_, err = o.Raw(qb3.String(), txid).Exec()
+	if err != nil {
+		log.Warning("qb3 ", err)
+	}
+	return
+}
+
 const insertnumber = 500
+
+func InsertMulTradingParticulars(data []*TradingParticulars) (err error) {
+	o := orm.NewOrm()
+	o.Using(databases)
+	start := 0
+	end := insertnumber
+	long := len(data)
+	log.Debug("total long ====", long)
+	for start < long {
+
+		if end > long {
+			end = long
+		}
+		log.Debug("insert TradingParticulars start === ", start)
+		log.Debug("insert TradingParticulars end   === ", end)
+
+		if num, err := o.InsertMulti(end-start, data[start:end]); err == nil {
+			log.Infof("TradingParticulars insert row : %d", num)
+		} else {
+			log.Errorf("TradingParticulars insert error : %s", err)
+			break
+		}
+		start += insertnumber
+		end += insertnumber
+	}
+	return
+}
 
 func InsertMulTradeCollection(data []*TradeCollection) (err error) {
 	o := orm.NewOrm()
@@ -15,8 +123,13 @@ func InsertMulTradeCollection(data []*TradeCollection) (err error) {
 	long := len(data)
 	log.Debug("total long ====", long)
 	for start < long {
+
+		if end > long {
+			end = long
+		}
 		log.Debug("insert TradeCollection start === ", start)
 		log.Debug("insert TradeCollection end   === ", end)
+
 		if num, err := o.InsertMulti(end-start, data[start:end]); err == nil {
 			log.Infof("insert row : %d", num)
 		} else {
@@ -25,9 +138,6 @@ func InsertMulTradeCollection(data []*TradeCollection) (err error) {
 		}
 		start += insertnumber
 		end += insertnumber
-		if end > long {
-			end = long
-		}
 	}
 	return
 }
@@ -42,19 +152,22 @@ func InsertMulUnspentVout(data []*UnspentVout) (err error) {
 	log.Debug("total long ====", long)
 
 	for start < long {
+		if end > long {
+			end = long
+		}
 		log.Debug("insert UnspentVout start === ", start)
 		log.Debug("insert UnspentVout end   === ", end)
+
 		if num, err := o.InsertMulti(end-start, data[start:end]); err == nil {
 			log.Infof("insert row : %d", num)
 		} else {
 			log.Errorf("insert error : %s", err)
+			log.Debug(err == nil)
 			break
 		}
 		start = end
 		end += insertnumber
-		if end > long {
-			end = long
-		}
+
 	}
 
 	return

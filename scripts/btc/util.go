@@ -5,6 +5,7 @@ package btc
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/gembackend/models/btc_query"
 	"github.com/shopspring/decimal"
@@ -44,6 +45,39 @@ func NewUnSpentVoutSt(txid, addr, value, blockhash string, height, index int64) 
 	st.BlockHash = blockhash
 	st.Height = height
 	return
+}
+
+func MakeTradingParticulars(totalinput, totaloutput, fee string, vin, vout interface{}, from1 []string, to1 []string, txid, blockhash string, Confirm, blocknum int64) *btc_query.TradingParticulars {
+	from2, err := json.Marshal(from1)
+	if err != nil {
+		log.Warning("from2", err)
+		return nil
+	}
+	to2, err := json.Marshal(to1)
+	if err != nil {
+		log.Warning("to2", err)
+		return nil
+	}
+	vin1, err := json.Marshal(vin)
+	if err != nil {
+		log.Warning("vin", err)
+		return nil
+	}
+	vout1, err := json.Marshal(vout)
+	if err != nil {
+		log.Warning("vout", err)
+		return nil
+	}
+	log.Debug("vin======", string(vin1))
+	log.Debug("vout=====", string(vout1))
+	from := string(from2)
+	to := string(to2)
+
+	st := &btc_query.TradingParticulars{
+		From: from, To: to, Txid: txid, BlockHash: blockhash, Confirm: Confirm, BlockNum: blocknum, Updated: time.Now(),
+		Vin: string(vin1), Vout: string(vout1), TotalInput: totalinput, TotalOut: totaloutput, Fee: fee,
+	}
+	return st
 }
 
 func eachaddress(tovalue, fromvalue, blockhash, txid, fee string, height, confirmtime int64) func(addresses []string, pay int) (tradeCollections []*btc_query.TradeCollection) {

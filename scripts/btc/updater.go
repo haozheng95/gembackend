@@ -12,6 +12,7 @@ import (
 	"github.com/gembackend/models/btc_query"
 	"github.com/gembackend/rpc"
 	"github.com/op/go-logging"
+	"time"
 )
 
 var (
@@ -20,6 +21,8 @@ var (
 )
 
 const interval = 100
+const beginHeight = 500000
+const sleeptime = 30
 
 func init() {
 	btcrpc, ok := rpc.ConnectMap["btc-conn"]
@@ -131,7 +134,57 @@ func getvinhashs(separates []*separate) (hashgroup []chainhash.Hash) {
 	return
 }
 
+func checkheight(num int64) int64 {
+again:
+	block, _ := currnum()
+	db := btc_query.CurrBlockNum()
+	log.Debug("db height     === ", db)
+	log.Debug("block height  === ", block)
+	log.Debug("update height === ", num)
+
+	if db < num {
+		db = num
+	}
+
+	if db < block {
+		num = db + 1
+	} else if num > block {
+		log.Debug("pending start ========")
+		time.Sleep(sleeptime)
+		log.Debug("pending over =========")
+		goto again
+	}
+	return num
+}
+
+func checkblockhash(num int64) *wire.MsgBlock {
+	for {
+
+		info, _ := getBlockInfo(num)
+		previousHash := info.Header.PrevBlock.String()
+		num--
+		dbhash := btc_query.Getblockhash(num)
+		if dbhash == "" {
+			return info
+		}
+		if previousHash == dbhash {
+			return info
+		} else {
+			log.Debug("roll back height ==== ", num)
+			btc_query.Deleteblockhash(dbhash)
+		}
+	}
+
+}
+
 func Main() {
+	for {
+		start(beginHeight)
+		log.Debug("=========> over <===========")
+	}
+}
+
+func start(begin int64) {
 	log.Debug("start")
 
 	var (
@@ -139,23 +192,30 @@ func Main() {
 		blockNumber  int64
 		previousHash string
 		confirmTime  int64
+		blockNonce   uint32
 	)
 
-	num, err := currnum()
+	num := checkheight(begin)
 	log.Debug("1")
 	log.Debug("------", num)
-	info, err := getBlockInfo(num)
+
+	info := checkblockhash(num)
 	// block info -----
 	blockHash = info.Header.BlockHash().String()
 	blockNumber = num
 	previousHash = info.Header.PrevBlock.String()
 	confirmTime = info.Header.Timestamp.Unix()
+	blockNonce = info.Header.Nonce
 	log.Debug("block hash          ====", blockHash)
 	log.Debug("block number        ====", blockNumber)
 	log.Debug("block previous hash ====", previousHash)
 	log.Debug("confirm time        ====", confirmTime)
+	log.Debug("block nonce         ====", blockNonce)
 	// ---------------
-
+	//btcBlock := NewBlockBtc(height int64, blockhash string, prehash string, confirm int64, nonce uint32)
+	btcBlock := btc_query.NewBlockBtc(blockNumber, blockHash, previousHash, confirmTime, blockNonce)
+	btcBlock.Insert()
+	// ---------------
 	txs, err := info.TxHashes()
 
 	log.Debug("2", "len txs === ", len(txs))
@@ -230,10 +290,14 @@ func Main() {
 func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime int64) {
 	unspentvouts := make([]*btc_query.UnspentVout, 0, len(data))
 	tradeCollections := make([]*btc_query.TradeCollection, 0, len(data))
+	tradingParticulars := make([]*btc_query.TradingParticulars, 0, len(data))
 
 	for _, v := range data {
 		vout := v.to.(map[float64]map[string]interface{})
 		txid := v.txid
+		// db delete
+		btc_query.Deletetxrecord(txid)
+		// --------------------
 		var amount float64 = 0
 		var faddresses []string
 		var vin []interface{}
@@ -257,10 +321,12 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 			}
 		}
 	vinend:
+		formatVout := make([]interface{}, 0, len(vout))
 		taddresses := make([]string, 0, len(vout))
 		var tovalue float64 = 0
 		for _, v1 := range vout {
 			//"txid", "index", "value", "address"
+			formatVout = append(formatVout, v1)
 			v2 := v1
 			value := v2["value"].(float64)
 			tovalue += value
@@ -286,13 +352,24 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		closure := eachaddress(floatToString(tovalue), floatToString(amount), blockhash, txid, fee, blocknum, confirmTime)
 		tradeCollections = append(tradeCollections, closure(faddresses, 1)...)
 		tradeCollections = append(tradeCollections, closure(taddresses, 0)...)
+		// mk tx
+		//from1 []string, to1 []string, txid, blockhash, Confirm  , blocknum
+		//totalinput, totaloutput, fee string, vin, vout interface{},
+		tradingParticulars = append(tradingParticulars,
+			MakeTradingParticulars(floatToString(amount), floatToString(tovalue),
+				fee, vin, formatVout, faddresses, taddresses, txid, blockhash, confirmTime, blocknum))
 	}
 	// db
-	err = btc_query.InsertMulUnspentVout(unspentvouts)
-	if err != nil {
-		btc_query.InsertMulTradeCollection(tradeCollections)
+	err := btc_query.InsertMulUnspentVout(unspentvouts)
+	if err == nil {
+		err = btc_query.InsertMulTradeCollection(tradeCollections)
 	} else {
-		log.Fatalf("insert db error %s", err)
+		log.Fatalf("db step1 error %s", err)
+	}
+	if err == nil {
+		err = btc_query.InsertMulTradingParticulars(tradingParticulars)
+	} else {
+		log.Fatalf("db step2 error == %s", err)
 	}
 }
 

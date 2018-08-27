@@ -7,9 +7,9 @@ import "time"
 
 type TradeCollection struct {
 	Id          int64
-	Addr        string    `orm:"index"`
-	Txid        string    `orm:"index"`
-	Updated     time.Time `orm:"default(now())"`
+	Addr        string `orm:"index"`
+	Txid        string `orm:"index"`
+	Updated     time.Time
 	TotalOutput string
 	TotalInput  string
 	Fee         string
