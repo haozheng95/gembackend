@@ -12,6 +12,26 @@ import (
 	"time"
 )
 
+func AccountUpdateMul(addrs []string) {
+	for _, v := range addrs {
+		AccountUpdate(v)
+	}
+}
+
+func AccountUpdate(addr string) {
+	amount, _ := decimal.NewFromString("0")
+	amounts := btc_query.GetAllUnspent(addr)
+	for _, value := range amounts {
+		v, _ := decimal.NewFromString(value.Value)
+		amount.Add(v)
+	}
+	log.Debug(amount.String())
+	err := btc_query.UpdateAddr(addr, amount.String())
+	if err != nil {
+		log.Warning(err)
+	}
+}
+
 func makeChHash(str string) (hash chainhash.Hash) {
 	h, _ := hex.DecodeString(str)
 	for j, v3 := range h {

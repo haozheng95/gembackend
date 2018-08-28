@@ -21,7 +21,7 @@ var (
 )
 
 const interval = 100
-const beginHeight = 500000
+const beginHeight = 538690
 const sleeptime = 30
 
 func init() {
@@ -154,12 +154,13 @@ again:
 		log.Debug("pending over =========")
 		goto again
 	}
+	// debug
+	//num = 538694
 	return num
 }
 
 func checkblockhash(num int64) *wire.MsgBlock {
 	for {
-
 		info, _ := getBlockInfo(num)
 		previousHash := info.Header.PrevBlock.String()
 		num--
@@ -291,8 +292,10 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 	unspentvouts := make([]*btc_query.UnspentVout, 0, len(data))
 	tradeCollections := make([]*btc_query.TradeCollection, 0, len(data))
 	tradingParticulars := make([]*btc_query.TradingParticulars, 0, len(data))
+	allAddress := make([]string, 0, len(data))
 
 	for _, v := range data {
+		sw := false
 		vout := v.to.(map[float64]map[string]interface{})
 		txid := v.txid
 		// db delete
@@ -317,7 +320,11 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 			// make from addresses
 			addresses := v1["addresses"].([]interface{})
 			for _, v2 := range addresses {
-				faddresses = append(faddresses, v2.(string))
+				addr := v2.(string)
+				if btc_query.GetBtcAddrExist(addr) {
+					sw = true
+					faddresses = append(faddresses, addr)
+				}
 			}
 		}
 	vinend:
@@ -338,16 +345,30 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 
 			for _, v3 := range addresses {
 				addr := v3.(string)
-				taddresses = append(taddresses, addr)
+				if btc_query.GetBtcAddrExist(addr) {
+					taddresses = append(taddresses, addr)
+					unspentvouts = append(unspentvouts, NewUnSpentVoutSt(txid, addr, floatToString(value), blockhash, blocknum, int64(n)))
+					sw = true
+				}
 				//btc_query.InsertUnspentVout(txid, floatToString(n), floatToString(value), addr)
-				unspentvouts = append(unspentvouts, NewUnSpentVoutSt(txid, addr, floatToString(value), blockhash, blocknum, int64(n)))
 			}
 		}
+
+		if !sw {
+			continue
+		}
+
 		fee := Subfloat(amount, tovalue)
+
 		log.Debug("from value ====", amount)
 		log.Debug("to   value ====", tovalue)
 		log.Debug("fee  value ====", fee)
 		log.Debug("txid value ====", txid)
+		if tovalue > amount {
+			log.Debug("vin===", vin)
+			log.Debug("vout===", vout)
+			panic("error ======")
+		}
 		//NewTradeCollections(output, input, blockhash, txid, addr, fee string, height, confirmtime int64, pay int)
 		closure := eachaddress(floatToString(tovalue), floatToString(amount), blockhash, txid, fee, blocknum, confirmTime)
 		tradeCollections = append(tradeCollections, closure(faddresses, 1)...)
@@ -358,6 +379,10 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		tradingParticulars = append(tradingParticulars,
 			MakeTradingParticulars(floatToString(amount), floatToString(tovalue),
 				fee, vin, formatVout, faddresses, taddresses, txid, blockhash, confirmTime, blocknum))
+
+		// all address
+		allAddress = append(allAddress, faddresses...)
+		allAddress = append(allAddress, taddresses...)
 	}
 	// db
 	err := btc_query.InsertMulUnspentVout(unspentvouts)
@@ -371,6 +396,9 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 	} else {
 		log.Fatalf("db step2 error == %s", err)
 	}
+
+	AccountUpdateMul(allAddress)
+	log.Debug("related addr len ===", len(allAddress))
 }
 
 type reduceData struct {
@@ -440,7 +468,7 @@ func separateTxsData(separates []*separate) (resdata map[string]*cutdata) {
 
 			resdata[txid].vin[v2["txid"].(string)] = v2["vout"]
 		}
-		log.Debug("vin ---- ", resdata[txid].vin)
+		//log.Debug("vin ---- ", resdata[txid].vin)
 		for _, v3 := range vout {
 			v4 := v3.(map[string]interface{})
 			v5 := v4["scriptPubKey"].(map[string]interface{})

@@ -5,6 +5,43 @@ package btc_query
 
 import "github.com/astaxie/beego/orm"
 
+func UpdateAddr(addr, amount string) (err error) {
+	//addr = addr
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Update("address_btc").Set("amount=?", "unconfirm_amount=0").Where("addr=?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	log.Debug(amount, addr)
+	_, err = o.Raw(qb.String(), amount, addr).Exec()
+	if err != nil {
+		log.Warning("update error ==== ", err)
+	}
+	return
+}
+
+func GetAllUnspent(addr string) (res []*struct{ Value string }) {
+	addr = "`" + addr + "`"
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("value").From("unspent_vout").Where("spent=0").And("address=?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	_, err := o.Raw(qb.String(), addr).QueryRows(&res)
+	if err != nil {
+		log.Warning("get unspents error ==== ", err)
+	}
+	return
+}
+
+// btc address exist
+func GetBtcAddrExist(addr string) bool {
+	o := orm.NewOrm()
+	o.Using(databases)
+	qs := o.QueryTable("address_btc")
+	res := qs.Filter("addr", addr).Exist()
+	res = true
+	return res
+}
+
 func CurrBlockNum() (num int64) {
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("block_height").From("block_btc").OrderBy("block_height").Desc().Limit(1)
