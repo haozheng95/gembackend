@@ -369,7 +369,7 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		log.Debug("to   value ====", tovalue)
 		log.Debug("fee  value ====", fee)
 		log.Debug("txid value ====", txid)
-		if tovalue > amount {
+		if tovalue > amount && len(vin) != 0 {
 			log.Info("error ========")
 			log.Debug("vin  ========", vin)
 			log.Debug("vout ========", vout)
