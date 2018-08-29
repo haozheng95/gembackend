@@ -20,7 +20,7 @@ var (
 	log    *logging.Logger
 )
 
-const interval = 100
+const interval = 50
 const beginHeight = 538690
 const sleeptime = 30
 
