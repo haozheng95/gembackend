@@ -103,12 +103,12 @@ func separateTxsDet(response []map[string]interface{}) (result1 []*separate) {
 }
 
 func getvinhashs(separates []*separate) (hashgroup []chainhash.Hash) {
-	//hashs = make([]chainhash.Hash, 0, 100)
+	//hashs := make([]chainhash.Hash, 0, 100)
 	//log.Debug(len(separates))
 	filtermap := make(map[interface{}]int)
 	for _, v := range separates {
 		if v == nil || v.vin == nil {
-			//log.Fatal("fatal error for range separates")
+			log.Fatal("fatal error for range separates")
 			continue
 		}
 		vin := v.vin.([]interface{})
@@ -130,6 +130,7 @@ func getvinhashs(separates []*separate) (hashgroup []chainhash.Hash) {
 		log.Debug(k, "====", v)
 		hashgroup = append(hashgroup, makeChHash(k.(string)))
 	}
+	//hashgroup = hashs
 	log.Debug("hashgrouop len=", len(hashgroup), "cap=", cap(hashgroup))
 	return
 }
@@ -182,6 +183,7 @@ func Main() {
 	for {
 		start(beginHeight)
 		log.Debug("=========> over <===========")
+		return
 	}
 }
 
@@ -416,12 +418,19 @@ func datareduce(spendData, unspendData map[string]*cutdata) (data []*reduceData)
 		tslice := make([]interface{}, 0, len(v1.vin))
 		for k2, v2 := range v1.vin {
 			tvin, ok := spendData[k2]
+			//log.Debug("k2 ==========", k2)
 			if ok {
-				tvout, ok := tvin.vout[v2.(float64)]
-				if ok {
-					tvout["txid"] = k2 // add vin txid
-					tslice = append(tslice, tvout)
+				//tvout, ok := tvin.vout[v2.(float64)]
+				for _, v3 := range v2 {
+					tvout, ok := tvin.vout[v3.(float64)]
+					//log.Debug("vin ==== ok === ", ok)
+					//log.Debug("================", v3)
+					if ok {
+						tvout["txid"] = k2 // add vin txid
+						tslice = append(tslice, tvout)
+					}
 				}
+
 			}
 		}
 		if len(tslice) > 0 {
@@ -434,11 +443,11 @@ func datareduce(spendData, unspendData map[string]*cutdata) (data []*reduceData)
 }
 
 type cutdata struct {
-	vin  map[string]interface{}
+	vin  map[string][]interface{}
 	vout map[float64]map[string]interface{}
 }
 
-//vin ----  map[a6ebc95817c76c486dfa84e1b3ecd407e5feb313f730d3766a845d4699cbfe8a:0]
+//vin ----  map[a6ebc95817c76c486dfa84e1b3ecd407e5feb313f730d3766a845d4699cbfe8a:[0,1]]
 //vout==== map[0:map[value:0.48 n:0 addresses:[3KEJwUXK7eXyTSdG5VbffTa1v6KuHW3AXT]]]
 func separateTxsData(separates []*separate) (resdata map[string]*cutdata) {
 	resdata = make(map[string]*cutdata)
@@ -449,14 +458,15 @@ func separateTxsData(separates []*separate) (resdata map[string]*cutdata) {
 		vin := v.vin.([]interface{})
 		vout := v.vout.([]interface{})
 		txid := v.txid.(string)
-		//log.Debug("len vin debug === ", len(vin))
+		log.Debug("len vout debug === ", len(vout))
 		if resdata[txid] == nil {
 			resdata[txid] = new(cutdata)
 		}
-		resdata[txid].vin = make(map[string]interface{})
+		resdata[txid].vin = make(map[string][]interface{})
 		resdata[txid].vout = make(map[float64]map[string]interface{})
 		for _, v1 := range vin {
 			v2 := v1.(map[string]interface{})
+			log.Debug(v2)
 			if v2["txid"] == nil {
 				log.Debug("coinbase ---")
 				continue
@@ -466,7 +476,7 @@ func separateTxsData(separates []*separate) (resdata map[string]*cutdata) {
 			delete(v2, "sequence")
 			//resdata[txid].vin = append(resdata[txid].vin, v2)
 
-			resdata[txid].vin[v2["txid"].(string)] = v2["vout"]
+			resdata[txid].vin[v2["txid"].(string)] = append(resdata[txid].vin[v2["txid"].(string)], v2["vout"])
 		}
 		//log.Debug("vin ---- ", resdata[txid].vin)
 		for _, v3 := range vout {
