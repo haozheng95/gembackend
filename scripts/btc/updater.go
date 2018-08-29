@@ -183,7 +183,6 @@ func Main() {
 	for {
 		start(beginHeight)
 		log.Debug("=========> over <===========")
-		return
 	}
 }
 
