@@ -361,14 +361,18 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		}
 
 		fee := Subfloat(amount, tovalue)
-
+		if len(vin) == 0 {
+			log.Debug("coinbase vin ====", vin)
+			fee = "0"
+		}
 		log.Debug("from value ====", amount)
 		log.Debug("to   value ====", tovalue)
 		log.Debug("fee  value ====", fee)
 		log.Debug("txid value ====", txid)
 		if tovalue > amount {
-			log.Debug("vin===", vin)
-			log.Debug("vout===", vout)
+			log.Info("error ========")
+			log.Debug("vin  ========", vin)
+			log.Debug("vout ========", vout)
 			panic("error ======")
 		}
 		//NewTradeCollections(output, input, blockhash, txid, addr, fee string, height, confirmtime int64, pay int)
