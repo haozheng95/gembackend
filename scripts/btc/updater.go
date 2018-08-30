@@ -160,17 +160,17 @@ again:
 	return num
 }
 
-func checkblockhash(num int64) *wire.MsgBlock {
+func checkblockhash(num int64) (*wire.MsgBlock, int64) {
 	for {
 		info, _ := getBlockInfo(num)
 		previousHash := info.Header.PrevBlock.String()
 		num--
 		dbhash := btc_query.Getblockhash(num)
 		if dbhash == "" {
-			return info
+			return info, num
 		}
 		if previousHash == dbhash {
-			return info
+			return info, num
 		} else {
 			log.Debug("roll back height ==== ", num)
 			btc_query.Deleteblockhash(dbhash)
@@ -201,9 +201,9 @@ func start(begin int64) {
 
 	num := checkheight(begin)
 	log.Debug("1")
-	log.Debug("------", num)
 
-	info := checkblockhash(num)
+	info, num := checkblockhash(num)
+	log.Debug("------", num)
 	// block info -----
 	blockHash = info.Header.BlockHash().String()
 	blockNumber = num
