@@ -181,8 +181,6 @@ func checkblockhash(num int64) (*wire.MsgBlock, int64) {
 
 func Main() {
 	for {
-		//log.Debug(Decimal(152.5419366900003))
-		//return
 		start(beginHeight)
 		log.Debug("=========> over <===========")
 	}
