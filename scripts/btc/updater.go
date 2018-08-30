@@ -170,7 +170,7 @@ func checkblockhash(num int64) (*wire.MsgBlock, int64) {
 			return info, num
 		}
 		if previousHash == dbhash {
-			return info, num
+			return info, num + 1
 		} else {
 			log.Debug("roll back height ==== ", num)
 			btc_query.Deleteblockhash(dbhash)
