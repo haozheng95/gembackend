@@ -9,6 +9,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/gembackend/models/btc_query"
 	"github.com/shopspring/decimal"
+	"math"
 	"time"
 )
 
@@ -120,4 +121,8 @@ func Subfloat(d1, d2 float64) (r string) {
 
 func floatToString(value float64) string {
 	return decimal.NewFromFloat(value).String()
+}
+
+func Decimal(value float64) float64 {
+	return math.Trunc(value*1e8) * 1e-8
 }

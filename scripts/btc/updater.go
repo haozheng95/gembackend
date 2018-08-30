@@ -181,6 +181,8 @@ func checkblockhash(num int64) *wire.MsgBlock {
 
 func Main() {
 	for {
+		//log.Debug(Decimal(152.5419366900003))
+		//return
 		start(beginHeight)
 		log.Debug("=========> over <===========")
 	}
@@ -358,7 +360,8 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		if !sw {
 			continue
 		}
-
+		amount = Decimal(amount)
+		tovalue = Decimal(tovalue)
 		fee := Subfloat(amount, tovalue)
 		if len(vin) == 0 {
 			log.Debug("coinbase vin ====", vin)
