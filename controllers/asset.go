@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/gembackend/models/btc_query"
 	"github.com/gembackend/models/eth_query"
 	"github.com/gembackend/models/exchange"
+	"github.com/shopspring/decimal"
 	"strconv"
 )
 
@@ -25,8 +27,8 @@ func (a *AssetController) Get() {
 	beginInt, _ := strconv.Atoi(begin)
 	sizeInt, _ := strconv.Atoi(size)
 
-	result := make([]assertControllerResponse, 0, 10)
-	st := assertControllerResponse{}
+	result := make([]*assertControllerResponse, 0, 10)
+	st := new(assertControllerResponse)
 	if beginInt == 0 {
 		ethData := eth_query.GetEthInfoByWalletId(walletId)
 		cny := exchange.GetMainChainCnyByCoinName("eth")
@@ -37,9 +39,10 @@ func (a *AssetController) Get() {
 		st.Istoken = "0"
 		st.Price = MulString(cny, amount)
 		result = append(result, st)
-		sizeInt--
+		result = append(result, GetBtcInfo(walletId))
+		sizeInt -= 2
 	} else {
-		beginInt = beginInt*sizeInt - 1
+		beginInt = beginInt*sizeInt - 2
 	}
 	ethTokenData := eth_query.GetAllTokenInfoWithUser(walletId, beginInt, sizeInt)
 	for _, v := range ethTokenData {
@@ -58,7 +61,30 @@ func (a *AssetController) Get() {
 	a.ServeJSON()
 }
 
+func GetBtcInfo(walletId string) *assertControllerResponse {
+	allAddr := btc_query.GetUserInfo(walletId)
+	amount := decimal.New(0, 8)
+	unconfirmAmount := decimal.New(0, 8)
+	for _, value := range allAddr {
+		tempAmount, _ := decimal.NewFromString(value.Amount)
+		tempUnconfirmAmount, _ := decimal.NewFromString(value.UnconfirmAmount)
+		amount = amount.Add(tempAmount)
+		unconfirmAmount = unconfirmAmount.Add(tempUnconfirmAmount)
+	}
+	resultAmount := amount.Sub(unconfirmAmount)
+	//log.Debug("amount   ===", amount)
+	//log.Debug("unamount ===", unconfirmAmount)
+	//log.Debug("result   ===", resultAmount)
+	cny := exchange.GetMainChainCnyByCoinName("btc")
+	return NewassertControllerResponse("btc", resultAmount.String(), cny, "8", "", "0")
+}
+
 // result struct
 type assertControllerResponse struct {
 	Coin, Amount, Price, Dec, ContractAddr, Istoken string
+}
+
+func NewassertControllerResponse(Coin, Amount, Price, Dec, ContractAddr, Istoken string) (res *assertControllerResponse) {
+	res = &assertControllerResponse{Coin, Amount, Price, Dec, ContractAddr, Istoken}
+	return
 }

@@ -5,6 +5,18 @@ package btc_query
 
 import "github.com/astaxie/beego/orm"
 
+func GetUserInfo(walletId string) (res []*AddressBtc) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("*").From("address_btc").Where("wallet_id=?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	_, err := o.Raw(qb.String(), walletId).QueryRows(&res)
+	if err != nil {
+		log.Warning("GetUserInfo error ==== ", err)
+	}
+	return
+}
+
 func UpdateAddr(addr, amount string) (err error) {
 	//addr = addr
 	qb, _ := orm.NewQueryBuilder("mysql")
@@ -62,6 +74,7 @@ func Getblockhash(height int64) (blockhash string) {
 	err := o.Raw(qb.String(), height).QueryRow(&blockhash)
 	if err != nil {
 		log.Warning(err)
+		blockhash = ""
 	}
 	return
 }

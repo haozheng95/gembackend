@@ -206,6 +206,8 @@ func (s *SendRawTx) Post() {
 		} else {
 			s.Data["json"] = resultResponseErrorMake(2009, err.Error())
 		}
+	case "btc":
+
 	default:
 		//error
 		s.Data["json"] = resultResponseErrorMake(2010, nil)

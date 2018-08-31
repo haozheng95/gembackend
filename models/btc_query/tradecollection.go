@@ -17,4 +17,5 @@ type TradeCollection struct {
 	BlockHash   string `orm:"index"`
 	Height      int64
 	ConfirmTime int64
+	Value       float64
 }

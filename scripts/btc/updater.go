@@ -20,7 +20,7 @@ var (
 	log    *logging.Logger
 )
 
-const interval = 50
+const interval = 10
 const beginHeight = 538690
 const sleeptime = 30
 
@@ -145,6 +145,7 @@ again:
 
 	if db < num {
 		db = num
+		return num
 	}
 
 	if db < block {
@@ -164,7 +165,11 @@ func checkblockhash(num int64) (*wire.MsgBlock, int64) {
 	for {
 		info, _ := getBlockInfo(num)
 		previousHash := info.Header.PrevBlock.String()
+		log.Debug("get block hash num ====", num)
 		num--
+		if num < beginHeight {
+			num = beginHeight
+		}
 		dbhash := btc_query.Getblockhash(num)
 		if dbhash == "" {
 			return info, num
@@ -173,6 +178,7 @@ func checkblockhash(num int64) (*wire.MsgBlock, int64) {
 			return info, num + 1
 		} else {
 			log.Debug("roll back height ==== ", num)
+			log.Debug("db hash ============= ", dbhash)
 			btc_query.Deleteblockhash(dbhash)
 		}
 	}
@@ -181,13 +187,14 @@ func checkblockhash(num int64) (*wire.MsgBlock, int64) {
 
 func Main() {
 	for {
+		log.Debug(CoolStr)
+		log.Debug("---------> start <----------")
 		start(beginHeight)
 		log.Debug("=========> over <===========")
 	}
 }
 
 func start(begin int64) {
-	log.Debug("start")
 
 	var (
 		blockHash    string
@@ -303,13 +310,14 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		btc_query.Deletetxrecord(txid)
 		// --------------------
 		var amount float64 = 0
-		var faddresses []string
+		var faddresses []map[string]float64
 		var vin []interface{}
 		if v.from == nil {
 			goto vinend
 		}
 		vin = v.from.([]interface{})
-		faddresses = make([]string, 0, len(vin))
+		//faddresses = make([]string, 0, len(vin))
+		faddresses = make([]map[string]float64, 0, len(vin))
 		for _, v := range vin {
 			v1 := v.(map[string]interface{})
 			amount += v1["value"].(float64)
@@ -324,13 +332,13 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 				addr := v2.(string)
 				if btc_query.GetBtcAddrExist(addr) {
 					sw = true
-					faddresses = append(faddresses, addr)
+					faddresses = append(faddresses, map[string]float64{addr: v1["value"].(float64)})
 				}
 			}
 		}
 	vinend:
 		formatVout := make([]interface{}, 0, len(vout))
-		taddresses := make([]string, 0, len(vout))
+		taddresses := make([]map[string]float64, 0, len(vout))
 		var tovalue float64 = 0
 		for _, v1 := range vout {
 			//"txid", "index", "value", "address"
@@ -347,7 +355,7 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 			for _, v3 := range addresses {
 				addr := v3.(string)
 				if btc_query.GetBtcAddrExist(addr) {
-					taddresses = append(taddresses, addr)
+					taddresses = append(taddresses, map[string]float64{addr: v2["value"].(float64)})
 					unspentvouts = append(unspentvouts, NewUnSpentVoutSt(txid, addr, floatToString(value), blockhash, blocknum, int64(n)))
 					sw = true
 				}
@@ -382,13 +390,15 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		// mk tx
 		//from1 []string, to1 []string, txid, blockhash, Confirm  , blocknum
 		//totalinput, totaloutput, fee string, vin, vout interface{},
+		faddr := MapToSlice(faddresses)
+		taddr := MapToSlice(taddresses)
 		tradingParticulars = append(tradingParticulars,
 			MakeTradingParticulars(floatToString(amount), floatToString(tovalue),
-				fee, vin, formatVout, faddresses, taddresses, txid, blockhash, confirmTime, blocknum))
+				fee, vin, formatVout, faddr, taddr, txid, blockhash, confirmTime, blocknum))
 
 		// all address
-		allAddress = append(allAddress, faddresses...)
-		allAddress = append(allAddress, taddresses...)
+		allAddress = append(allAddress, faddr...)
+		allAddress = append(allAddress, taddr...)
 	}
 	// db
 	err := btc_query.InsertMulUnspentVout(unspentvouts)
@@ -405,6 +415,8 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 
 	AccountUpdateMul(allAddress)
 	log.Debug("related addr len ===", len(allAddress))
+	log.Debug("update height ======", blocknum)
+	log.Debug("update block hash ==", blockhash)
 }
 
 type reduceData struct {

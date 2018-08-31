@@ -19,6 +19,16 @@ func AccountUpdateMul(addrs []string) {
 	}
 }
 
+func MapToSlice(input []map[string]float64) (output []string) {
+	output = make([]string, 0, len(input))
+	for _, v1 := range input {
+		for k1, _ := range v1 {
+			output = append(output, k1)
+		}
+	}
+	return
+}
+
 func AccountUpdate(addr string) {
 	amount, _ := decimal.NewFromString("0")
 	amounts := btc_query.GetAllUnspent(addr)
@@ -41,7 +51,7 @@ func makeChHash(str string) (hash chainhash.Hash) {
 	return
 }
 
-func NewTradeCollections(output, input, blockhash, txid, addr, fee string, height, confirmtime int64, pay int) (st *btc_query.TradeCollection) {
+func NewTradeCollections(output, input, blockhash, txid, addr, fee string, height, confirmtime int64, pay int, value float64) (st *btc_query.TradeCollection) {
 	st = new(btc_query.TradeCollection)
 	st.TotalInput = input
 	st.TotalOutput = output
@@ -53,6 +63,7 @@ func NewTradeCollections(output, input, blockhash, txid, addr, fee string, heigh
 	st.Pay = pay
 	st.Fee = fee
 	st.Updated = time.Now()
+	st.Value = value
 	return
 }
 
@@ -101,11 +112,14 @@ func MakeTradingParticulars(totalinput, totaloutput, fee string, vin, vout inter
 	return st
 }
 
-func eachaddress(tovalue, fromvalue, blockhash, txid, fee string, height, confirmtime int64) func(addresses []string, pay int) (tradeCollections []*btc_query.TradeCollection) {
-	return func(addresses []string, pay int) (tradeCollections []*btc_query.TradeCollection) {
+func eachaddress(tovalue, fromvalue, blockhash, txid, fee string, height, confirmtime int64) func(addresses []map[string]float64, pay int) (tradeCollections []*btc_query.TradeCollection) {
+	return func(addresses []map[string]float64, pay int) (tradeCollections []*btc_query.TradeCollection) {
 		tradeCollections = make([]*btc_query.TradeCollection, 0, len(addresses))
-		for _, address := range addresses {
-			tradeCollections = append(tradeCollections, NewTradeCollections(tovalue, fromvalue, blockhash, txid, address, fee, height, confirmtime, pay))
+		for _, v1 := range addresses {
+			for k2, v2 := range v1 {
+				tradeCollections = append(tradeCollections, NewTradeCollections(tovalue, fromvalue, blockhash, txid, k2, fee, height, confirmtime, pay, v2))
+
+			}
 		}
 		return
 	}
@@ -126,3 +140,12 @@ func floatToString(value float64) string {
 func Decimal(value float64) float64 {
 	return math.Trunc(value*1e8) * 1e-8
 }
+
+var CoolStr string = `        
+         __           __              _     
+   _____/ /_______   / /_____  ____  (_)____
+  / ___/ //_/ ___/  / __/ __ \/ __ \/ / ___/
+ (__  ) ,< / /     / /_/ /_/ / /_/ / / /__  
+/____/_/|_/_/      \__/\____/ .___/_/\___/  
+                           /_/
+`
