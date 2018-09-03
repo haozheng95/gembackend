@@ -77,17 +77,32 @@ func TestAssetExpend(t *testing.T) {
 @contract_addr
 */
 func TestTxinfo(t *testing.T) {
-	// eth
-	param := "/eth"
-	param += "?tx_hash=" + txHash
-
-	r, _ := http.NewRequest("GET", basePath+"/txinfo"+param, nil)
+	// btc
+	btcparam := "/btc"
+	btcparam += "?tx_hash=" + "b67c084194190c7c560ef6ba43f3877b10cce6098bcc353e2f1ef5868b10e8ed"
+	r, _ := http.NewRequest("GET", basePath+"/txinfo"+btcparam, nil)
 	r.Header.Add("auth-token", godKey)
 	w := httptest.NewRecorder()
 	beego.BeeApp.Handlers.ServeHTTP(w, r)
 
 	beego.Trace("txinfo", "TestTxinfo", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
 	z := decodeJson(w.Body.String())
+	convey.Convey("txinfo eth", t, func() {
+		convey.Convey("status code should be 0", func() {
+			convey.So(z["status"], convey.ShouldEqual, 0)
+		})
+	})
+	// eth
+	param := "/eth"
+	param += "?tx_hash=" + txHash
+
+	r, _ = http.NewRequest("GET", basePath+"/txinfo"+param, nil)
+	r.Header.Add("auth-token", godKey)
+	w = httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, r)
+
+	beego.Trace("txinfo", "TestTxinfo", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
+	z = decodeJson(w.Body.String())
 	convey.Convey("txinfo eth", t, func() {
 		convey.Convey("status code should be 0", func() {
 			convey.So(z["status"], convey.ShouldEqual, 0)

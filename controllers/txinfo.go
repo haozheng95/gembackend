@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/gembackend/models/btc_query"
 	"github.com/gembackend/models/eth_query"
 	"strings"
 )
@@ -47,6 +48,21 @@ func (t *TxinfoController) Get() {
 				t.Data["json"] = resultResponseErrorMake(2012, nil)
 			}
 		}
+	case "btc":
+		blockHeight := btc_query.CurrBlockNum()
+		txInfos := btc_query.GetTxInfo(txhash)
+		if len(txInfos) > 0 {
+			txInfo := txInfos[0]
+			confirmNum := blockHeight - txInfo.BlockNum
+			t.Data["json"] = resultResponseMake(map[string]interface{}{
+				"confirmnum": confirmNum,
+				"currentnum": blockHeight,
+				"txinfo":     txInfo,
+			})
+		} else {
+			t.Data["json"] = resultResponseErrorMake(2012, nil)
+		}
+
 	default:
 		t.Data["json"] = resultResponseErrorMake(2010, nil)
 	}

@@ -5,6 +5,19 @@ package btc_query
 
 import "github.com/astaxie/beego/orm"
 
+func GetTxInfo(txhash string) (res []*TradingParticulars) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("*").From("trading_particulars").Where("txid=?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	//log.Debug(qb.String())
+	_, err := o.Raw(qb.String(), txhash).QueryRows(&res)
+	if err != nil {
+		log.Warning("GetTxInfo error ==== ", err)
+	}
+	return
+}
+
 func GetUserInfo(walletId string) (res []*AddressBtc) {
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("*").From("address_btc").Where("wallet_id=?")
