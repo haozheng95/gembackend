@@ -60,7 +60,7 @@ func (s *SendRawTx) Post() {
 		note = ""
 	}
 
-	rpc.MakeConn()
+	//rpc.MakeConn()
 	switch cointype {
 	case "eth":
 		// error assert
@@ -207,6 +207,13 @@ func (s *SendRawTx) Post() {
 			s.Data["json"] = resultResponseErrorMake(2009, err.Error())
 		}
 	case "btc":
+		data, ok := m["data"]
+		if !ok {
+			s.Data["json"] = resultResponseErrorMake(2000, "data")
+			s.ServeJSON()
+			return
+		}
+		log.Debug(data)
 
 	default:
 		//error

@@ -366,6 +366,8 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		if !sw {
 			continue
 		}
+		log.Debug("before from value ===", amount)
+		log.Debug("after  from value ===", tovalue)
 		amount = Decimal(amount)
 		tovalue = Decimal(tovalue)
 		fee := Subfloat(amount, tovalue)
@@ -377,7 +379,7 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		log.Debug("to   value ====", tovalue)
 		log.Debug("fee  value ====", fee)
 		log.Debug("txid value ====", txid)
-		if tovalue > amount && len(vin) != 0 {
+		if tovalue > amount && len(vin) != 0 && amount-tovalue < 0.0000001 {
 			log.Info("error ========")
 			log.Debug("vin  ========", vin)
 			log.Debug("vout ========", vout)
