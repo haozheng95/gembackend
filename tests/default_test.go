@@ -20,7 +20,7 @@ import (
 
 var (
 	godKey       = "ASDFASDqwqfasvsfqioqjweamsdfmosejoqjma"
-	walletId     = "60e78ea969e88b09ffdcc4a5e8481940242dd11bcbfb41be0185411caf076c11"
+	walletId     = "d3ba134f262d6d197a93ade4a6c123ddb9122c5cc0ff666f5447639d36f5f155"
 	ethAddr      = "0xd6cb6744b7f2da784c5afd6b023d957188522198"
 	sign         = "6e904d69f5277bd863c4b09be37000cd4bf61b4a17f2a0099d5f1c5692e7402c"
 	txHash       = "0x569c5b35f203ca6db6e2cec44bceba756fad513384e2bd79c06a8c0181273379"
@@ -159,6 +159,21 @@ func TestBalance(t *testing.T) {
 			convey.So(z["status"], convey.ShouldEqual, 0)
 		})
 	})
+
+	// btc
+	param = "/btc?wallet_id=" + walletId
+	r, _ = http.NewRequest("GET", basePath+"/balance"+param, nil)
+	r.Header.Add("auth-token", godKey)
+	w = httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, r)
+
+	beego.Trace("balance token", "TestBalance", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
+	z = decodeJson(w.Body.String())
+	convey.Convey("balance", t, func() {
+		convey.Convey("status code should be 0", func() {
+			convey.So(z["status"], convey.ShouldEqual, 0)
+		})
+	})
 }
 
 /**
@@ -245,6 +260,42 @@ func TestTxs(t *testing.T) {
 			convey.So(z["status"], convey.ShouldEqual, 0)
 		})
 	})
+
+	// btc
+	param = "/btc"
+	param += "?wallet_id=" + walletId
+	param += "&begin_page=0"
+	param += "&size=10"
+	r, _ = http.NewRequest("GET", basePath+"/txs"+param, nil)
+	r.Header.Add("auth-token", godKey)
+	w = httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, r)
+
+	beego.Trace("txs", "TestTxs", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
+	z = decodeJson(w.Body.String())
+	convey.Convey("txs", t, func() {
+		convey.Convey("status code should be 0", func() {
+			convey.So(z["status"], convey.ShouldEqual, 0)
+		})
+	})
+}
+
+func TestUnspent(t *testing.T) {
+	param := "/btc"
+	param += "?wallet_id=" + walletId
+
+	r, _ := http.NewRequest("GET", basePath+"/unspent"+param, nil)
+	r.Header.Add("auth-token", godKey)
+	w := httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, r)
+
+	beego.Trace("unspent", "TestUnspent", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
+	z := decodeJson(w.Body.String())
+	convey.Convey("txinfo eth", t, func() {
+		convey.Convey("status code should be 0", func() {
+			convey.So(z["status"], convey.ShouldEqual, 0)
+		})
+	})
 }
 
 //Post
@@ -256,12 +307,14 @@ func TestTxs(t *testing.T) {
 */
 func TestRegister(t *testing.T) {
 
+	btcAddr := `["abc", "def"]`
 	param := struct {
 		WalletId string `json:"wallet_id"`
 		Sign     string `json:"sign"`
 		EthAddr  string `json:"eth_addr"`
+		BtcAddr  string `json:"btc_addr"`
 	}{
-		walletId, sign, ethAddr,
+		walletId, sign, ethAddr, btcAddr,
 	}
 	jsons, _ := json.Marshal(param)
 	r, _ := http.NewRequest("POST", basePath+"/register", bytes.NewBuffer(jsons))
@@ -286,13 +339,14 @@ func TestRegister(t *testing.T) {
 @eth_addr
 */
 func TestImport(t *testing.T) {
-
+	btcAddr := `["abc", "def"]`
 	param := struct {
 		WalletId string `json:"wallet_id"`
 		Sign     string `json:"sign"`
 		EthAddr  string `json:"eth_addr"`
+		BtcAddr  string `json:"btc_addr"`
 	}{
-		walletId, sign, ethAddr,
+		walletId, sign, ethAddr, btcAddr,
 	}
 	jsons, _ := json.Marshal(param)
 	r, _ := http.NewRequest("POST", basePath+"/import", bytes.NewBuffer(jsons))

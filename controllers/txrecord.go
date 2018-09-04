@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
+	"github.com/gembackend/models/btc_query"
 	"github.com/gembackend/models/eth_query"
 	"strings"
 )
@@ -53,6 +54,8 @@ func (t *TxrecordController) Get() {
 		}
 		// save kafka
 		//SaveForKafka(conf.KafkaTxRecordTopic, addst.Addr)
+	case "btc":
+		txs, r = btc_query.GetTxs(walletid, int(size), int(page*size))
 	}
 
 	t.Data["json"] = resultResponseMake(map[string]interface{}{

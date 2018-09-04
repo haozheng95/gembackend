@@ -5,6 +5,45 @@ package btc_query
 
 import "github.com/astaxie/beego/orm"
 
+func InsertAddress(data []*AddressBtc) {
+	o := orm.NewOrm()
+	o.Using(databases)
+	if num, err := o.InsertMulti(len(data), data); err == nil {
+		log.Infof("insert row : %d", num)
+	} else {
+		log.Errorf("insert error : %s", err)
+		log.Debug(err == nil)
+	}
+}
+
+func GetTxs(walletId string, size, index int) (res []*TradeCollection, r int64) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("t1.*").From("trade_collection as t1").LeftJoin("address_btc as t2").On("t1.addr=t2.addr").
+		Where("t2.wallet_id=?").OrderBy("id").Desc().Limit(size).Offset(index)
+	o := orm.NewOrm()
+	o.Using(databases)
+	//log.Debug(qb.String())
+	r, err := o.Raw(qb.String(), walletId).QueryRows(&res)
+	if err != nil {
+		log.Warning("error ==== ", err)
+	}
+	return
+}
+
+func GetUnspent(walletId string) (res []*UnspentVout) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("t1.*").From("unspent_vout as t1").LeftJoin("address_btc as t2").On("t1.address=t2.addr").
+		Where("t1.spent=0").And("t2.wallet_id=?")
+	o := orm.NewOrm()
+	o.Using(databases)
+	//log.Debug(qb.String())
+	_, err := o.Raw(qb.String(), walletId).QueryRows(&res)
+	if err != nil {
+		log.Warning("error ==== ", err)
+	}
+	return
+}
+
 func GetTxInfo(txhash string) (res []*TradingParticulars) {
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("*").From("trading_particulars").Where("txid=?")

@@ -56,6 +56,13 @@ func (b *BalanceController) Get() {
 		} else {
 			res.Gasprice = defaultGasPrice
 		}
+	case "btc":
+		tempst := GetBtcInfo(walletid)
+		res.Coin = tempst.Coin
+		res.Amount = tempst.Amount
+		res.Dec = "8"
+		res.Istoken = "0"
+		res.Fee = exchange.GetCoinFee("btc")
 
 	default:
 		// error
@@ -69,5 +76,5 @@ func (b *BalanceController) Get() {
 }
 
 type balanceControllerResponse struct {
-	Coin, Amount, TokenAmount, Nonce, Gasprice, Gaslimit, Dec, Istoken, ContractAddr, TokenName string
+	Coin, Amount, TokenAmount, Nonce, Gasprice, Gaslimit, Dec, Istoken, ContractAddr, TokenName, Fee string
 }

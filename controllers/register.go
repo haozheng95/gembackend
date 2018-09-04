@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/astaxie/beego"
+	"github.com/gembackend/models/btc_query"
 	"github.com/gembackend/models/eth_query"
 	"strconv"
 )
@@ -25,8 +26,8 @@ func (r *RegisterController) Post() {
 	walletId, err1 := m["wallet_id"]
 	sign, err2 := m["sign"]
 	ethAddr, err3 := m["eth_addr"]
-
-	if !err1 || !err2 || !err3 {
+	btcAddr, err4 := m["btc_addr"]
+	if !err1 || !err2 || !err3 || !err4 {
 		log.Error(err1, err2, err3)
 		r.Data["json"] = resultResponseErrorMake(2000, nil)
 		r.ServeJSON()
@@ -68,7 +69,27 @@ func (r *RegisterController) Post() {
 
 	// add eth address for kafka
 	//SaveForKafka(conf.KafkagetbalanceParityTopic, ethAddr)
+	// add btc addr
+	if res := MakeAddressBtc(walletId, btcAddr); len(res) > 0 {
+		btc_query.InsertAddress(res)
+	}
 
 	r.Data["json"] = resultResponseMake("success")
 	r.ServeJSON()
+}
+
+func MakeAddressBtc(walletId, btcAddr string) (res []*btc_query.AddressBtc) {
+	addrs := make([]string, 0, 10)
+	if err := json.Unmarshal([]byte(btcAddr), &addrs); err != nil {
+		log.Warning(err)
+	}
+	if len(addrs) > 0 {
+		res = make([]*btc_query.AddressBtc, 0, len(addrs))
+		for _, addr := range addrs {
+			//walletId, addr, amount, unconfirmamount string, typeId int
+			tmp := btc_query.NewAddress(walletId, addr, "0", "0", 4)
+			res = append(res, tmp)
+		}
+	}
+	return
 }

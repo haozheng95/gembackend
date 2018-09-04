@@ -2,6 +2,16 @@ package exchange
 
 import "github.com/astaxie/beego/orm"
 
+func GetCoinFee(coin string) (fee string) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("fee").From("main_chain").Where("name=?")
+	sql := qb.String()
+	o := orm.NewOrm()
+	o.Using(databases)
+	o.Raw(sql, coin).QueryRow(&fee)
+	return
+}
+
 type mainchainFullname struct {
 	FullName string
 }

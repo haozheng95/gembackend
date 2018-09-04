@@ -17,3 +17,9 @@ type AddressBtc struct {
 	Updated         time.Time `orm:"auto_now;type(datetime)"`
 	Decimal         int64     `orm:"default(8)"`
 }
+
+func NewAddress(walletId, addr, amount, unconfirmamount string, typeId int) (address *AddressBtc) {
+	address = &AddressBtc{WalletId: walletId, Addr: addr, TypeId: typeId,
+		Created: time.Now(), Amount: amount, UnconfirmAmount: unconfirmamount, Decimal: 8}
+	return
+}
