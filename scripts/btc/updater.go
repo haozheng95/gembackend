@@ -371,7 +371,7 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		amount = Decimal(amount)
 		tovalue = Decimal(tovalue)
 		fee := Subfloat(amount, tovalue)
-		if len(vin) == 0 {
+		if len(vin) == 0 || (tovalue > amount) {
 			log.Debug("coinbase vin ====", vin)
 			fee = "0"
 		}
@@ -379,12 +379,12 @@ func formatreduce(data []*reduceData, blockhash string, blocknum, confirmTime in
 		log.Debug("to   value ====", tovalue)
 		log.Debug("fee  value ====", fee)
 		log.Debug("txid value ====", txid)
-		if tovalue > amount && len(vin) != 0 && amount-tovalue < 0.0000001 {
-			log.Info("error ========")
-			log.Debug("vin  ========", vin)
-			log.Debug("vout ========", vout)
-			panic("error ======")
-		}
+		//if tovalue > amount && len(vin) != 0 && amount-tovalue < 0.0000001 {
+		//	log.Info("error ========")
+		//	log.Debug("vin  ========", vin)
+		//	log.Debug("vout ========", vout)
+		//	panic("error ======")
+		//}
 		//NewTradeCollections(output, input, blockhash, txid, addr, fee string, height, confirmtime int64, pay int)
 		closure := eachaddress(floatToString(tovalue), floatToString(amount), blockhash, txid, fee, blocknum, confirmTime)
 		tradeCollections = append(tradeCollections, closure(faddresses, 1)...)

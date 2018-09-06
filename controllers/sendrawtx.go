@@ -5,9 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/gembackend/conf"
+	"github.com/gembackend/models/btc_query"
 	"github.com/gembackend/models/eth_query"
 	"github.com/gembackend/rpc"
+	"github.com/gembackend/scripts/btc"
+	"github.com/shopspring/decimal"
 	"strings"
 )
 
@@ -207,17 +211,44 @@ func (s *SendRawTx) Post() {
 			s.Data["json"] = resultResponseErrorMake(2009, err.Error())
 		}
 	case "btc":
-		data, ok := m["data"]
-		if !ok {
-			s.Data["json"] = resultResponseErrorMake(2000, "data")
-			s.ServeJSON()
-			return
+		//vinstr, _ := m["vin"]
+		//voutstr, _ := m["vout"]
+		//change, _ := m["change"]
+		var btcRpc *rpcclient.Client
+		btcrpc, ok := rpc.ConnectMap["btc-conn"]
+		if ok && btcrpc != nil {
+			btcRpc = btcrpc.(*rpcclient.Client)
+		} else {
+			btcRpc = rpc.ReMakeBtcConn()
 		}
-		log.Debug(data)
-
+		btcRpc.CreateRawTransaction()
 	default:
 		//error
 		s.Data["json"] = resultResponseErrorMake(2010, nil)
 	}
 	s.ServeJSON()
+}
+func decodeVinStr(vinstr string) (result []*btc_query.UnspentVout, err error) {
+	result = make([]*btc_query.UnspentVout, 0, 10)
+	if err = json.Unmarshal([]byte(vinstr), &result); err != nil {
+		log.Fatal("decode vin str error ====", err)
+	}
+	return
+}
+
+//NewTradeCollections(output, input, blockhash, txid, addr, fee string, height, confirmtime int64, pay int, value float64) (st *btc_query.TradeCollection) {
+func conversionunspent(vin []*btc_query.UnspentVout, txhash, in, out, fee string, pay int) []*btc_query.TradeCollection {
+	result := make([]*btc_query.TradeCollection, 0, len(vin))
+	for _, unspent := range vin {
+		value, _ := decimal.NewFromString(unspent.Value)
+		fvalue, _ := value.Float64()
+		temp := btc.NewTradeCollections(out, in, "", txhash, unspent.Address, fee, 0, 0, pay, fvalue)
+		result = append(result, temp)
+	}
+	return result
+}
+
+func TestDecodeVinStr() {
+	testStr := `[ { "Id": 20674, "Txid": "b67c084194190c7c560ef6ba43f3877b10cce6098bcc353e2f1ef5868b10e8ed", "Spent": 0, "SpentTxid": "", "Index": 0, "Value": "0.0033999999999999998105681964233326652902178466320037841796875", "Address": "1Bd1vnozJKtBkVM1CFLWbXvb2AudTmPY3U", "Updated": "2018-08-28T03:16:35+08:00", "BlockHash": "0000000000000000005c9959b3216f8640f94ec96edea69fe12ad7dee8b74e92", "Height": 500001 }, { "Id": 20679, "Txid": "9af162a777bbbaf95c6afed6f05a1fc78cdae3b2868e516b7c9bbf8751b1b402", "Spent": 0, "SpentTxid": "", "Index": 1, "Value": "0.321171649999999975211295577537384815514087677001953125", "Address": "17WYBJEpR3KiwRRVTAtvCCTiSsRHFgCc9c", "Updated": "2018-08-28T03:16:35+08:00", "BlockHash": "0000000000000000005c9959b3216f8640f94ec96edea69fe12ad7dee8b74e92", "Height": 500001 } ]`
+	decodeVinStr(testStr)
 }

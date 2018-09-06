@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/gembackend/controllers"
 	_ "github.com/gembackend/models"
 	_ "github.com/gembackend/routers"
 	"github.com/smartystreets/goconvey/convey"
@@ -379,61 +380,63 @@ func TestImport(t *testing.T) {
 @contract_addr
 */
 func TestSendRaw(t *testing.T) {
-	coin := "/eth"
-	param := struct {
-		Amount       string `json:"amount"`
-		Raw          string `json:"raw"`
-		Fee          string `json:"fee"`
-		From         string `json:"from"`
-		To           string `json:"to"`
-		Note         string `json:"note"`
-		Nonce        string `json:"nonce"`
-		Gaslimit     string `json:"gaslimit"`
-		Gasprice     string `json:"gasprice"`
-		Dec          string `json:"dec"`
-		ContractAddr string `json:"contract_addr"`
-	}{
-		"1",
-		"0xf8650d82ba0382520894aaa5517cc033189da19d88f20b2d68085e49c2598405f5e1008026a08b5bafa7104ebb5aa44e39f3744aaf4a3fc662fbbb63953c1de22e9bf1035d82a02adb5e2da0666de2efb27e16e8ec0ebcf39ccce686caa55cde429be1a75d6982",
-		"0.4",
-		"0xd6cb6744b7f2da784c5afd6b023d957188522198",
-		"0x4ac751f0152b6799a5acfc25614072fbb06dca06",
-		"sup no token",
-		"22",
-		"150000",
-		"1000000",
-		"18",
-		"",
-	}
-	jsons, _ := json.Marshal(param)
-	r, _ := http.NewRequest("POST", basePath+"/rawtx"+coin, bytes.NewBuffer(jsons))
-	r.Header.Add("auth-token", godKey)
-	r.Header.Set("Content-Type", "application/json")
-	w := httptest.NewRecorder()
-	beego.BeeApp.Handlers.ServeHTTP(w, r)
-
-	beego.Trace("SendRaw", "TestSendRaw", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
-	z := decodeJson(w.Body.String())
-	convey.Convey("SendRaw", t, func() {
-		convey.Convey("eth ==== status code should be 0", func() {
-			convey.So(z["status"], convey.ShouldEqual, 0)
-		})
-	})
-
-	// token ----------
-	param.ContractAddr = contractAddr
-	jsons, _ = json.Marshal(param)
-	r, _ = http.NewRequest("POST", basePath+"/rawtx"+coin, bytes.NewBuffer(jsons))
-	r.Header.Add("auth-token", godKey)
-	r.Header.Set("Content-Type", "application/json")
-	w = httptest.NewRecorder()
-	beego.BeeApp.Handlers.ServeHTTP(w, r)
-
-	beego.Trace("SendRaw", "TestSendRaw", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
-	z = decodeJson(w.Body.String())
-	convey.Convey("SendRaw", t, func() {
-		convey.Convey("eth ==== status code should be 0", func() {
-			convey.So(z["status"], convey.ShouldEqual, 0)
-		})
-	})
+	//coin := "/eth"
+	//param := struct {
+	//	Amount       string `json:"amount"`
+	//	Raw          string `json:"raw"`
+	//	Fee          string `json:"fee"`
+	//	From         string `json:"from"`
+	//	To           string `json:"to"`
+	//	Note         string `json:"note"`
+	//	Nonce        string `json:"nonce"`
+	//	Gaslimit     string `json:"gaslimit"`
+	//	Gasprice     string `json:"gasprice"`
+	//	Dec          string `json:"dec"`
+	//	ContractAddr string `json:"contract_addr"`
+	//}{
+	//	"1",
+	//	"0xf8650d82ba0382520894aaa5517cc033189da19d88f20b2d68085e49c2598405f5e1008026a08b5bafa7104ebb5aa44e39f3744aaf4a3fc662fbbb63953c1de22e9bf1035d82a02adb5e2da0666de2efb27e16e8ec0ebcf39ccce686caa55cde429be1a75d6982",
+	//	"0.4",
+	//	"0xd6cb6744b7f2da784c5afd6b023d957188522198",
+	//	"0x4ac751f0152b6799a5acfc25614072fbb06dca06",
+	//	"sup no token",
+	//	"22",
+	//	"150000",
+	//	"1000000",
+	//	"18",
+	//	"",
+	//}
+	//jsons, _ := json.Marshal(param)
+	//r, _ := http.NewRequest("POST", basePath+"/rawtx"+coin, bytes.NewBuffer(jsons))
+	//r.Header.Add("auth-token", godKey)
+	//r.Header.Set("Content-Type", "application/json")
+	//w := httptest.NewRecorder()
+	//beego.BeeApp.Handlers.ServeHTTP(w, r)
+	//
+	//beego.Trace("SendRaw", "TestSendRaw", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
+	//z := decodeJson(w.Body.String())
+	//convey.Convey("SendRaw", t, func() {
+	//	convey.Convey("eth ==== status code should be 0", func() {
+	//		convey.So(z["status"], convey.ShouldEqual, 0)
+	//	})
+	//})
+	//
+	//// token ----------
+	//param.ContractAddr = contractAddr
+	//jsons, _ = json.Marshal(param)
+	//r, _ = http.NewRequest("POST", basePath+"/rawtx"+coin, bytes.NewBuffer(jsons))
+	//r.Header.Add("auth-token", godKey)
+	//r.Header.Set("Content-Type", "application/json")
+	//w = httptest.NewRecorder()
+	//beego.BeeApp.Handlers.ServeHTTP(w, r)
+	//
+	//beego.Trace("SendRaw", "TestSendRaw", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
+	//z = decodeJson(w.Body.String())
+	//convey.Convey("SendRaw", t, func() {
+	//	convey.Convey("eth ==== status code should be 0", func() {
+	//		convey.So(z["status"], convey.ShouldEqual, 0)
+	//	})
+	//})
+	// btc -----
+	controllers.TestDecodeVinStr()
 }
