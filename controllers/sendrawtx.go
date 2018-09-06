@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/astaxie/beego"
-	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/models/btc_query"
 	"github.com/gembackend/models/eth_query"
@@ -214,14 +213,14 @@ func (s *SendRawTx) Post() {
 		//vinstr, _ := m["vin"]
 		//voutstr, _ := m["vout"]
 		//change, _ := m["change"]
-		var btcRpc *rpcclient.Client
-		btcrpc, ok := rpc.ConnectMap["btc-conn"]
-		if ok && btcrpc != nil {
-			btcRpc = btcrpc.(*rpcclient.Client)
-		} else {
-			btcRpc = rpc.ReMakeBtcConn()
-		}
-		btcRpc.CreateRawTransaction()
+		//var btcRpc *rpcclient.Client
+		//btcrpc, ok := rpc.ConnectMap["btc-conn"]
+		//if ok && btcrpc != nil {
+		//	btcRpc = btcrpc.(*rpcclient.Client)
+		//} else {
+		//	btcRpc = rpc.ReMakeBtcConn()
+		//}
+		//btcRpc.CreateRawTransaction()
 	default:
 		//error
 		s.Data["json"] = resultResponseErrorMake(2010, nil)
