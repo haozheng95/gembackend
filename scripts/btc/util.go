@@ -51,7 +51,8 @@ func makeChHash(str string) (hash chainhash.Hash) {
 	return
 }
 
-func NewTradeCollections(output, input, blockhash, txid, addr, fee string, height, confirmtime int64, pay int, value float64) (st *btc_query.TradeCollection) {
+func NewTradeCollections(output, input, blockhash, txid, addr, fee string,
+	height, confirmtime int64, pay int, value float64) (st *btc_query.TradeCollection) {
 	st = new(btc_query.TradeCollection)
 	st.TotalInput = input
 	st.TotalOutput = output
@@ -79,7 +80,8 @@ func NewUnSpentVoutSt(txid, addr, value, blockhash string, height, index int64) 
 	return
 }
 
-func MakeTradingParticulars(totalinput, totaloutput, fee string, vin, vout interface{}, from1 []string, to1 []string, txid, blockhash string, Confirm, blocknum int64) *btc_query.TradingParticulars {
+func MakeTradingParticulars(totalinput, totaloutput, fee string, vin, vout interface{}, from1 []string,
+	to1 []string, txid, blockhash string, Confirm, blocknum int64) *btc_query.TradingParticulars {
 	from2, err := json.Marshal(from1)
 	if err != nil {
 		log.Warning("from2", err)
@@ -112,12 +114,15 @@ func MakeTradingParticulars(totalinput, totaloutput, fee string, vin, vout inter
 	return st
 }
 
-func eachaddress(tovalue, fromvalue, blockhash, txid, fee string, height, confirmtime int64) func(addresses []map[string]float64, pay int) (tradeCollections []*btc_query.TradeCollection) {
+func eachaddress(tovalue, fromvalue, blockhash, txid, fee string, height,
+	confirmtime int64) func(addresses []map[string]float64, pay int) (
+	tradeCollections []*btc_query.TradeCollection) {
 	return func(addresses []map[string]float64, pay int) (tradeCollections []*btc_query.TradeCollection) {
 		tradeCollections = make([]*btc_query.TradeCollection, 0, len(addresses))
 		for _, v1 := range addresses {
 			for k2, v2 := range v1 {
-				tradeCollections = append(tradeCollections, NewTradeCollections(tovalue, fromvalue, blockhash, txid, k2, fee, height, confirmtime, pay, v2))
+				tradeCollections = append(tradeCollections, NewTradeCollections(tovalue,
+					fromvalue, blockhash, txid, k2, fee, height, confirmtime, pay, v2))
 
 			}
 		}

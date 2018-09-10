@@ -32,8 +32,8 @@ func main() {
 	//createtestdata()
 	//eth.StartEthupdaterMul(6117492)
 	//models.CreateTable()
-	btc.Main()
-	os.Exit(0)
+	//btc.Main()
+	//os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
 	height := flag.Uint64("height", 5000000, "change start height")
@@ -67,6 +67,8 @@ func main() {
 	case "txMonitoring":
 		log.Info("txMonitoring start")
 		txMonitoring()
+	case "startbtc":
+		startBtc()
 	default:
 		log.Info("no operation was selected")
 		log.Info("you can select action")
@@ -78,7 +80,11 @@ func main() {
 		log.Info("createtestdata")
 		log.Info("huobiwebsocket")
 		log.Info("auxiliary")
+		log.Info("startbtc")
 	}
+}
+func startBtc() {
+	btc.Main()
 }
 
 // 区块浏览器模式导入交易记录

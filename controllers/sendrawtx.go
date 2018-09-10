@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/gembackend/conf"
 	"github.com/gembackend/models/btc_query"
@@ -12,6 +11,7 @@ import (
 	"github.com/gembackend/scripts/btc"
 	"github.com/shopspring/decimal"
 	"strings"
+	"time"
 )
 
 type SendRawTx struct {
@@ -146,7 +146,7 @@ func (s *SendRawTx) Post() {
 					"hash":     txhash,
 					"is_token": is_token,
 				})
-				fmt.Println(string(b))
+				//fmt.Println(string(b))
 				SaveForKafka(ethtopicname, string(b))
 			}
 			// Combining data
@@ -198,35 +198,92 @@ func (s *SendRawTx) Post() {
 
 				st3.InsertOneRaw(&st3)
 				// update token address
-				eth_query.UpdateTokenAddress(token_amount, from, contractaddr)
+				//eth_query.UpdateTokenAddress(token_amount, from, contractaddr)
 			}
 
 			// update address
-			unconfirmAmount := AddString(eth_amount, fee)
-			eth_query.UpdateAddress(unconfirmAmount, from)
+			//unconfirmAmount := AddString(eth_amount, fee)
+			//eth_query.UpdateAddress(unconfirmAmount, from)
 
 			s.Data["json"] = resultResponseMake(txhash)
 		} else {
 			s.Data["json"] = resultResponseErrorMake(2009, err.Error())
 		}
 	case "btc":
-		//vinstr, _ := m["vin"]
 		//voutstr, _ := m["vout"]
-		//change, _ := m["change"]
-		//var btcRpc *rpcclient.Client
-		//btcrpc, ok := rpc.ConnectMap["btc-conn"]
-		//if ok && btcrpc != nil {
-		//	btcRpc = btcrpc.(*rpcclient.Client)
-		//} else {
-		//	btcRpc = rpc.ReMakeBtcConn()
-		//}
-		//btcRpc.CreateRawTransaction()
+		var txid string
+		nodeResponse := rpc.SentBtcRawTraction(raw)
+		if len(nodeResponse) > 0 && nodeResponse[0]["result"] != nil {
+			nodeInfo := nodeResponse[0]
+			if errorMsg, ok := nodeInfo["error"]; !ok {
+				s.Data["json"] = resultResponseErrorMake(2010, errorMsg)
+				s.ServeJSON()
+				return
+			}
+			if txidRaw, ok := nodeInfo["result"]; ok {
+				txid = txidRaw.(string)
+				log.Debug("btc txid ===", txid)
+			}
+		}
+		if vinstr, ok := m["vin"]; ok {
+			if unspents, err := decodeVinStr(vinstr); err == nil {
+				if len(unspents) > 0 {
+					in := vinsum(unspents)
+					trcs := conversionunspent(unspents, txid, in.String(), amount, fee, 1)
+					if err := btc_query.InsertMulTradeCollection(trcs); err != nil {
+						s.Data["json"] = resultResponseErrorMake(2010, err)
+						s.ServeJSON()
+						return
+					}
+					// dispose
+					if value, err := decimal.NewFromString(amount); err == nil {
+						if f, b := value.Float64(); b {
+							change := m["change"]
+							feeDec, _ := decimal.NewFromString(fee)
+							feeF, _ := feeDec.Float64()
+
+							out := []*btc_query.TradeCollection{
+								{Addr: to, Txid: txid, Updated: time.Now(), TotalInput: in.String(),
+									TotalOutput: amount, Fee: fee, Pay: 0, Value: f},
+								{Addr: change, Txid: txid, Updated: time.Now(), TotalInput: in.String(),
+									TotalOutput: amount, Fee: fee, Pay: 0, Value: feeF},
+							}
+
+							if err := btc_query.InsertMulTradeCollection(out); err != nil {
+								log.Warning(err)
+							}
+
+							//NewTxExtrainfo(walletId, vin, to, change, txhash, amount, comment string)
+							if walletId, ok := m["wallet_id"]; ok {
+								btc_query.NewTxExtrainfo(walletId, to, vinstr, change, txid, amount, note)
+								s.Data["json"] = resultResponseMake(txid)
+							}
+						}
+					}
+
+				}
+			}
+		}
+
 	default:
 		//error
 		s.Data["json"] = resultResponseErrorMake(2010, nil)
 	}
 	s.ServeJSON()
 }
+
+func vinsum(inputs []*btc_query.UnspentVout) decimal.Decimal {
+	totalnum := decimal.New(0, 18)
+	if len(inputs) > 0 {
+		for _, v := range inputs {
+			if num, err := decimal.NewFromString(v.Value); err == nil {
+				totalnum = totalnum.Add(num)
+			}
+		}
+	}
+	return totalnum
+}
+
 func decodeVinStr(vinstr string) (result []*btc_query.UnspentVout, err error) {
 	result = make([]*btc_query.UnspentVout, 0, 10)
 	if err = json.Unmarshal([]byte(vinstr), &result); err != nil {
@@ -248,6 +305,9 @@ func conversionunspent(vin []*btc_query.UnspentVout, txhash, in, out, fee string
 }
 
 func TestDecodeVinStr() {
-	testStr := `[ { "Id": 20674, "Txid": "b67c084194190c7c560ef6ba43f3877b10cce6098bcc353e2f1ef5868b10e8ed", "Spent": 0, "SpentTxid": "", "Index": 0, "Value": "0.0033999999999999998105681964233326652902178466320037841796875", "Address": "1Bd1vnozJKtBkVM1CFLWbXvb2AudTmPY3U", "Updated": "2018-08-28T03:16:35+08:00", "BlockHash": "0000000000000000005c9959b3216f8640f94ec96edea69fe12ad7dee8b74e92", "Height": 500001 }, { "Id": 20679, "Txid": "9af162a777bbbaf95c6afed6f05a1fc78cdae3b2868e516b7c9bbf8751b1b402", "Spent": 0, "SpentTxid": "", "Index": 1, "Value": "0.321171649999999975211295577537384815514087677001953125", "Address": "17WYBJEpR3KiwRRVTAtvCCTiSsRHFgCc9c", "Updated": "2018-08-28T03:16:35+08:00", "BlockHash": "0000000000000000005c9959b3216f8640f94ec96edea69fe12ad7dee8b74e92", "Height": 500001 } ]`
-	decodeVinStr(testStr)
+	//testStr := `[ { "Id": 20674, "Txid": "b67c084194190c7c560ef6ba43f3877b10cce6098bcc353e2f1ef5868b10e8ed", "Spent": 0, "SpentTxid": "", "Index": 0, "Value": "0.0033999999999999998105681964233326652902178466320037841796875", "Address": "1Bd1vnozJKtBkVM1CFLWbXvb2AudTmPY3U", "Updated": "2018-08-28T03:16:35+08:00", "BlockHash": "0000000000000000005c9959b3216f8640f94ec96edea69fe12ad7dee8b74e92", "Height": 500001 }, { "Id": 20679, "Txid": "9af162a777bbbaf95c6afed6f05a1fc78cdae3b2868e516b7c9bbf8751b1b402", "Spent": 0, "SpentTxid": "", "Index": 1, "Value": "0.321171649999999975211295577537384815514087677001953125", "Address": "17WYBJEpR3KiwRRVTAtvCCTiSsRHFgCc9c", "Updated": "2018-08-28T03:16:35+08:00", "BlockHash": "0000000000000000005c9959b3216f8640f94ec96edea69fe12ad7dee8b74e92", "Height": 500001 } ]`
+	//decodeVinStr(testStr)
+	// ---- need debug
+	raw := "010000000158c92bd2eba96a530363a1fa7fb0c9c11091b8b11282af79ec2400cce97da517010000006a47304402204ee169eae4fafa9491a77afbfe4c1d7757fe00496efd347d4f10153b1bc5d14502207bfeb695e3afb677992707fe9fb4bce799b36b1e13bb9f495f452a23f8da7e2a012102ef9fa84b41821112706133528be8950e41a3efd717c5b09d9becec773810ab83fdffffff02461d0000000000001976a9141d71a37623eac22b98431d870590f9ec39fa7d1688ac389109000000000017a9146b22820fc6f4fd52cfe951abf1e03f9a65afc27087fe3d0800"
+	rpc.SentBtcRawTraction(raw)
 }

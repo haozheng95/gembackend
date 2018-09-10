@@ -1,6 +1,7 @@
 //software: GoLand
 //file: tradecollection.go
 //time: 2018/8/23 下午2:46
+
 package btc_query
 
 import "time"

@@ -11,6 +11,20 @@ import (
 	"net/http"
 )
 
+func SentBtcRawTraction(raw string) (res []map[string]interface{}) {
+	method := "sendrawtransaction"
+	params := [][]interface{}{{method, raw}}
+	body := Batch(params)
+	//log.Debug(string(body))
+	if err := json.Unmarshal(body, &res); err == nil {
+		log.Debug(res)
+		return
+	} else {
+		log.Warning(err)
+	}
+	return
+}
+
 func Batch(rpcCalls [][]interface{}) (body []byte) {
 	batchData := make([]map[string]interface{}, len(rpcCalls))
 	for i, v := range rpcCalls {
