@@ -72,10 +72,11 @@ func GetBtcInfo(walletId string) *assertControllerResponse {
 		unconfirmAmount = unconfirmAmount.Add(tempUnconfirmAmount)
 	}
 	resultAmount := amount.Sub(unconfirmAmount)
-	//log.Debug("amount   ===", amount)
+	log.Debug("amount   ===", amount)
 	//log.Debug("unamount ===", unconfirmAmount)
 	//log.Debug("result   ===", resultAmount)
 	cny := exchange.GetMainChainCnyByCoinName("btc")
+	log.Debug("cny   ===", cny)
 	return NewassertControllerResponse("btc", resultAmount.String(), cny, "8", "", "0")
 }
 

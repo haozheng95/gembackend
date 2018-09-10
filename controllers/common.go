@@ -122,6 +122,14 @@ func SubString(d1, d2 string) (r string) {
 	return
 }
 
+func SubStringDecimal(d1, d2 string) (r decimal.Decimal) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+	m3 := m1.Sub(m2)
+	r = m3
+	return
+}
+
 func AddString(d1, d2 string) (r string) {
 	m1, _ := decimal.NewFromString(d1)
 	m2, _ := decimal.NewFromString(d2)
@@ -135,6 +143,14 @@ func MulString(d1, d2 string) (r string) {
 	m2, _ := decimal.NewFromString(d2)
 	m3 := m1.Mul(m2)
 	r = m3.String()
+	return
+}
+
+func MulString2(d1, d2 string) (r decimal.Decimal) {
+	m1, _ := decimal.NewFromString(d1)
+	m2, _ := decimal.NewFromString(d2)
+
+	r = m1.Mul(m2)
 	return
 }
 

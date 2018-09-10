@@ -298,6 +298,26 @@ func TestUnspent(t *testing.T) {
 	})
 }
 
+/**
+@wallet_id
+*/
+func TestTotalSum(t *testing.T) {
+	param := ""
+	param += "?wallet_id=" + walletId
+	r, _ := http.NewRequest("GET", basePath+"/totalsum"+param, nil)
+	r.Header.Add("auth-token", godKey)
+	w := httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, r)
+
+	beego.Trace("unspent", "totalsum", fmt.Sprintf("Code[%d]\n%s", w.Code, w.Body.String()))
+	z := decodeJson(w.Body.String())
+	convey.Convey("txinfo eth", t, func() {
+		convey.Convey("status code should be 0", func() {
+			convey.So(z["status"], convey.ShouldEqual, 0)
+		})
+	})
+}
+
 //Post
 /**
 @json params://
