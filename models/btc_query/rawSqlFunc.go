@@ -102,6 +102,9 @@ func GetBtcAddrExist(addr string) bool {
 	o.Using(databases)
 	qs := o.QueryTable("address_btc")
 	res := qs.Filter("addr", addr).Exist()
+	if res {
+		log.Debug("addr =====", addr)
+	}
 	return res
 }
 

@@ -30,6 +30,7 @@ func main() {
 	//createtestdata()
 	//models.CreateTable()
 	//btc.Main()
+	//fmt.Println(btc_query.GetBtcAddrExist("*"))
 	//ethkafkascript()
 	//os.Exit(0)
 
