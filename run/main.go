@@ -28,7 +28,6 @@ func main() {
 		os.Exit(0)
 	}(interrupt)
 	//createtestdata()
-	//eth.StartEthApiMul(5000000)
 	//models.CreateTable()
 	//btc.Main()
 	//ethkafkascript()
