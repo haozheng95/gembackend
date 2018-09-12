@@ -29,10 +29,9 @@ func main() {
 	}(interrupt)
 	//createtestdata()
 	//eth.StartEthApiMul(5000000)
-	//createtestdata()
-	//eth.StartEthupdaterMul(6117492)
 	//models.CreateTable()
 	//btc.Main()
+	//ethkafkascript()
 	//os.Exit(0)
 
 	action := flag.String("action", "", "change a action")
