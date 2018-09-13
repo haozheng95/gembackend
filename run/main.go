@@ -27,7 +27,6 @@ func main() {
 		log.Warning("program exit....... ")
 		os.Exit(0)
 	}(interrupt)
-	//createtestdata()
 	//models.CreateTable()
 	//btc.Main()
 	//fmt.Println(btc_query.GetBtcAddrExist("*"))

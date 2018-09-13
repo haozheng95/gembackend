@@ -150,7 +150,7 @@
         ]
       }
     },
-    "/txinfo": {
+    "/txinfo{coin_type}": {
       "get": {
         "tags": [
           "gembackend"
@@ -173,9 +173,16 @@
             "type": "string"
           },
           {
-            "name": "wallet_id",
+            "name": "tx_hash",
             "in": "query",
-            "description": "wallet_id",
+            "description": "hash",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coin_type",
+            "in": "path",
+            "description": "coin",
             "required": true,
             "type": "string"
           }
@@ -222,7 +229,7 @@
         ]
       }
     },
-    "/balance": {
+    "/balance/{coin_type}": {
       "get": {
         "tags": [
           "gembackend"
@@ -250,6 +257,13 @@
             "description": "wallet_id",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "coin_type",
+            "in": "path",
+            "description": "coin_type",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {
@@ -274,21 +288,36 @@
               },
               "two": {
                 "result": {
-                  "result": {
-                    "Coin": "eth",
-                    "Amount": "3998.6",
-                    "TokenAmount": "5",
-                    "Nonce": "4",
-                    "Gasprice": "6000000000",
-                    "Gaslimit": "11",
-                    "Dec": "18",
-                    "Istoken": "1",
-                    "ContractAddr": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
-                    "TokenName": "EOS"
-                  },
-                  "status": 0,
-                  "version": 1
-                }
+                  "Coin": "eth",
+                  "Amount": "3998.6",
+                  "TokenAmount": "5",
+                  "Nonce": "4",
+                  "Gasprice": "6000000000",
+                  "Gaslimit": "11",
+                  "Dec": "18",
+                  "Istoken": "1",
+                  "ContractAddr": "0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0",
+                  "TokenName": "EOS"
+                },
+                "status": 0,
+                "version": 1
+              },
+              "three": {
+                "result": {
+                  "Coin": "btc",
+                  "Amount": "20",
+                  "TokenAmount": "",
+                  "Nonce": "",
+                  "Gasprice": "",
+                  "Gaslimit": "",
+                  "Dec": "8",
+                  "Istoken": "0",
+                  "ContractAddr": "",
+                  "TokenName": "",
+                  "Fee": "12"
+                },
+                "status": 0,
+                "version": 1
               }
             }
           }
@@ -318,7 +347,7 @@
         ],
         "parameters": [
           {
-            "name": "user_addr",
+            "name": "wallet_id",
             "in": "query",
             "description": "",
             "required": true,
@@ -437,7 +466,7 @@
         "tags": [
           "gembackend"
         ],
-        "summary": "导入账户",
+        "summary": "发送交易",
         "description": "",
         "consumes": [
           "application/json"
@@ -631,6 +660,12 @@
             "description": "eth地址",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "btc_addr",
+            "in": "query",
+            "description": "btc 地址 格式[\"abc\", \"def\"]",
+            "type": "string"
           }
         ],
         "responses": {
@@ -707,7 +742,7 @@
         ],
         "responses": {
           "200": {
-            "description": "tx state:1表示交易成功，0表示交易失败，-1表示打包中",
+            "description": "tx state:1表示交易成功，0表示交易失败，-1表示打包中 Collection 1 表示收取 0 表示发送",
             "examples": {
               "one": {
                 "result": {
@@ -801,6 +836,310 @@
                   ],
                   "size": 5
                 },
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "/txs/btc": {
+      "get": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "获取btc交易记录",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "begin_page",
+            "in": "query",
+            "description": "从0开始",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "tx BlockHash:为空 表示打包中 否则交易成功 切确认 pay=1表示付款 0表示收款",
+            "examples": {
+              "one": {
+                "result": {
+                  "last": true,
+                  "record": [
+                    {
+                      "Id": 5423,
+                      "Addr": "3GdbTnkNosDck7tcqPjwQTvDqMuKFGb68N",
+                      "Txid": "057bb916cde29a8f472f3eccb40a4259d9e0243aeaedd8d46ae53b0f4f267abd",
+                      "Updated": "2018-09-13T06:31:03+08:00",
+                      "TotalOutput": "4.2574251800000002532442522351630032062530517578125",
+                      "TotalInput": "4.2574579000000003503600964904762804508209228515625",
+                      "Fee": "0.00003272000000009711584425531327724456787109375",
+                      "Pay": 0,
+                      "BlockHash": "0000000000000000002308b1c0c6f3f7701895cb2e820ed417d8ecf4d94e66a4",
+                      "Height": 538691,
+                      "ConfirmTime": 1535356122,
+                      "Value": 4.19517169,
+                      "Comment": ""
+                    },
+                    {
+                      "Id": 5421,
+                      "Addr": "3GdbTnkNosDck7tcqPjwQTvDqMuKFGb68N",
+                      "Txid": "057bb916cde29a8f472f3eccb40a4259d9e0243aeaedd8d46ae53b0f4f267abd",
+                      "Updated": "2018-09-13T06:31:03+08:00",
+                      "TotalOutput": "4.2574251800000002532442522351630032062530517578125",
+                      "TotalInput": "4.2574579000000003503600964904762804508209228515625",
+                      "Fee": "0.00003272000000009711584425531327724456787109375",
+                      "Pay": 1,
+                      "BlockHash": "0000000000000000002308b1c0c6f3f7701895cb2e820ed417d8ecf4d94e66a4",
+                      "Height": 538691,
+                      "ConfirmTime": 1535356122,
+                      "Value": 4.2574579,
+                      "Comment": ""
+                    },
+                    {
+                      "Id": 4,
+                      "Addr": "3GdbTnkNosDck7tcqPjwQTvDqMuKFGb68N",
+                      "Txid": "d424fbdef9af5f0a1685fb989b86ea286b68a684c5c71ada477257838f3a72fc",
+                      "Updated": "2018-09-13T06:30:53+08:00",
+                      "TotalOutput": "0.10518085000000000628350704801050596870481967926025390625",
+                      "TotalInput": "0.10523865999999999776282066932253655977547168731689453125",
+                      "Fee": "0.000057809999999991479313621312030591070652008056640625",
+                      "Pay": 0,
+                      "BlockHash": "0000000000000000002308b1c0c6f3f7701895cb2e820ed417d8ecf4d94e66a4",
+                      "Height": 538691,
+                      "ConfirmTime": 1535356122,
+                      "Value": 0.03072575,
+                      "Comment": "中"
+                    },
+                    {
+                      "Id": 1,
+                      "Addr": "3GdbTnkNosDck7tcqPjwQTvDqMuKFGb68N",
+                      "Txid": "d424fbdef9af5f0a1685fb989b86ea286b68a684c5c71ada477257838f3a72fc",
+                      "Updated": "2018-09-13T06:30:53+08:00",
+                      "TotalOutput": "0.10518085000000000628350704801050596870481967926025390625",
+                      "TotalInput": "0.10523865999999999776282066932253655977547168731689453125",
+                      "Fee": "0.000057809999999991479313621312030591070652008056640625",
+                      "Pay": 1,
+                      "BlockHash": "0000000000000000002308b1c0c6f3f7701895cb2e820ed417d8ecf4d94e66a4",
+                      "Height": 538691,
+                      "ConfirmTime": 1535356122,
+                      "Value": 0.07477254,
+                      "Comment": "中"
+                    }
+                  ],
+                  "size": 4
+                },
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "/totalsum": {
+      "get": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "钱包所有币种总价值 单位是cny",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "examples": {
+              "one": {
+                "result": "121",
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "/unspent/btc": {
+      "get": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "获取btc的未花费的vin",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "examples": {
+              "one": {
+                "result": [
+                  {
+                    "Id": 2,
+                    "Txid": "d424fbdef9af5f0a1685fb989b86ea286b68a684c5c71ada477257838f3a72fc",
+                    "Spent": 0,
+                    "SpentTxid": "",
+                    "Index": 1,
+                    "Value": "0.0307257499999999995898836147034671739675104618072509765625",
+                    "Address": "3GdbTnkNosDck7tcqPjwQTvDqMuKFGb68N",
+                    "Updated": "2018-09-13T06:30:53+08:00",
+                    "BlockHash": "0000000000000000002308b1c0c6f3f7701895cb2e820ed417d8ecf4d94e66a4",
+                    "Height": 538691
+                  },
+                  {
+                    "Id": 1394,
+                    "Txid": "057bb916cde29a8f472f3eccb40a4259d9e0243aeaedd8d46ae53b0f4f267abd",
+                    "Spent": 0,
+                    "SpentTxid": "",
+                    "Index": 1,
+                    "Value": "4.19517168999999956469082462717778980731964111328125",
+                    "Address": "3GdbTnkNosDck7tcqPjwQTvDqMuKFGb68N",
+                    "Updated": "2018-09-13T06:31:03+08:00",
+                    "BlockHash": "0000000000000000002308b1c0c6f3f7701895cb2e820ed417d8ecf4d94e66a4",
+                    "Height": 538691
+                  }
+                ],
+                "status": 0,
+                "version": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rawtx/btc": {
+      "post": {
+        "tags": [
+          "gembackend"
+        ],
+        "summary": "发送btc交易",
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "amount",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "raw",
+            "in": "query",
+            "description": "原文",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "fee",
+            "in": "query",
+            "description": "fee",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "from addr",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "to addr",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "note",
+            "in": "query",
+            "description": "备注",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "vin",
+            "in": "query",
+            "description": "unspend接口获得的数据结构在发给我 只要result里的内容",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "wallet_id",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "change",
+            "in": "query",
+            "description": "找零地址",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "examples": {
+              "one": {
+                "result": "success",
                 "status": 0,
                 "version": 1
               }

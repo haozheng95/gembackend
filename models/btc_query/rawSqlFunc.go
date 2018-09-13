@@ -16,9 +16,15 @@ func InsertAddress(data []*AddressBtc) {
 	}
 }
 
-func GetTxs(walletId string, size, index int) (res []*TradeCollection, r int64) {
+type Txs struct {
+	TradeCollection
+	Comment string
+}
+
+func GetTxs(walletId string, size, index int) (res []*Txs, r int64) {
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("t1.*").From("trade_collection as t1").LeftJoin("address_btc as t2").On("t1.addr=t2.addr").
+	qb.Select("t1.*,t3.comment").From("trade_collection as t1").LeftJoin("address_btc as t2").
+		On("t1.addr=t2.addr").LeftJoin("tx_extra_info_btc as t3").On("t1.txid=t3.tx_hash").
 		Where("t2.wallet_id=?").OrderBy("id").Desc().Limit(size).Offset(index)
 	o := orm.NewOrm()
 	o.Using(databases)
@@ -204,11 +210,11 @@ func InsertMulTradingParticulars(data []*TradingParticulars) (err error) {
 		if end > long {
 			end = long
 		}
-		log.Debug("insert TradingParticulars start === ", start)
-		log.Debug("insert TradingParticulars end   === ", end)
+		//log.Debug("insert TradingParticulars start === ", start)
+		//log.Debug("insert TradingParticulars end   === ", end)
 
-		if num, err := o.InsertMulti(end-start, data[start:end]); err == nil {
-			log.Infof("TradingParticulars insert row : %d", num)
+		if _, err := o.InsertMulti(end-start, data[start:end]); err == nil {
+			//log.Infof("TradingParticulars insert row : %d", num)
 		} else {
 			log.Errorf("TradingParticulars insert error : %s", err)
 			break
@@ -231,11 +237,11 @@ func InsertMulTradeCollection(data []*TradeCollection) (err error) {
 		if end > long {
 			end = long
 		}
-		log.Debug("insert TradeCollection start === ", start)
-		log.Debug("insert TradeCollection end   === ", end)
+		//log.Debug("insert TradeCollection start === ", start)
+		//log.Debug("insert TradeCollection end   === ", end)
 
-		if num, err := o.InsertMulti(end-start, data[start:end]); err == nil {
-			log.Infof("insert row : %d", num)
+		if _, err := o.InsertMulti(end-start, data[start:end]); err == nil {
+			//log.Infof("insert row : %d", num)
 		} else {
 			log.Errorf("insert error : %s", err)
 			break
@@ -259,11 +265,11 @@ func InsertMulUnspentVout(data []*UnspentVout) (err error) {
 		if end > long {
 			end = long
 		}
-		log.Debug("insert UnspentVout start === ", start)
-		log.Debug("insert UnspentVout end   === ", end)
+		//log.Debug("insert UnspentVout start === ", start)
+		//log.Debug("insert UnspentVout end   === ", end)
 
-		if num, err := o.InsertMulti(end-start, data[start:end]); err == nil {
-			log.Infof("insert row : %d", num)
+		if _, err := o.InsertMulti(end-start, data[start:end]); err == nil {
+			//log.Infof("insert row : %d", num)
 		} else {
 			log.Errorf("insert error : %s", err)
 			log.Debug(err == nil)

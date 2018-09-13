@@ -36,7 +36,7 @@ func AccountUpdate(addr string) {
 		v, _ := decimal.NewFromString(value.Value)
 		amount.Add(v)
 	}
-	log.Debug(amount.String())
+	//log.Debug(amount.String())
 	err := btc_query.UpdateAddr(addr, amount.String())
 	if err != nil {
 		log.Warning(err)
