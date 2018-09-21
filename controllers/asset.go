@@ -28,8 +28,9 @@ func (a *AssetController) Get() {
 	sizeInt, _ := strconv.Atoi(size)
 
 	result := make([]*assertControllerResponse, 0, 10)
-	st := new(assertControllerResponse)
+
 	if beginInt == 0 {
+		st := new(assertControllerResponse)
 		ethData := eth_query.GetEthInfoByWalletId(walletId)
 		cny := exchange.GetMainChainCnyByCoinName("eth")
 		amount := SubString(ethData.Amount, ethData.UnconfirmAmount)
@@ -46,13 +47,14 @@ func (a *AssetController) Get() {
 	}
 	ethTokenData := eth_query.GetAllTokenInfoWithUser(walletId, beginInt, sizeInt)
 	for _, v := range ethTokenData {
+		st := new(assertControllerResponse)
 		amount := SubString(v.Amount, v.UnconfirmAmount)
 		cny := exchange.GetEthTokenCnyByContractAddr(v.ContractAddr)
 		st.Istoken = "1"
 		st.Dec = v.Decimal
 		st.Price = MulString(cny, amount)
-		st.Amount = amount
 		st.Coin = v.TokenName
+		//log.Debug(st.Coin)
 		st.ContractAddr = v.ContractAddr
 		result = append(result, st)
 	}
